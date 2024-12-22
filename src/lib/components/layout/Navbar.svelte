@@ -25,7 +25,7 @@
       <!-- Logo Section -->
       <div class="flex items-center">
         <a href="/" class="flex items-center text-white">
-          <img src="assets/logo_light.png" alt="College Predictor Logo" class="h-8 w-8 mr-2" />
+          <img src="assets/logo_light.webp" alt="College Predictor Logo" class="h-8 w-8 mr-2" />
           <span class="text-2xl font-bold">College Predictor</span>
         </a>
       </div>
