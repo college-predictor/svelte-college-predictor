@@ -1,119 +1,258 @@
 <script lang="ts">
-    import { writable } from 'svelte/store';
-  
-    // Reactive values for form inputs
-    let examType = writable('jee_mains');
-    let category = writable('general');
-    let gender = writable('male');
-    let disability = writable('non_pwd');
-    let mainsRank = writable('');
-    let mainsCategoryRank = writable('');
-    let advanceRank = writable('');
-    let advanceCategoryRank = writable('');
-    let state = writable('rajasthan');
-  
-    // Handle reset
-    const resetForm = () => {
-      examType.set('jee_mains');
-      category.set('general');
-      gender.set('male');
-      disability.set('non_pwd');
-      mainsRank.set('');
-      mainsCategoryRank.set('');
-      advanceRank.set('');
-      advanceCategoryRank.set('');
-      state.set('rajasthan');
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher();
+
+  // JEE Details Form State
+  let gender = 'Male'; // Default value
+  let category = 'OPEN';
+  let mainsGenRank = '';
+  let mainsCatRank = '';
+  let showAdvancedRanks = false;
+  let advGenRank = '';
+  let advCatRank = '';
+  let year = '2024';
+  let margin = '0.1'; // Default 10%
+
+  // Rank Converter Form State
+  let genRank = '';
+  let convertedRanks: any = [];
+
+  // Helper to determine if category is 'OPEN'
+  $: isCategoryOpen = category === 'OPEN' || category === 'OPEN (PwD)';
+
+  // Handle JEE Form Submission
+  const submitJeeForm = (e: any) => {
+    e.preventDefault();
+    // Handle form submission logic here
+    const formData = {
+      gender,
+      category,
+      mainsGenRank: mainsGenRank || null,
+      mainsCatRank: !isCategoryOpen ? (mainsCatRank || null) : null,
+      advancedRanks: showAdvancedRanks
+        ? {
+            advGenRank: advGenRank || null,
+            advCatRank: !isCategoryOpen ? (advCatRank || null) : null,
+          }
+        : null,
+      year,
+      margin,
     };
-  
-    // Handle submit
-    const handleSubmit = () => {
-      // Add your submit logic here
-      console.log({
-        examType,
-        category,
-        gender,
-        disability,
-        mainsRank,
-        mainsCategoryRank,
-        advanceRank,
-        advanceCategoryRank,
-        state,
-      });
-    };
-  </script>
-  
-  <section class="p-8 max-w-2xl mx-auto bg-white rounded-lg shadow-lg">
-    <h1 class="text-3xl font-bold mb-2 text-black">JOSAA College Predictor</h1>
-    <p class="text-gray-500 mb-4">No Login Required!!</p>
-  
-    <!-- Exam Type Toggle -->
-    <div class="flex justify-center space-x-4 mb-4">
-      <button class="px-4 py-2 rounded-lg bg-black text-white" on:click={() => examType.set('jee_mains')}>JEE Mains</button>
-      <button class="px-4 py-2 rounded-lg bg-gray-200" on:click={() => examType.set('jee_mains_adv')}>JEE (Mains Adv.)</button>
-      <button class="px-4 py-2 rounded-lg bg-gray-200" on:click={() => examType.set('neet')}>NEET</button>
-    </div>
-  
-    <!-- Category Toggle -->
-    <div class="flex justify-center space-x-2 mb-4">
-      <button class="px-4 py-2 rounded-lg bg-black text-white" on:click={() => category.set('general')}>General</button>
-      <button class="px-4 py-2 rounded-lg bg-gray-200" on:click={() => category.set('obc_ncl')}>OBC-NCL</button>
-      <button class="px-4 py-2 rounded-lg bg-gray-200" on:click={() => category.set('sc')}>SC</button>
-      <button class="px-4 py-2 rounded-lg bg-gray-200" on:click={() => category.set('st')}>ST</button>
-      <button class="px-4 py-2 rounded-lg bg-gray-200" on:click={() => category.set('pwd')}>PwD</button>
-    </div>
-  
-    <!-- Gender Toggle -->
-    <div class="flex justify-center space-x-4 mb-4">
-      <button class="px-4 py-2 rounded-lg bg-black text-white" on:click={() => gender.set('male')}>Male</button>
-      <button class="px-4 py-2 rounded-lg bg-gray-200" on:click={() => gender.set('female')}>Female</button>
-    </div>
-  
-    <!-- Disability Toggle -->
-    <div class="flex justify-center space-x-4 mb-4">
-      <button class="px-4 py-2 rounded-lg bg-black text-white" on:click={() => disability.set('pwd')}>PwD</button>
-      <button class="px-4 py-2 rounded-lg bg-gray-200" on:click={() => disability.set('non_pwd')}>Non-PwD</button>
-    </div>
-  
-    <!-- Input Fields for Ranks -->
-    <div class="grid grid-cols-2 gap-4 mb-4">
-      <div>
-        <label class="block text-gray-700 mb-2">Mains Rank</label>
-        <input type="number" bind:value={$mainsRank} class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" placeholder="1000">
+    console.log('JEE Form Data:', formData);
+    // You can dispatch an event or perform other actions as needed
+    dispatch('submitJeeForm', formData);
+  };
+
+  // Handle Rank Converter Submission
+  const convertRank = (e: any) => {
+    e.preventDefault();
+    // Example conversion logic (replace with actual logic)
+    if (genRank) {
+      const converted = {
+        categoryRank: parseInt(genRank) * 1.1, // Example conversion
+      };
+      convertedRanks = [converted];
+      console.log('Converted Ranks:', convertedRanks);
+      dispatch('convertRank', convertedRanks);
+    }
+  };
+</script>
+
+<!-- JEE Details Section -->
+<section class="py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-black m-2 sm:m-4">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-lg shadow-md p-6 sm:p-8">
+      
+      <!-- JEE Details Header -->
+      <div class="bg-yellow-400 text-indigo-700 text-center py-2 rounded-t-lg mb-4">
+        <h2 class="text-xl font-semibold">JEE Details</h2>
       </div>
-      <div>
-        <label class="block text-gray-700 mb-2">Mains Category Rank</label>
-        <input type="number" bind:value={$mainsCategoryRank} class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" placeholder="50000">
-      </div>
-      <div>
-        <label class="block text-gray-700 mb-2">Advance Rank</label>
-        <input type="number" bind:value={$advanceRank} class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" placeholder="1000">
-      </div>
-      <div>
-        <label class="block text-gray-700 mb-2">Advance Category Rank</label>
-        <input type="number" bind:value={$advanceCategoryRank} class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" placeholder="1000">
-      </div>
+      
+      <!-- JEE Details Form -->
+      <form on:submit={submitJeeForm} class="space-y-4">
+        
+        <!-- First Row: Gender and Category -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          
+          <!-- Gender Selection -->
+          <div>
+            <label for="inputGenderSelect" class="block text-gray-700 font-medium mb-1">Gender</label>
+            <select 
+              id="inputGenderSelect" 
+              class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              bind:value={gender}
+            >
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          
+          <!-- Category Selection -->
+          <div>
+            <label for="inputCategorySelect" class="block text-gray-700 font-medium mb-1">Category</label>
+            <select 
+              id="inputCategorySelect" 
+              class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              bind:value={category}
+            >
+              <option value="OPEN">OPEN</option>
+              <option value="OPEN (PwD)">OPEN (PwD)</option>
+              <option value="EWS">EWS</option>
+              <option value="EWS (PwD)">EWS (PwD)</option>
+              <option value="OBC-NCL">OBC-NCL</option>
+              <option value="OBC-NCL (PwD)">OBC-NCL (PwD)</option>
+              <option value="SC">SC</option>
+              <option value="SC (PwD)">SC (PwD)</option>
+              <option value="ST">ST</option>
+              <option value="ST (PwD)">ST (PwD)</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Second Row: Mains Ranks -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          
+          <!-- Mains General Rank -->
+          <div>
+            <label for="inputMainsGeneralRank" class="block text-gray-700 font-medium mb-1">Mains General Rank</label>
+            <input
+              id="inputMainsGeneralRank"
+              type="number"
+              placeholder="Optional"
+              class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              bind:value={mainsGenRank}
+            />
+          </div>
+          
+          <!-- Mains Category Rank (Visible only if Category is not OPEN) -->
+          {#if !isCategoryOpen}
+            <div class="fade-in">
+              <label for="inputMainsCategoryRank" class="block text-gray-700 font-medium mb-1">Mains Category Rank</label>
+              <input
+                id="inputMainsCategoryRank"
+                type="number"
+                placeholder="Optional"
+                class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                bind:value={mainsCatRank}
+              />
+            </div>
+          {/if}
+        </div>
+        
+        <hr class="border-gray-300">
+        
+        <!-- Toggle for Advanced Ranks -->
+        <div class="flex items-center">
+          <input
+            type="checkbox"
+            id="toggleAdvanced"
+            class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+            bind:checked={showAdvancedRanks}
+          />
+          <label for="toggleAdvanced" class="ml-2 text-gray-700 font-medium">
+            Enter Advanced Ranks
+          </label>
+        </div>
+        
+        <!-- Third Row: Advanced Ranks (Visible only if Toggle is On) -->
+        {#if showAdvancedRanks}
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2 fade-in">
+            
+            <!-- Advanced General Rank -->
+            <div>
+              <label for="inputAdvancedGeneralRank" class="block text-gray-700 font-medium mb-1">Advanced General Rank</label>
+              <input
+                id="inputAdvancedGeneralRank"
+                type="number"
+                placeholder="Optional"
+                class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                bind:value={advGenRank}
+              />
+            </div>
+            
+            <!-- Advanced Category Rank (Visible only if Category is not OPEN) -->
+            {#if !isCategoryOpen}
+              <div class="fade-in">
+                <label for="inputAdvancedCategoryRank" class="block text-gray-700 font-medium mb-1">Advanced Category Rank</label>
+                <input
+                  id="inputAdvancedCategoryRank"
+                  type="number"
+                  placeholder="Optional"
+                  class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  bind:value={advCatRank}
+                />
+              </div>
+            {/if}
+          </div>
+        {/if}
+        
+        <hr class="border-gray-300">
+        
+        <!-- Fourth Row: Year and Margin -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          
+          <!-- Year Selection -->
+          <div>
+            <label for="inputYearSelect" class="block text-gray-700 font-medium mb-1">Year</label>
+            <select 
+              id="inputYearSelect" 
+              class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              bind:value={year}
+            >
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+              <option value="2019">2019</option>
+              <option value="2018">2018</option>
+              <option value="2017">2017</option>
+              <option value="2016">2016</option>
+            </select>
+          </div>
+          
+          <!-- Margin Selection -->
+          <div>
+            <label for="inputMarginSelect" class="block text-gray-700 font-medium mb-1">Rank Margin</label>
+            <select 
+              id="inputMarginSelect" 
+              class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              bind:value={margin}
+            >
+              <option value="0.05">5%</option>
+              <option value="0.1">10% (Default)</option>
+              <option value="0.15">15%</option>
+              <option value="0.2">20%</option>
+              <option value="0.25">25%</option>
+              <option value="0.3">30%</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="text-center">
+          <button
+            type="submit"
+            class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition duration-300"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
+      
     </div>
-  
-    <!-- State Dropdown -->
-    <div class="mb-4">
-      <label class="block text-gray-700 mb-2">State</label>
-      <select bind:value={$state} class="block w-full mt-1 border-gray-300 focus:border-indigo-500 rounded-md shadow-sm">
-        <option value="rajasthan">Rajasthan</option>
-        <option value="delhi">Delhi</option>
-        <option value="maharashtra">Maharashtra</option>
-        <option value="tamil_nadu">Tamil Nadu</option>
-        <!-- Add more states as needed -->
-      </select>
-    </div>
-  
-    <!-- Action Buttons -->
-    <div class="flex justify-between items-center">
-      <button type="button" class="text-gray-600 font-semibold" on:click={resetForm}>Reset</button>
-      <button type="button" class="bg-black text-white px-6 py-2 rounded-lg" on:click={handleSubmit}>PREDICT</button>
-    </div>
-  </section>
-  
-  <style>
-    /* Additional styles can be added here for responsiveness or further customization */
-  </style>
-  
+  </div>
+</section>
+
+<style>
+  /* Optional: Add any custom styles here */
+  .fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
