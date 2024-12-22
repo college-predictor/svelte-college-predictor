@@ -1,24 +1,76 @@
-test-results
-node_modules
-
-# Output
-.output
+# Build and output directories
+.svelte-kit
+/build
+/output
 .vercel
 .netlify
 .wrangler
-/.svelte-kit
-/build
 
-# OS
+# Node modules
+node_modules
+
+# Test results
+test-results
+coverage/
+
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Env
+# Environment variables
 .env
 .env.*
 !.env.example
 !.env.test
 
-# Vite
+# Vite-specific
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Editor and IDE-specific
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs and debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.vitest/
+jest-cache/
+jest-html-reporters-*
+
+# Dependency directories
+.pnp
+.pnp.js
+.yarn-integrity
+.yarn/cache/
+.yarn/patches/
+.yarn/releases/
+.yarn/plugins/
+.yarn/sdks/
+.yarn/versions/
+
+# Lockfiles (if specific package manager isn't used consistently)
+# Uncomment if using only one package manager to avoid issues with the others
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# System and CLI-specific files
+*.log
+*.gz
+*.tgz
+
+# Cache directories
+.cache/
+tmp/
+temp/
+
+# Specific build tools and frameworks
+dist/
+public/
+.static/
