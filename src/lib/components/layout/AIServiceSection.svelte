@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { faGraduationCap, faBookOpen, faClipboardList, faUniversity, faUserGraduate } from '@fortawesome/free-solid-svg-icons';
+    import { faBookOpen, faClipboardList, faUniversity, faUserGraduate } from '@fortawesome/free-solid-svg-icons';
     import ServiceCard from '../ServiceCard.svelte';
   
     const services = [
