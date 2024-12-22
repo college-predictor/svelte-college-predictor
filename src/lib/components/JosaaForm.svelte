@@ -1,8 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
-
-  const dispatch = createEventDispatcher();
-
   // JEE Details Form State
   let gender = 'Male'; // Default value
   let category = 'OPEN';
@@ -13,13 +9,10 @@
   let advCatRank = '';
   let year = '2024';
   let margin = '0.1'; // Default 10%
-
-  // Rank Converter Form State
-  let genRank = '';
-  let convertedRanks: any = [];
+  let state = 'rajasthan'; // Default State
 
   // Helper to determine if category is 'OPEN'
-  $: isCategoryOpen = category === 'OPEN' || category === 'OPEN (PwD)';
+  $: isCategoryOpen = category === 'OPEN';
 
   // Handle JEE Form Submission
   const submitJeeForm = (e: any) => {
@@ -28,6 +21,7 @@
     const formData = {
       gender,
       category,
+      state, // Include state in form data
       mainsGenRank: mainsGenRank || null,
       mainsCatRank: !isCategoryOpen ? (mainsCatRank || null) : null,
       advancedRanks: showAdvancedRanks
@@ -40,29 +34,13 @@
       margin,
     };
     console.log('JEE Form Data:', formData);
-    // You can dispatch an event or perform other actions as needed
-    dispatch('submitJeeForm', formData);
-  };
-
-  // Handle Rank Converter Submission
-  const convertRank = (e: any) => {
-    e.preventDefault();
-    // Example conversion logic (replace with actual logic)
-    if (genRank) {
-      const converted = {
-        categoryRank: parseInt(genRank) * 1.1, // Example conversion
-      };
-      convertedRanks = [converted];
-      console.log('Converted Ranks:', convertedRanks);
-      dispatch('convertRank', convertedRanks);
-    }
   };
 </script>
 
 <!-- JEE Details Section -->
-<section class="py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-black m-2 sm:m-4">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="bg-white rounded-lg shadow-md p-6 sm:p-8">
+<section class="text-black m-2 sm:m-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-6 sm:p-8 bg-gradient-to-r from-blue-200 to-indigo-300">
       
       <!-- JEE Details Header -->
       <div class="bg-yellow-400 text-indigo-700 text-center py-2 rounded-t-lg mb-4">
@@ -72,8 +50,8 @@
       <!-- JEE Details Form -->
       <form on:submit={submitJeeForm} class="space-y-4">
         
-        <!-- First Row: Gender and Category -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- First Row: Gender, Category, and State -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           
           <!-- Gender Selection -->
           <div>
@@ -106,6 +84,22 @@
               <option value="SC (PwD)">SC (PwD)</option>
               <option value="ST">ST</option>
               <option value="ST (PwD)">ST (PwD)</option>
+            </select>
+          </div>
+          
+          <!-- State Dropdown -->
+          <div>
+            <label for="inputStateSelect" class="block text-gray-700 font-medium mb-1">State</label>
+            <select 
+              id="inputStateSelect" 
+              class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              bind:value={state}
+            >
+              <option value="rajasthan">Rajasthan</option>
+              <option value="delhi">Delhi</option>
+              <option value="maharashtra">Maharashtra</option>
+              <option value="tamil_nadu">Tamil Nadu</option>
+              <!-- Add more states as needed -->
             </select>
           </div>
         </div>

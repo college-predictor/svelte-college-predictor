@@ -1,6 +1,4 @@
 <script>
-  import { onMount } from 'svelte';
-
   let isMenuOpen = false;
 
   const links = [
@@ -72,7 +70,7 @@
               </button>
             </a>
           </li>
-          <li>
+          <!-- <li>
             <a href="/login" class="text-white hover:text-yellow-300 transition duration-300 font-medium">
               Login
             </a>
@@ -83,7 +81,7 @@
                 Sign Up
               </button>
             </a>
-          </li>
+          </li> -->
         </ul>
       </div>
 

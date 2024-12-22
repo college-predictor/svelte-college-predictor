@@ -1,4 +1,4 @@
-<footer class="bg-gray-800 text-white py-8 mt-12">
+<footer class="bg-gray-800 text-white py-8">
     <div class="container mx-auto text-center">
       <p class="text-sm">&copy; {new Date().getFullYear()} College Predictor. All rights reserved.</p>
       <div class="mt-4">
