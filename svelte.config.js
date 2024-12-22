@@ -13,22 +13,22 @@ const config = {
 		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
 		
 		// With SSR 
-		adapter: adapter({
-			// default options are shown
-			out: 'build',
-			precompress: false,
-			envPrefix: '',
-		  })
-
-		// Without SSR 
 		// adapter: adapter({
 		// 	// default options are shown
-		// 	pages: 'build',
-		// 	assets: 'build',
-		// 	fallback: 'index.html', // Enables SPA mode
+		// 	out: 'build',
 		// 	precompress: false,
-		// 	strict: true
+		// 	envPrefix: '',
 		//   })
+
+		// Without SSR 
+		adapter: adapter({
+			// default options are shown
+			pages: 'build',
+			assets: 'build',
+			fallback: 'index.html', // Enables SPA mode
+			precompress: false,
+			strict: true
+		  })
 	}
 };
 
