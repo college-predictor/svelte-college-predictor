@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { goto } from '$app/navigation'; // Import the goto function
+
   // JEE Details Form State
   let gender = 'Male'; // Default value
   let category = 'OPEN';
@@ -17,25 +19,27 @@
   // Handle JEE Form Submission
   const submitJeeForm = (e: any) => {
     e.preventDefault();
-    // Handle form submission logic here
+
+    // Collect form data
     const formData = {
       gender,
       category,
       state, // Include state in form data
       mainsGenRank: mainsGenRank || null,
       mainsCatRank: !isCategoryOpen ? (mainsCatRank || null) : null,
-      advancedRanks: showAdvancedRanks
-        ? {
-            advGenRank: advGenRank || null,
-            advCatRank: !isCategoryOpen ? (advCatRank || null) : null,
-          }
-        : null,
+      advGenRank: advGenRank || null,
+      advCatRank: !isCategoryOpen ? (advCatRank || null) : null,
       year,
       margin,
     };
+
     console.log('JEE Form Data:', formData);
+
+    // Redirect to the college list page
+    goto('/college-list'); // Redirects to /college-list
   };
 </script>
+
 
 <!-- JEE Details Section -->
 <section class="text-black m-2 sm:m-4">
