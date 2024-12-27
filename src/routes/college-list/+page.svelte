@@ -133,6 +133,10 @@
         seatType: '',
       };
     }
+
+    // New Fields
+    let year = '2024'; // Default Year
+    let margin = '0.1'; // Default Margin
 </script>
 
 
@@ -142,18 +146,50 @@
         <!-- Header -->
         <div class="flex p-2 px-6 font-bold rounded-lg shadow-md justify-between items-center" style="background: #5d5d5b;">
             <h1 class="text-2xl font-bold text-white">NIT Colleges</h1>
-            <button
-                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                on:click={() => { /* Implement filter modal or sidebar if needed */ }}
-            >
-                Apply Filters
-            </button>
         </div>
       
         <!-- Filter Section -->
         <div class="my-4 p-4 bg-gray-100 rounded-lg shadow-md">
             <h2 class="text-xl font-semibold mb-2">Filter Colleges</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+                <!-- Year Selection -->
+                <div>
+                    <label for="inputYearSelect" class="block text-sm font-medium text-gray-700">Year</label>
+                    <select 
+                    id="inputYearSelect" 
+                    bind:value={year} 
+                    class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    >
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                    <option value="2019">2019</option>
+                    <option value="2018">2018</option>
+                    <option value="2017">2017</option>
+                    <option value="2016">2016</option>
+                    </select>
+                </div>
+            
+                <!-- Rank Margin -->
+                <div>
+                    <label for="inputMarginSelect" class="block text-sm font-medium text-gray-700">Rank Margin</label>
+                    <select 
+                    id="inputMarginSelect" 
+                    bind:value={margin} 
+                    class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    >
+                    <option value="0.05">5%</option>
+                    <option value="0.1">10% (Default)</option>
+                    <option value="0.15">15%</option>
+                    <option value="0.2">20%</option>
+                    <option value="0.25">25%</option>
+                    <option value="0.3">30%</option>
+                    </select>
+                </div>
+
                 <!-- NIRF Ranking Filter -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Max NIRF Ranking</label>

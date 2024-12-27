@@ -185,49 +185,6 @@
           </div>
         {/if}
         
-        <hr class="border-gray-300">
-        
-        <!-- Fourth Row: Year and Margin -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          
-          <!-- Year Selection -->
-          <div>
-            <label for="inputYearSelect" class="block text-gray-700 font-medium mb-1">Year</label>
-            <select 
-              id="inputYearSelect" 
-              class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              bind:value={year}
-            >
-              <option value="2024">2024</option>
-              <option value="2023">2023</option>
-              <option value="2022">2022</option>
-              <option value="2021">2021</option>
-              <option value="2020">2020</option>
-              <option value="2019">2019</option>
-              <option value="2018">2018</option>
-              <option value="2017">2017</option>
-              <option value="2016">2016</option>
-            </select>
-          </div>
-          
-          <!-- Margin Selection -->
-          <div>
-            <label for="inputMarginSelect" class="block text-gray-700 font-medium mb-1">Rank Margin</label>
-            <select 
-              id="inputMarginSelect" 
-              class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              bind:value={margin}
-            >
-              <option value="0.05">5%</option>
-              <option value="0.1">10% (Default)</option>
-              <option value="0.15">15%</option>
-              <option value="0.2">20%</option>
-              <option value="0.25">25%</option>
-              <option value="0.3">30%</option>
-            </select>
-          </div>
-        </div>
-        
         <!-- Submit Button -->
         <div class="text-center">
           <button
