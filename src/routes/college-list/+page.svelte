@@ -1,18 +1,29 @@
 <!-- src/components/CollegeList.svelte -->
 <script lang="ts">
-
+    import { onMount } from 'svelte';
+    import { page } from '$app/stores';
+    import { get } from 'svelte/store';
+	import type { json } from '@sveltejs/kit';
+  
+    // Define ContactInfo interface
     interface ContactInfo {
       phone: string;
       email: string;
       address: string;
     }
-
+  
+    // Define College interface based on your example
     interface College {
       id: number;
       courseName: string;
       courseType: string;
+      collegeType: string; // Updated from 'category' to 'collegeType'
       collegeName: string;
-      seatType: string;
+      instituteCode: number; // Added instituteCode
+      state: string;
+      gender: string;
+      quota: string;
+      category: string;
       openingRank: number;
       closingRank: number;
       profileImage: string;
@@ -24,58 +35,18 @@
       aiSummary: string;
       contactInfo: ContactInfo;
     }
-
-    let colleges: College[] = [
-      {
-        id: 1,
-        courseName: 'Computer Science',
-        courseType: 'B.Tech',
-        collegeName: 'Indian Institute of Technology Delhi',
-        seatType: 'Open',
-        openingRank: 5,
-        closingRank: 250,
-        profileImage: 'https://placehold.co/300x300',
-        avgPkg: '12 LPA',
-        nirfRanking: 3,
-        placementRating: 4.5,
-        collegeLifeRating: 4.2,
-        campusRating: 4.7,
-        aiSummary: 'IIT Delhi is renowned for its excellent academic environment and robust placement opportunities, offering state-of-the-art facilities and a vibrant campus life.',
-        contactInfo: {
-          phone: '+91-11-12345678',
-          email: 'admissions@iitd.ac.in',
-          address: 'Hauz Khas, New Delhi, Delhi 110016',
-        },
-      },
-      {
-        id: 2,
-        courseName: 'Mechanical Engineering',
-        courseType: 'B.Tech',
-        collegeName: 'Indian Institute of Technology Bombay',
-        seatType: 'Open',
-        openingRank: 10,
-        closingRank: 300,
-        profileImage: 'https://placehold.co/300x300',
-        avgPkg: '11 LPA',
-        nirfRanking: 4,
-        placementRating: 4.3,
-        collegeLifeRating: 4.0,
-        campusRating: 4.5,
-        aiSummary: 'IIT Bombay offers a dynamic learning atmosphere with strong industry connections, ensuring excellent placement rates and a supportive student community.',
-        contactInfo: {
-          phone: '+91-22-87654321',
-          email: 'admissions@iitb.ac.in',
-          address: 'Powai, Mumbai, Maharashtra 400076',
-        },
-      },
-      // Add more college objects here
-    ];
-
-    type SortColumn = 'courseName' | 'collegeName' | 'seatType' | 'openingRank' | 'closingRank' | 'nirfRanking';
-
+  
+    // Initialize colleges as an empty array
+    let iit_colleges: College[] = [];
+    let nit_colleges: College[] = [];
+    let iiit_colleges: College[] = [];
+    let gfti_colleges: College[] = [];
+  
+    type SortColumn = 'courseName' | 'collegeName' | 'category' | 'openingRank' | 'closingRank' | 'nirfRanking';
+  
     let sortBy: SortColumn = 'collegeName';
     let sortOrder: 'asc' | 'desc' = 'asc';
-
+  
     function sortData(column: SortColumn): void {
       if (sortBy === column) {
         sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
@@ -83,96 +54,131 @@
         sortBy = column;
         sortOrder = 'asc';
       }
-
-      colleges = [...colleges].sort((a, b) => {
+  
+      nit_colleges = [...nit_colleges].sort((a, b) => {
         let valA: any = a[column];
         let valB: any = b[column];
-
+  
         if (typeof valA === 'string') {
           valA = valA.toLowerCase();
           valB = valB.toLowerCase();
         }
-
+  
         if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
         if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
         return 0;
       });
     }
-
+  
     let expandedRow: number | null = null;
-
+  
     function toggleExpand(collegeId: number): void {
       expandedRow = expandedRow === collegeId ? null : collegeId;
     }
-
+  
     // Filtering
     let filters = {
       nirfRanking: '',
       placementRating: '',
       collegeLifeRating: '',
       campusRating: '',
-      seatType: '',
+      collegeType: '',
+      quota: ''
     };
-
+  
     function applyFilters(college: College): boolean {
       return (
         (filters.nirfRanking === '' || college.nirfRanking <= Number(filters.nirfRanking)) &&
         (filters.placementRating === '' || college.placementRating >= Number(filters.placementRating)) &&
         (filters.collegeLifeRating === '' || college.collegeLifeRating >= Number(filters.collegeLifeRating)) &&
         (filters.campusRating === '' || college.campusRating >= Number(filters.campusRating)) &&
-        (filters.seatType === '' || college.seatType === filters.seatType)
+        (filters.collegeType === '' || college.collegeType === filters.collegeType)
       );
     }
-
+  
     function resetFilters(): void {
       filters = {
         nirfRanking: '',
         placementRating: '',
         collegeLifeRating: '',
         campusRating: '',
-        seatType: '',
+        collegeType: '',
+        quota: ''
       };
     }
-
+  
     // New Fields
     let year = '2024'; // Default Year
     let margin = '0.1'; // Default Margin
-</script>
+  
+    // Fetch colleges data from FastAPI
+    onMount(async () => {
+      try {
+        // Access the current page's URL
+        const currentPage = get(page);
+        const url = new URL(currentPage.url);
+        const params = url.searchParams;
+  
+        // Extract query parameters
+        const queryParams: Record<string, string | number | undefined> = {
+            mains_gen_rank: params.get('mains_gen_rank') ? Number(params.get('mains_gen_rank')) : undefined,
+            mains_cat_rank: params.get('mains_cat_rank') ? Number(params.get('mains_cat_rank')) : undefined,
+            adv_gen_rank: params.get('adv_gen_rank') ? Number(params.get('adv_gen_rank')) : undefined,
+            adv_cat_rank: params.get('adv_cat_rank') ? Number(params.get('adv_cat_rank')) : undefined,
+            margin: params.get('margin') ? parseFloat(params.get('margin') as string) : 0.5,
+            category: params.get('category') || 'OPEN',
+            gender: params.get('gender') || 'Gender-Neutral',
+            state: params.get('state') || undefined,
+        };
+  
+        // Remove undefined values
+        Object.keys(queryParams).forEach(key => {
+          if (queryParams[key] === undefined) {
+            delete queryParams[key];
+          }
+        });
+  
+        console.log('Fetching colleges with parameters:', queryParams);
+  
+        // Construct the API URL with query parameters
+        const apiUrl = new URL('http://localhost:8000/api/colleges');
+        Object.entries(queryParams).forEach(([key, value]) => {
+          apiUrl.searchParams.append(key, value.toString());
+        });
+  
+        // Make the GET request to the FastAPI endpoint
+        const response = await fetch(apiUrl.toString());
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+  
+        const data = await response.json();
+        console.log('API Response:', data);
+  
+        // Assign nit_colleges to colleges
+        iit_colleges = data.iit_colleges;
+        nit_colleges = data.nit_colleges;
+        iiit_colleges = data.iiit_colleges;
+        gfti_colleges = data.gfti_colleges;
+        
+        // Optionally, sort the data initially
+        sortData(sortBy);
+      } catch (error) {
+        console.error('Error fetching colleges:', error);
+      }
+    });
+  </script>
 
 
 <!-- src/components/CollegeList.svelte -->
 <div class="bg-white">
     <div class="container mx-auto p-6">
-        <!-- Header -->
-        <div class="flex p-2 px-6 font-bold rounded-lg shadow-md justify-between items-center" style="background: #5d5d5b;">
-            <h1 class="text-2xl font-bold text-white">NIT Colleges</h1>
-        </div>
       
         <!-- Filter Section -->
         <div class="my-4 p-4 bg-gray-100 rounded-lg shadow-md">
             <h2 class="text-xl font-semibold mb-2">Filter Colleges</h2>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
-                <!-- Year Selection -->
-                <div>
-                    <label for="inputYearSelect" class="block text-sm font-medium text-gray-700">Year</label>
-                    <select 
-                    id="inputYearSelect" 
-                    bind:value={year} 
-                    class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                    >
-                    <option value="2024">2024</option>
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
-                    <option value="2021">2021</option>
-                    <option value="2020">2020</option>
-                    <option value="2019">2019</option>
-                    <option value="2018">2018</option>
-                    <option value="2017">2017</option>
-                    <option value="2016">2016</option>
-                    </select>
-                </div>
-            
                 <!-- Rank Margin -->
                 <div>
                     <label for="inputMarginSelect" class="block text-sm font-medium text-gray-700">Rank Margin</label>
@@ -230,15 +236,14 @@
                         <option value="5">5</option>
                     </select>
                 </div>
+
                 <!-- Seat Type Filter -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Seat Type</label>
-                    <select bind:value={filters.seatType} class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                    <select bind:value={filters.quota} class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
                         <option value="">Any</option>
-                        <option value="Open">Open</option>
-                        <option value="OBC">OBC</option>
-                        <option value="SC">SC</option>
-                        <option value="ST">ST</option>
+                        <option value="AI">All India</option>
+                        <option value="HS">Home State</option>
                     </select>
                 </div>
                 <!-- Reset Filters Button -->
@@ -253,8 +258,13 @@
             </div>
         </div>
 
+        <!-- NIT Header -->
+        <div class="flex p-2 px-6 font-bold rounded-lg shadow-md justify-between items-center" style="background: #5d5d5b;">
+            <h1 class="text-2xl font-bold text-white">NIT Colleges</h1>
+        </div>
+
         <!-- Table Header -->
-        <div class="grid grid-cols-[5fr_5fr_2fr_2fr_2fr_1fr] py-3 px-4 rounded-lg font-semibold my-4 bg-gray-200">
+        <div class="grid grid-cols-[5fr_6fr_2fr_1fr_1fr_1fr] py-3 px-4 rounded-lg font-semibold my-4 bg-gray-200">
             <!-- Course Name Column -->
             <div
                 class="flex items-center cursor-pointer"
@@ -288,13 +298,13 @@
             <!-- Seat Type Column -->
             <div
                 class="flex items-center cursor-pointer"
-                on:click={() => sortData('seatType')}
+                on:click={() => sortData('category')}
                 role="button"
                 tabindex="0"
             >
-                Seat Type
+                Category
                 <span class="ml-1">
-                    {#if sortBy === 'seatType'}
+                    {#if sortBy === 'category'}
                         {sortOrder === 'asc' ? '▲' : '▼'}
                     {/if}
                 </span>
@@ -347,12 +357,12 @@
         </div>
       
         <!-- Table Rows -->
-        {#each colleges.filter(applyFilters) as college (college.id)}
+        {#each nit_colleges.filter(applyFilters) as college (college.id)}
             <div class="relative pb-4">
       
                 <!-- Main Row -->
                 <div
-                    class={`grid grid-cols-[5fr_5fr_2fr_2fr_2fr_1fr] bg-white px-4 font-semibold text-black p-2 shadow-md rounded-lg cursor-pointer ${
+                    class={`grid grid-cols-[5fr_6fr_2fr_1fr_1fr_1fr] bg-white px-4 text-black p-2 shadow-md rounded-lg cursor-pointer ${
                         expandedRow === college.id ? 'rounded-t-lg' : 'rounded-lg'
                     }`}
                     on:click={() => toggleExpand(college.id)}
@@ -362,7 +372,7 @@
                 >
                     <div>{college.courseName} ({college.courseType})</div>
                     <div>{college.collegeName}</div>
-                    <div>{college.seatType}</div>
+                    <div>{college.category}</div>
                     <div>{college.openingRank}</div>
                     <div>{college.closingRank}</div>
                     <div>{college.nirfRanking}</div>

@@ -6,7 +6,7 @@
 
 <section 
   class="relative flex items-center justify-center bg-cover bg-center text-white px-6 lg:px-16" 
-  style="background-image: url('/assets/hero-background.webp'); min-height: calc(100vh - 80px);"
+  style="background-image: url('assets/hero-background.webp'); min-height: calc(100vh - 80px);"
 >
   <!-- Overlay for better text visibility -->
   <div class="absolute inset-0 bg-black bg-opacity-40"></div>

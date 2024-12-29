@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation'; // Import the goto function
+  import { goto } from '$app/navigation';
 
   // JEE Details Form State
   let gender = 'Male'; // Default value
@@ -9,37 +9,45 @@
   let showAdvancedRanks = false;
   let advGenRank = '';
   let advCatRank = '';
-  let year = '2024';
-  let margin = '0.1'; // Default 10%
   let state = 'rajasthan'; // Default State
 
   // Helper to determine if category is 'OPEN'
   $: isCategoryOpen = category === 'OPEN';
 
   // Handle JEE Form Submission
-  const submitJeeForm = (e: any) => {
+  const submitJeeForm = (e: Event) => {
     e.preventDefault();
 
-    // Collect form data
-    const formData = {
+    // Collect form data with snake_case keys as expected by the API
+    const formData: Record<string, string | number | null> = {
       gender,
       category,
-      state, // Include state in form data
-      mainsGenRank: mainsGenRank || null,
-      mainsCatRank: !isCategoryOpen ? (mainsCatRank || null) : null,
-      advGenRank: advGenRank || null,
-      advCatRank: !isCategoryOpen ? (advCatRank || null) : null,
-      year,
-      margin,
+      state,
+      mains_gen_rank: mainsGenRank ? Number(mainsGenRank) : null,
+      mains_cat_rank: !isCategoryOpen && mainsCatRank ? Number(mainsCatRank) : null,
+      adv_gen_rank: advGenRank ? Number(advGenRank) : null,
+      adv_cat_rank: !isCategoryOpen && advCatRank ? Number(advCatRank) : null,
     };
 
-    console.log('JEE Form Data:', formData);
+    const filteredFormData: Record<string, string | number> = {};
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        filteredFormData[key] = value;
+      }
+    });
 
-    // Redirect to the college list page
-    goto('/college-list'); // Redirects to /college-list
+    // Build query parameters
+    const params = new URLSearchParams();
+    Object.entries(filteredFormData).forEach(([key, value]) => {
+      params.append(key, value.toString());
+    });
+
+    console.log('Navigating with query params:', params.toString());
+
+    // Navigate to 'college-list' with query parameters
+    goto(`college-list?${params.toString()}`);
   };
 </script>
-
 
 <!-- JEE Details Section -->
 <section class="text-black m-2 sm:m-4">
@@ -52,7 +60,7 @@
       </div>
       
       <!-- JEE Details Form -->
-      <form on:submit={submitJeeForm} class="space-y-4">
+      <form on:submit|preventDefault={submitJeeForm} class="space-y-4">
         
         <!-- First Row: Gender, Category, and State -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
