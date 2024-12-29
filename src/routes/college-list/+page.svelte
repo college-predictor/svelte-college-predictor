@@ -135,18 +135,9 @@
   </script>
   
   <style>
-    /* Optional: Custom styles can be added here */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 1rem;
-    }
-  
-    .section-title {
-      margin-top: 2rem;
-    }
   </style>
-  
+  <div class="bg-white">
+    <div class="container mx-auto p-6">
   <div class="container bg-white">
     <!-- Filter Section -->
     <div class="my-4 p-4 bg-gray-100 rounded-lg shadow-md">
@@ -257,4 +248,5 @@
       <p class="text-center text-gray-500">No colleges found with the applied filters.</p>
     {/if}
   </div>
-  
+  </div>
+  </div>

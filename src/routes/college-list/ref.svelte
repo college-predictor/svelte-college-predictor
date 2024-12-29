@@ -1,85 +1,3 @@
-<!-- src/components/CollegeTable.svelte -->
-<script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-  
-    // Define ContactInfo interface
-    interface ContactInfo {
-      phone: string;
-      email: string;
-      address: string;
-    }
-  
-    // Define College interface based on your example
-    interface College {
-      id: number;
-      courseName: string;
-      courseType: string;
-      collegeType: string;
-      collegeName: string;
-      instituteCode: number;
-      state: string;
-      gender: string;
-      quota: string;
-      category: string;
-      openingRank: number;
-      closingRank: number;
-      profileImage: string;
-      avgPkg: string;
-      nirfRanking: number;
-      placementRating: number;
-      collegeLifeRating: number;
-      campusRating: number;
-      aiSummary: string;
-      contactInfo: ContactInfo;
-    }
-  
-    export let title: string;
-    export let colleges: College[] = [];
-  
-    type SortColumn = 'courseName' | 'collegeName' | 'category' | 'openingRank' | 'closingRank' | 'nirfRanking';
-    type SortOrder = 'asc' | 'desc';
-  
-    let sortBy: SortColumn = 'collegeName';
-    let sortOrder: SortOrder = 'asc';
-  
-    let expandedRow: number | null = null;
-  
-    function sortData(column: SortColumn): void {
-      if (sortBy === column) {
-        sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-      } else {
-        sortBy = column;
-        sortOrder = 'asc';
-      }
-  
-      colleges = [...colleges].sort((a, b) => {
-        let valA: any = a[column];
-        let valB: any = b[column];
-  
-        if (typeof valA === 'string') {
-          valA = valA.toLowerCase();
-          valB = valB.toLowerCase();
-        }
-  
-        if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
-        if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
-  
-    function toggleExpand(collegeId: number): void {
-      expandedRow = expandedRow === collegeId ? null : collegeId;
-    }
-  </script>
-  
-  <style>
-
-  </style>
-  
-  <div class="flex p-2 px-6 font-bold rounded-lg shadow-md justify-between items-center" style="background: #5d5d5b;">
-    <h1 class="text-2xl font-bold text-white">{title}</h1>
-</div>
-  
         <!-- Table Header -->
         <div class="grid grid-cols-[5fr_6fr_2fr_1fr_1fr_1fr] py-3 px-4 rounded-lg font-semibold my-4 bg-gray-200">
             <!-- Course Name Column -->
@@ -174,7 +92,7 @@
         </div>
       
         <!-- Table Rows -->
-        {#each colleges as college (college.id)}
+        {#each nit_colleges.filter(applyFilters) as college (college.id)}
             <div class="relative pb-4">
       
                 <!-- Main Row -->
