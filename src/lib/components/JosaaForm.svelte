@@ -62,7 +62,7 @@
       </div>
       
       <!-- JEE Details Form -->
-      <form on:submit|preventDefault={submitJeeForm} class="space-y-4" id="josaa-form">
+      <form on:submit|preventDefault={submitJeeForm} class="space-y-4">
         
         <!-- First Row: Gender, Category, and State -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
