@@ -1,17 +1,16 @@
-<!-- src/components/CollegeTable.svelte -->
+<!-- src/components/CollegeTableRedesigned.svelte -->
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
+    import { onMount } from 'svelte';
   
-    // Define ContactInfo interface
+    // Define interfaces
     interface ContactInfo {
       phone: string;
       email: string;
       address: string;
     }
   
-    // Define College interface based on your example
     interface College {
-      id: number;
+      id: string;
       courseName: string;
       courseType: string;
       collegeType: string;
@@ -25,25 +24,46 @@
       closingRank: number;
       profileImage: string;
       avgPkg: string;
-      nirfRanking: number;
       placementRating: number;
       collegeLifeRating: number;
       campusRating: number;
       aiSummary: string;
       contactInfo: ContactInfo;
+      year: number;
     }
   
     export let title: string;
     export let colleges: College[] = [];
   
-    type SortColumn = 'courseName' | 'collegeName' | 'category' | 'openingRank' | 'closingRank' | 'nirfRanking';
+    // Sorting
+    type SortColumn =
+      | 'courseName'
+      | 'collegeName'
+      | 'category'
+      | 'openingRank'
+      | 'closingRank'
+      | 'quota';
     type SortOrder = 'asc' | 'desc';
   
     let sortBy: SortColumn = 'collegeName';
     let sortOrder: SortOrder = 'asc';
   
-    let expandedRow: number | null = null;
+    // Expanded row logic
+    let expandedRow: string | null = null;
   
+    // Pagination
+    let currentPage = 1;
+    let itemsPerPage = "10";
+  
+    // Search
+    let searchTerm = '';
+  
+    // On mount, you could fetch data if needed
+    onMount(() => {
+      // Example: fetchColleges();
+    });
+  
+    // Function to sort data
     function sortData(column: SortColumn): void {
       if (sortBy === column) {
         sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
@@ -51,247 +71,255 @@
         sortBy = column;
         sortOrder = 'asc';
       }
-  
-      colleges = [...colleges].sort((a, b) => {
-        let valA: any = a[column];
-        let valB: any = b[column];
-  
-        if (typeof valA === 'string') {
-          valA = valA.toLowerCase();
-          valB = valB.toLowerCase();
-        }
-  
-        if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
-        if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
-        return 0;
-      });
     }
   
-    function toggleExpand(collegeId: number): void {
+    // Toggle expanded row
+    function toggleExpand(collegeId: string) {
       expandedRow = expandedRow === collegeId ? null : collegeId;
+    }
+  
+    // Derived data: filter, then sort, then slice for pagination
+    $: filteredColleges = colleges.filter((college) => {
+      if (!searchTerm) return true;
+      return (
+        college.collegeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        college.courseName?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
+  
+    $: sortedColleges = [...filteredColleges].sort((a, b) => {
+      let valA: any = a[sortBy];
+      let valB: any = b[sortBy];
+  
+      if (typeof valA === 'string') {
+        valA = valA.toLowerCase();
+        valB = valB.toLowerCase();
+      }
+  
+      if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+      if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+  
+    // Pagination slices
+    $: totalItems = sortedColleges.length;
+    $: totalPages = Math.ceil(totalItems / Number(itemsPerPage));
+  
+    $: paginatedColleges = sortedColleges.slice(
+      (currentPage - 1) * Number(itemsPerPage),
+      currentPage * Number(itemsPerPage)
+    );
+  
+    function goToPage(page: number) {
+      if (page < 1 || page > totalPages) return;
+      currentPage = page;
+      // Close any expanded row when changing pages for a clean experience
+      expandedRow = null;
     }
   </script>
   
-  <style>
-
-  </style>
+  <!-- Container -->
+  <div class="flex flex-col bg-gray-100 min-h-screen">
+    <!-- Header / Title Bar -->
+    <div class="p-2 m-2 bg-gray-800 text-white flex items-center justify-between rounded">
+      <h1 class="text-2xl font-bold">{title}</h1>
+            <!-- Dropdown for Items Per Page -->
+            <select
+                bind:value={itemsPerPage}
+                on:change={() => goToPage(1)}
+                class="bg-gray-700 text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+                <option value="10">10 Colleges</option>
+                <option value="25">25 Colleges</option>
+                <option value="50">50 Colleges</option>
+                <option value="100">100 Colleges</option>
+            </select>
+      <input
+      type="text"
+      placeholder="Search by college or course name..."
+      bind:value={searchTerm}
+      class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-black"
+    />
+    </div>
   
-  <div class="flex p-2 px-6 font-bold rounded-lg shadow-md justify-between items-center" style="background: #5d5d5b;">
-    <h1 class="text-2xl font-bold text-white">{title}</h1>
-</div>
+    <!-- Table Header -->
+    <div class="grid grid-cols-[4fr_6fr_2fr_1fr_1fr_1fr] py-3 px-4 my-3 mx-4 bg-gray-300 font-semibold text-gray-700 gap-2 rounded">
+      <!-- Course Name Column -->
+      <div
+        class="cursor-pointer flex items-center"
+        on:click={() => sortData('courseName')}
+        tabindex="0"
+        role="button"
+      >
+        Course
+        {#if sortBy === 'courseName'}
+          <span class="ml-1">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+        {/if}
+      </div>
   
-        <!-- Table Header -->
-        <div class="grid grid-cols-[5fr_6fr_2fr_1fr_1fr_1fr] py-3 px-4 rounded-lg font-semibold my-4 bg-gray-200">
-            <!-- Course Name Column -->
-            <div
-                class="flex items-center cursor-pointer"
-                on:click={() => sortData('courseName')}
-                role="button"
-                tabindex="0"
-            >
-                Course Name
-                <span class="ml-1">
-                    {#if sortBy === 'courseName'}
-                        {sortOrder === 'asc' ? '▲' : '▼'}
-                    {/if}
-                </span>
-            </div>
-
-            <!-- College Name Column -->
-            <div
-                class="flex items-center cursor-pointer"
-                on:click={() => sortData('collegeName')}
-                role="button"
-                tabindex="0"
-            >
-                College Name
-                <span class="ml-1">
-                    {#if sortBy === 'collegeName'}
-                        {sortOrder === 'asc' ? '▲' : '▼'}
-                    {/if}
-                </span>
-            </div>
-      
-            <!-- Seat Type Column -->
-            <div
-                class="flex items-center cursor-pointer"
-                on:click={() => sortData('category')}
-                role="button"
-                tabindex="0"
-            >
-                Category
-                <span class="ml-1">
-                    {#if sortBy === 'category'}
-                        {sortOrder === 'asc' ? '▲' : '▼'}
-                    {/if}
-                </span>
-            </div>
-      
-            <!-- Opening Rank Column -->
-            <div
-                class="flex items-center cursor-pointer"
-                on:click={() => sortData('openingRank')}
-                role="button"
-                tabindex="0"
-            >
-                O.R.
-                <span class="ml-1">
-                    {#if sortBy === 'openingRank'}
-                        {sortOrder === 'asc' ? '▲' : '▼'}
-                    {/if}
-                </span>
-            </div>
-      
-            <!-- Closing Rank Column -->
-            <div
-                class="flex items-center cursor-pointer"
-                on:click={() => sortData('closingRank')}
-                role="button"
-                tabindex="0"
-            >
-                C.R.
-                <span class="ml-1">
-                    {#if sortBy === 'closingRank'}
-                        {sortOrder === 'asc' ? '▲' : '▼'}
-                    {/if}
-                </span>
-            </div>
-      
-            <!-- NIRF Ranking Column -->
-            <div
-                class="flex items-center cursor-pointer"
-                on:click={() => sortData('nirfRanking')}
-                role="button"
-                tabindex="0"
-            >
-                NIRF
-                <span class="ml-1">
-                    {#if sortBy === 'nirfRanking'}
-                        {sortOrder === 'asc' ? '▲' : '▼'}
-                    {/if}
-                </span>
-            </div>
+      <!-- College Name Column -->
+      <div
+        class="cursor-pointer flex items-center"
+        on:click={() => sortData('collegeName')}
+        tabindex="0"
+        role="button"
+      >
+        College
+        {#if sortBy === 'collegeName'}
+          <span class="ml-1">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+        {/if}
+      </div>
+  
+      <!-- Category Column -->
+      <div
+        class="cursor-pointer flex items-center"
+        on:click={() => sortData('category')}
+        tabindex="0"
+        role="button"
+      >
+        Category
+        {#if sortBy === 'category'}
+          <span class="ml-1">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+        {/if}
+      </div>
+  
+      <!-- Opening Rank -->
+      <div
+        class="cursor-pointer flex items-center"
+        on:click={() => sortData('openingRank')}
+        tabindex="0"
+        role="button"
+      >
+        O.R.
+        {#if sortBy === 'openingRank'}
+          <span class="ml-1">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+        {/if}
+      </div>
+  
+      <!-- Closing Rank -->
+      <div
+        class="cursor-pointer flex items-center"
+        on:click={() => sortData('closingRank')}
+        tabindex="0"
+        role="button"
+      >
+        C.R.
+        {#if sortBy === 'closingRank'}
+          <span class="ml-1">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+        {/if}
+      </div>
+  
+      <!-- NIRF Column -->
+      <div
+        class="cursor-pointer flex items-center"
+        on:click={() => sortData('quota')}
+        tabindex="0"
+        role="button"
+      >
+        Quota
+        {#if sortBy === 'quota'}
+          <span class="ml-1">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+        {/if}
+      </div>
+    </div>
+  
+    <!-- Table Rows -->
+    {#if paginatedColleges.length === 0}
+      <div class="p-4 text-center text-gray-500">No results found.</div>
+    {/if}
+  
+    {#each paginatedColleges as college (college.id)}
+      <div class="relative mb-2 px-4">
+        <!-- Main Row -->
+        <div
+          class="grid grid-cols-[4fr_6fr_2fr_1fr_1fr_1fr] items-center bg-white rounded-lg px-4 py-2 shadow cursor-pointer gap-2"
+          on:click={() => toggleExpand(college.id)}
+          aria-expanded={expandedRow === college.id}
+          tabindex="0"
+          role="button"
+        >
+          <div>{college.courseName} ({college.courseType})</div>
+          <div class="font-medium">{college.collegeName}</div>
+          <div>{college.category}</div>
+          <div>{college.openingRank}</div>
+          <div>{college.closingRank}</div>
+          <div>{college.quota}</div>
         </div>
-      
-        <!-- Table Rows -->
-        {#each colleges as college (college.id)}
-            <div class="relative pb-4">
-      
-                <!-- Main Row -->
-                <div
-                    class={`grid grid-cols-[5fr_6fr_2fr_1fr_1fr_1fr] bg-white px-4 text-black p-2 shadow-md rounded-lg cursor-pointer ${
-                        expandedRow === college.id ? 'rounded-t-lg' : 'rounded-lg'
-                    }`}
-                    on:click={() => toggleExpand(college.id)}
-                    aria-expanded={expandedRow === college.id}
-                    role="button"
-                    tabindex="0"
-                >
-                    <div>{college.courseName} ({college.courseType})</div>
-                    <div>{college.collegeName}</div>
-                    <div>{college.category}</div>
-                    <div>{college.openingRank}</div>
-                    <div>{college.closingRank}</div>
-                    <div>{college.nirfRanking}</div>
-                </div>
+  
+        {#if expandedRow === college.id}
+        <!-- Expanded Details -->
+        <div
+          class="overflow-hidden transition-max-height duration-500 ease-in-out bg-gray-50 rounded-b-lg shadow-lg border-t border-gray-200 -mt-2 z-[-10]"
+          style="max-height: {expandedRow === college.id ? 'max-h' : '0'}"
+        >
+          {#if expandedRow === college.id}
+            <div class="p-4 grid grid-cols-1 md:grid-cols-[1fr_2fr_4fr] gap-3">
+              <!-- Column 1: Basic Info -->
+              <div class="space-y-2">
+                <p class="font-semibold text-gray-700">
+                  Quota: <span class="font-normal text-gray-600">{college.quota}</span>
+                </p>
+                <p class="font-semibold text-gray-700">
+                  Category: <span class="font-normal text-gray-600">{college.category}</span>
+                </p>
+                <p class="font-semibold text-gray-700">
+                  Type: <span class="font-normal text-gray-600">{college.collegeType}</span>
+                </p>
+              </div>
 
-                <!-- Expanding Details Card -->
-                <div
-                    class={`overflow-hidden transition-max-height duration-700 ease-in-out ${
-                        expandedRow === college.id ? 'max-h-96' : 'max-h-0'
-                    }`}
-                >
-                    <div class="bg-gray-50 p-4 rounded-b-lg shadow-inner">
-                        <div class="flex flex-col md:flex-row gap-4">
-                            <!-- Profile Image -->
-                            <div class="flex-shrink-0">
-                                <img src={college.profileImage} alt="{college.collegeName} Image" class="rounded-lg w-48 h-36 object-cover" />
-                            </div>
-                            <!-- College Info -->
-                            <div class="flex-1 gap-8">
-                                <a class="font-semibold text-lg mb-2" href="#" target="_blank">{college.collegeName}</a>
-                                <div class="mt-4">
-                                    <p class="font-semibold">Contact Info:</p>
-                                    <a href="{college.contactInfo.phone}">📞</a>
-                                    <a href="{college.contactInfo.email}">✉️</a>
-                                    <a href="{college.contactInfo.address}">📍</a>
-                                </div>
-                                <div class="mb-2 flex gap-8">
-                                    <div>
-                                        <p class="font-semibold">Average Package:</p>
-                                        <p>{college.avgPkg}</p>
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold">Highest Package:</p>
-                                        <p>{college.avgPkg}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Ratings and Packages -->
-                            <div class="flex-1">
-                                <div class="mb-2 flex gap-2">
-                                    <p class="font-semibold">Placement:</p>
-                                    <div class="flex items-center">
-                                        {#each Array(5) as _, i}
-                                            <svg
-                                                class={`w-5 h-5 ${i < Math.round(college.placementRating) ? 'text-yellow-500' : 'text-gray-300'}`}
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.973a1 1 0 00.95.69h4.163c.969 0 1.371 1.24.588 1.81l-3.376 2.455a1 1 0 00-.364 1.118l1.286 3.973c.3.921-.755 1.688-1.54 1.118l-3.376-2.455a1 1 0 00-1.175 0l-3.376 2.455c-.784.57-1.838-.197-1.54-1.118l1.286-3.973a1 1 0 00-.364-1.118L2.98 9.4c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.973z" />
-                                            </svg>
-                                        {/each}
-                                        <span class="ml-2">{college.placementRating} / 5</span>
-                                    </div>
-                                </div>
-                                <div class="mb-2 flex gap-2">
-                                    <p class="font-semibold">College Life:</p>
-                                    <div class="flex items-center">
-                                        {#each Array(5) as _, i}
-                                            <svg
-                                                class={`w-5 h-5 ${i < Math.round(college.collegeLifeRating) ? 'text-yellow-500' : 'text-gray-300'}`}
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.973a1 1 0 00.95.69h4.163c.969 0 1.371 1.24.588 1.81l-3.376 2.455a1 1 0 00-.364 1.118l1.286 3.973c.3.921-.755 1.688-1.54 1.118l-3.376-2.455a1 1 0 00-1.175 0l-3.376 2.455c-.784.57-1.838-.197-1.54-1.118l1.286-3.973a1 1 0 00-.364-1.118L2.98 9.4c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.973z" />
-                                            </svg>
-                                        {/each}
-                                        <span class="ml-2">{college.collegeLifeRating} / 5</span>
-                                    </div>
-                                </div>
-                                <div class="mb-2 flex gap-2">
-                                    <p class="font-semibold">Campus:</p>
-                                    <div class="flex items-center">
-                                        {#each Array(5) as _, i}
-                                            <svg
-                                                class={`w-5 h-5 ${i < Math.round(college.campusRating) ? 'text-yellow-500' : 'text-gray-300'}`}
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.973a1 1 0 00.95.69h4.163c.969 0 1.371 1.24.588 1.81l-3.376 2.455a1 1 0 00-.364 1.118l1.286 3.973c.3.921-.755 1.688-1.54 1.118l-3.376-2.455a1 1 0 00-1.175 0l-3.376 2.455c-.784.57-1.838-.197-1.54-1.118l1.286-3.973a1 1 0 00-.364-1.118L2.98 9.4c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.973z" />
-                                            </svg>
-                                        {/each}
-                                        <span class="ml-2">{college.campusRating} / 5</span>
-                                    </div>
-                                </div>
-                                <div class="mb-2 flex gap-2">
-                                    <p class="font-semibold">Department:</p>
-                                    <div class="flex items-center">
-                                        {#each Array(5) as _, i}
-                                            <svg
-                                                class={`w-5 h-5 ${i < Math.round(college.campusRating) ? 'text-yellow-500' : 'text-gray-300'}`}
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.973a1 1 0 00.95.69h4.163c.969 0 1.371 1.24.588 1.81l-3.376 2.455a1 1 0 00-.364 1.118l1.286 3.973c.3.921-.755 1.688-1.54 1.118l-3.376-2.455a1 1 0 00-1.175 0l-3.376 2.455c-.784.57-1.838-.197-1.54-1.118l1.286-3.973a1 1 0 00-.364-1.118L2.98 9.4c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.973z" />
-                                            </svg>
-                                        {/each}
-                                        <span class="ml-2">{college.campusRating} / 5</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+              <!-- Column 2: Contact Information -->
+              <div>
+                <p class="font-semibold text-gray-700 mb-2">Contact Information:</p>
+                <div class="space-y-1">
+                  <a
+                    href={`tel:${college.contactInfo.phone}`}
+                    class="flex items-center text-blue-500 hover:underline text-sm"
+                  >
+                    📞 {college.contactInfo.phone}
+                  </a>
+                  <a
+                    href={`mailto:${college.contactInfo.email}`}
+                    class="flex items-center text-blue-500 hover:underline text-sm"
+                  >
+                    ✉️ {college.contactInfo.email}
+                  </a>
+                  <span class="flex items-center text-gray-600 text-sm">
+                    📍 {college.contactInfo.address}
+                  </span>
                 </div>
+              </div>
+
+              <!-- Column 3: AI Summary -->
+              <div>
+                <p class="font-semibold text-gray-700 mb-2">AI Summary:</p>
+                <p class="text-gray-600 text-sm leading-relaxed">{college.aiSummary}</p>
+              </div>
             </div>
-        {/each}
+          {/if}
+        </div>
+        {/if}
+      </div>
+    {/each}
+  
+    <!-- Pagination (duplicate controls at bottom if desired) -->
+    <div class="flex justify-end items-center p-4">
+      <button
+        class="px-3 py-1 bg-gray-300 rounded disabled:opacity-50 mr-2"
+        on:click={() => goToPage(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        Prev
+      </button>
+      <span class="text-sm mr-2">
+        Page {currentPage} of {totalPages}
+      </span>
+      <button
+        class="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+        on:click={() => goToPage(currentPage + 1)}
+        disabled={currentPage === totalPages || totalPages === 0}
+      >
+        Next
+      </button>
+    </div>
+  </div>
+  

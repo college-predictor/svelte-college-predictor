@@ -2,14 +2,16 @@
   import { goto } from '$app/navigation';
 
   // JEE Details Form State
-  let gender = 'Male'; // Default value
+  let gender = 'Gender-Neutral'; // Default value
   let category = 'OPEN';
   let mainsGenRank = '';
   let mainsCatRank = '';
   let showAdvancedRanks = false;
   let advGenRank = '';
   let advCatRank = '';
-  let state = 'rajasthan'; // Default State
+  let state = 'Rajasthan'; // Default State
+
+  let allStates:String[] = ['Uttarakhand', 'Tamil Nadu', 'Chandigarh', 'Uttar Pradesh', 'Karnataka', 'Chhattisgarh', 'Tripura', 'Odisha', 'Rajasthan', 'Meghalaya', 'Sikkim', 'Haryana', 'Diu', 'Punjab', 'Kerala', 'Himachal Pradesh', 'Mizoram', 'Andhra Pradesh', 'Madhya Pradesh', 'Jharkhand', 'Goa', 'Arunachal Pradesh', 'Nagaland', 'Jammu & Kashmir', 'Maharashtra', 'Gujarat', 'Puducherry', 'Manipur', 'West Bengal', 'Bihar', 'Delhi', 'Assam', 'Telangana']
 
   // Helper to determine if category is 'OPEN'
   $: isCategoryOpen = category === 'OPEN';
@@ -73,8 +75,8 @@
               class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               bind:value={gender}
             >
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
+              <option value="Gender-Neutral">Male</option>
+              <option value="Female-only (including Supernumerary)">Female</option>
             </select>
           </div>
           
@@ -107,10 +109,9 @@
               class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               bind:value={state}
             >
-              <option value="rajasthan">Rajasthan</option>
-              <option value="delhi">Delhi</option>
-              <option value="maharashtra">Maharashtra</option>
-              <option value="tamil_nadu">Tamil Nadu</option>
+            {#each allStates as s}
+              <option value="{s}">{s}</option>
+            {/each}
               <!-- Add more states as needed -->
             </select>
           </div>
