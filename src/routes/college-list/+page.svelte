@@ -93,7 +93,7 @@
       console.log('Fetching colleges with parameters:', filteredQueryParams);
 
       // Construct the API URL with query parameters
-      const apiUrl = new URL('http://localhost:8000/api/colleges');
+      const apiUrl = new URL('http://34.69.110.177/api/colleges');
       Object.entries(filteredQueryParams).forEach(([key, value]) => {
         apiUrl.searchParams.append(key, value.toString());
       });
