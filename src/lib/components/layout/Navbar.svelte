@@ -1,17 +1,19 @@
 <script>
+// @ts-nocheck
+
   let isMenuOpen = false;
 
   const links = [
     { href: '/', label: 'Home' },
     { href: '/about', label: 'About' },
-    {
-      href: '/exams',
-      label: 'Exams',
-      dropdown: [
-        { label: 'Engineering', href: '/engineering' },
-        { label: 'Medical', href: '/engineering' },
-      ],
-    },
+    // {
+    //   href: '/exams',
+    //   label: 'Exams',
+    //   dropdown: [
+    //     { label: 'Engineering', href: '/engineering' },
+    //     { label: 'Medical', href: '/engineering' },
+    //   ],
+    // },
   ];
 
   const toggleMenu = () => {
@@ -49,7 +51,7 @@
           {#each links as link}
             <li class="relative group">
               {#if link.dropdown}
-              <a class="text-white hover:text-yellow-300 transition duration-300 font-medium">
+              <a href="{link.href}" class="text-white hover:text-yellow-300 transition duration-300 font-medium">
                 {link.label}
               </a>
                 <ul class="absolute left-0 mt-2 w-40 bg-white text-gray-800 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
