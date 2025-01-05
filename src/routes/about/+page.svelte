@@ -1,6 +1,6 @@
 <script>
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-  import { faLinkedin, faTwitter, faFacebook } from '@fortawesome/free-brands-svg-icons';
+  import { faLinkedin, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
 
   const team = [
     {
@@ -8,21 +8,21 @@
       education: 'B.Tech in Computer Science, IIT Madras',
       linkedin: 'https://www.linkedin.com/in/ritambhara-chauhan/',
       twitter: 'https://twitter.com/ritambhara',
-      facebook: 'https://facebook.com/ritambhara'
+      instagram: 'https://facebook.com/ritambhara'
     },
     {
       name: 'Rishika Chauhan',
       education: 'B.Tech in Electronics and Communication Engineering, NIT Puducherry',
       linkedin: 'https://www.linkedin.com/in/rishika-chauhan/',
       twitter: 'https://twitter.com/rishika',
-      facebook: 'https://facebook.com/rishika'
+      instagram: 'https://facebook.com/rishika'
     },
     {
       name: 'Sarvesh Singh Chauhan',
       education: 'B.Tech in Civil Engineering, IIT Madras',
       linkedin: 'https://www.linkedin.com/in/sarvesh-singh-chauhan/',
       twitter: 'https://twitter.com/sarvesh',
-      facebook: 'https://facebook.com/sarvesh'
+      instagram: 'https://facebook.com/sarvesh'
     }
   ];
 </script>
@@ -46,8 +46,8 @@
           <a href={person.twitter} target="_blank" class="text-blue-500">
             <FontAwesomeIcon icon={faTwitter} class="h-6 w-6" />
           </a>
-          <a href={person.facebook} target="_blank" class="text-blue-800">
-            <FontAwesomeIcon icon={faFacebook} class="h-6 w-6" />
+          <a href={person.instagram} target="_blank" class="text-pink-800">
+            <FontAwesomeIcon icon={faInstagram} class="h-6 w-6" />
           </a>
         </div>
       </div>
