@@ -4,25 +4,25 @@
 
   const team = [
     {
-      name: 'Sarvesh Singh Chauhan',
-      education: 'B.Tech in Computer Science, IIT Kanpur',
-      linkedin: 'https://www.linkedin.com/in/sarvesh-singh-chauhan/',
-      twitter: 'https://twitter.com/sarvesh',
-      facebook: 'https://facebook.com/sarvesh'
+      name: 'Ritambhara Chauhan',
+      education: 'B.Tech in Computer Science, IIT Madras',
+      linkedin: 'https://www.linkedin.com/in/ritambhara-chauhan/',
+      twitter: 'https://twitter.com/ritambhara',
+      facebook: 'https://facebook.com/ritambhara'
     },
     {
       name: 'Rishika Chauhan',
-      education: 'M.Tech in Artificial Intelligence, IIIT Hyderabad',
+      education: 'B.Tech in Electronics and Communication Engineering, NIT Puducherry',
       linkedin: 'https://www.linkedin.com/in/rishika-chauhan/',
       twitter: 'https://twitter.com/rishika',
       facebook: 'https://facebook.com/rishika'
     },
     {
-      name: 'Ritambhara Chauhan',
-      education: 'MBA in Business Analytics, IIM Bangalore',
-      linkedin: 'https://www.linkedin.com/in/ritambhara-chauhan/',
-      twitter: 'https://twitter.com/ritambhara',
-      facebook: 'https://facebook.com/ritambhara'
+      name: 'Sarvesh Singh Chauhan',
+      education: 'B.Tech in Civil Engineering, IIT Madras',
+      linkedin: 'https://www.linkedin.com/in/sarvesh-singh-chauhan/',
+      twitter: 'https://twitter.com/sarvesh',
+      facebook: 'https://facebook.com/sarvesh'
     }
   ];
 </script>
