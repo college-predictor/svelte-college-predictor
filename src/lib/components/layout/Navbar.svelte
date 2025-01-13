@@ -33,7 +33,7 @@
       </div>
 
       <!-- Search Bar (Optional) -->
-      <!-- <div class="hidden md:flex md:items-center md:w-1/3">
+      <div class="hidden md:flex md:items-center md:w-1/3">
         <input
           type="text"
           placeholder="Search for colleges..."
@@ -43,7 +43,7 @@
         <button class="ml-2 px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition duration-300" aria-label="Search">
           Search
         </button>
-      </div> -->
+      </div>
 
       <!-- Desktop Menu -->
       <div class="hidden md:flex md:items-center">
