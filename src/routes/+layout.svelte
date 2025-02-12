@@ -1,19 +1,20 @@
 <script lang="ts">
-    import "../app.css";
-    import Navbar from "$lib/components/layout/Navbar.svelte";
-    import Footer from "$lib/components/layout/Footer.svelte";
-  </script>
-  
-  <div class="flex flex-col min-h-screen mt-16">
-    <!-- Navbar -->
+  import '../app.css';
+  import Navbar from '$lib/components/layout/Navbar.svelte';
+  import Footer from '$lib/components/layout/Footer.svelte';
+</script>
+
+<div class="flex flex-col min-h-screen">
+  <!-- Fixed Navbar -->
+  <div class="fixed top-0 left-0 w-full z-50">
     <Navbar />
-  
-    <!-- Main Content Area -->
-    <main class="flex-grow">
-      <slot />
-    </main>
-  
-    <!-- Footer -->
-    <Footer />
   </div>
-  
+
+  <!-- Main content area (with padding-top equal to Navbar height) -->
+  <main class="flex-grow flex flex-col pt-16 min-h-0">
+    <slot />
+  </main>
+
+  <!-- Footer -->
+  <Footer />
+</div>

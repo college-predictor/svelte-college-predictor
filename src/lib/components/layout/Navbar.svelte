@@ -21,8 +21,8 @@
   };
 </script>
 
-<nav class="fixed top-0 left-0 w-full bg-gradient-to-r from-blue-500 to-indigo-600 shadow-md z-50">
-  <div class="mx-auto px-8">
+<nav class="bg-gradient-to-r from-blue-500 to-indigo-600 shadow-md">
+  <div class="container mx-auto px-8">
     <div class="flex justify-between h-16">
       <!-- Logo Section -->
       <div class="flex items-center">

@@ -2,6 +2,7 @@
   import JosaaForm from '$lib/components/JosaaForm.svelte';
   import RecommandationSection from '$lib/components/layout/RecommandationSection.svelte';
   import AiServiceSection from '$lib/components/layout/AIServiceSection.svelte';
+  import Footer from '$lib/components/layout/Footer.svelte';
 </script>
 
 <section 

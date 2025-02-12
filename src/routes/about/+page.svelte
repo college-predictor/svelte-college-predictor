@@ -27,7 +27,7 @@
   ];
 </script>
 
-<div class="bg-gray-100 min-h-screen flex flex-col items-center py-10">
+<div class="flex flex-col items-center py-10 bg-gray-100">
   <h1 class="text-4xl font-bold text-blue-600 mb-6">About Us</h1>
   <p class="text-lg text-gray-700 text-center px-4 mb-10">
     Welcome to our College Predictor website! We aim to simplify the complex college admission process using AI-driven tools and data analytics. 
@@ -54,7 +54,3 @@
     {/each}
   </div>
 </div>
-
-<style>
-  @import 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css';
-</style>

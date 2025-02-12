@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+html, body, #svelte {
     background-color: lightgray;
-}
+    height: 100%;
+    margin: 0;
+  }
