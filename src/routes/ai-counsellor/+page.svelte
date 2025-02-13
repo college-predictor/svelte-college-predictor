@@ -18,82 +18,101 @@
     }
   });
   
-  async function sendMessage() {
-    if (!message.trim()) return;
-    isLoading = true;
-    
-    // Save the current (in-sync) conversation
-    const originalConversation = get(chatStore);
-    // Compute the hash from the original conversation only.
-    const chatHash = md5(JSON.stringify(originalConversation));
-    
-    // Prepare optimistic updates:
-    const optimisticUserMsg = { role: 'user', content: message };
-    const loadingMsg = { role: 'assistant', content: 'Loading...' };
-    
-    // Immediately update the UI without affecting the hash computation.
-    chatStore.set([...originalConversation, optimisticUserMsg, loadingMsg]);
-    
-    // Prepare the payload using the original conversation.
-    const payload = {
-      chat_id: chatId,
-      prompt: message,
-      chat_hash: chatHash
-    };
+  function canonicalStringify(obj: any): string {
+    if (obj === null || typeof obj !== 'object') {
+      return JSON.stringify(obj);
+    }
+    if (Array.isArray(obj)) {
+      return '[' + obj.map(canonicalStringify).join(',') + ']';
+    }
+    const keys = Object.keys(obj).sort();
+    return '{' + keys.map(key => JSON.stringify(key) + ':' + canonicalStringify(obj[key])).join(',') + '}';
+  }
 
-    try {
-      let res = await fetch('http://localhost:8000/api/chat/generate-text', {
+  async function sendMessage() {
+  if (!message.trim()) return;
+  isLoading = true;
+  
+  // Save the current (in-sync) conversation
+  const originalConversation = get(chatStore);
+  
+  // Compute the hash using canonical JSON serialization
+  const conversationStr = canonicalStringify(originalConversation);
+  const chatHash = md5(conversationStr); // using blueimp-md5
+  
+  // Prepare optimistic updates:
+  const optimisticUserMsg = { role: 'user', content: message };
+  const loadingMsg = { role: 'assistant', content: 'Loading...' };
+  
+  // Immediately update the UI without affecting the hash computation.
+  chatStore.set([...originalConversation, optimisticUserMsg, loadingMsg]);
+  
+  // Prepare the payload using the original conversation.
+  const payload = {
+    chat_id: chatId,
+    prompt: message,
+    chat_hash: chatHash
+  };
+
+  try {
+    let res = await fetch('http://localhost:8000/api/chat/generate-text', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    console.log('Request:', payload);
+
+    // If a sync is required, re-send with the full conversation.
+    if (res.status === 409) {
+      console.warn('Sync required. Resending full conversation...');
+      const syncPayload = {
+        chat_id: chatId,
+        prompt: message,
+        messages: originalConversation, // full conversation for syncing
+        chat_hash: md5(canonicalStringify(originalConversation)),
+        sync_required: true
+      };
+      res = await fetch('http://localhost:8000/api/chat/generate-text', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(syncPayload)
       });
 
-      // If a sync is required, re-send with the full conversation.
-      if (res.status === 409) {
-        console.warn('Sync required. Resending full conversation...');
-        const syncPayload = {
-          chat_id: chatId,
-          prompt: message,
-          messages: originalConversation, // full conversation for syncing
-          chat_hash: md5(JSON.stringify(originalConversation)),
-          sync_required: true
-        };
-        res = await fetch('http://localhost:8000/api/chat/generate-text', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(syncPayload)
-        });
-      }
-      
-      // If the response status is not OK, throw an error.
-      if (!res.ok) {
-        throw new Error("Request failed with status " + res.status);
-      }
-      
-      const data = await res.json();
-      
-      // Validate that the server returned a proper assistant response.
-      if (!data.response || typeof data.response !== 'string') {
-        throw new Error("Invalid response from server");
-      }
-      
-      // Replace the optimistic loading message with the actual response.
-      const newConversation = [
-        ...originalConversation,
-        optimisticUserMsg,
-        { role: 'assistant', content: data.response }
-      ];
-      chatStore.set(newConversation);
-    } catch (error) {
-      console.error('Error:', error);
-      // On error, revert to the original conversation (i.e. do not store the new user message)
-      chatStore.set(originalConversation);
+      console.log('Sync Request:', syncPayload);
     }
     
-    // Reset the message and loading flag.
-    message = '';
-    isLoading = false;
+    // If the response status is not OK, throw an error.
+    if (!res.ok) {
+      throw new Error("Request failed with status " + res.status);
+    }
+    
+    const data = await res.json();
+    
+    console.log('Response:', data);
+    // Validate that the server returned a proper assistant response.
+    if (!data.response || typeof data.response !== 'string') {
+      throw new Error("Invalid response from server");
+    }
+    
+    // Replace the optimistic loading message with the actual response.
+    const newConversation = [
+      ...originalConversation,
+      optimisticUserMsg,
+      { role: 'assistant', content: data.response }
+    ];
+    chatStore.set(newConversation);
+  } catch (error) {
+    console.error('Error:', error);
+    // On error, revert to the original conversation (i.e. do not store the new user message)
+    chatStore.set(originalConversation);
   }
+  
+  // Reset the message and loading flag.
+  message = '';
+  isLoading = false;
+}
+
   
   function clearChat() {
     chatStore.set([]);
@@ -237,7 +256,7 @@
         {#each $chatStore as msg}
           <div
             class="max-w-xs p-2 rounded-lg
-              {msg.sender === 'user'
+              {msg.role === 'user'
                 ? 'bg-blue-100 self-end translate-x'
                 : 'bg-green-100 self-start -translate-x'}"
           >
