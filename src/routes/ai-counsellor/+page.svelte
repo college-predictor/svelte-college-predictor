@@ -245,7 +245,7 @@
     </div>
 
     <!-- Right Container: 25% width -->
-    <div class="w-1/4 bg-gray-100 rounded-lg shadow-lg p-4 h-[calc(100vh-14rem)] flex flex-col">
+    <div class="w-1/4 bg-white rounded-lg shadow-lg p-4 h-[calc(100vh-14rem)] flex flex-col">
       <h3 class="text-xl font-semibold text-gray-800 mb-4">Chat with AI</h3>
       <button class="btn btn-blue" on:click={clearChat}>Clear Chat</button>
       <!-- Chat messages container without justify-end -->
@@ -271,13 +271,16 @@
       <!-- Message input and send button -->
       <div class="flex">
         <input
+          class="flex-grow rounded-lg border border-gray-300 p-2 mr-2"
           type="text"
           bind:value={message}
           placeholder="Type your message..."
           on:keydown={(e) => e.key === 'Enter' && sendMessage()} />
-        <button on:click={sendMessage} disabled={isLoading}>
-          {isLoading ? 'Sending...' : 'Send'}
-        </button>
+        <button
+          type="button" 
+          class="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          on:click={sendMessage} disabled={isLoading}
+        >{isLoading ? 'Sending...' : 'Send'}</button>
       </div>
     </div>
   </div>
