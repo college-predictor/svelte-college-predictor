@@ -18,15 +18,15 @@
     }
   });
   
-  function canonicalStringify(obj: any): string {
-    if (obj === null || typeof obj !== 'object') {
-      return JSON.stringify(obj);
-    }
-    if (Array.isArray(obj)) {
-      return '[' + obj.map(canonicalStringify).join(',') + ']';
-    }
-    const keys = Object.keys(obj).sort();
-    return '{' + keys.map(key => JSON.stringify(key) + ':' + canonicalStringify(obj[key])).join(',') + '}';
+  function computeHash(messages: { role: string, content: string }[]) {
+    // Concatenate the 'content' of each message to form the final string
+    let messagesStr = '';
+    messages.forEach((message) => {
+      messagesStr += message.content; // Assuming message has a 'content' field
+    });
+
+    // Return the MD5 hash of the concatenated string
+    return md5(messagesStr);
   }
 
   async function sendMessage() {
@@ -36,9 +36,8 @@
   // Save the current (in-sync) conversation
   const originalConversation = get(chatStore);
   
-  // Compute the hash using canonical JSON serialization
-  const conversationStr = canonicalStringify(originalConversation);
-  const chatHash = md5(conversationStr); // using blueimp-md5
+  // Compute the hash using the modified function (now using the 'content' of messages)
+  const chatHash = computeHash(originalConversation); // MD5 hash of the conversation
   
   // Prepare optimistic updates:
   const optimisticUserMsg = { role: 'user', content: message };
@@ -70,7 +69,7 @@
         chat_id: chatId,
         prompt: message,
         messages: originalConversation, // full conversation for syncing
-        chat_hash: md5(canonicalStringify(originalConversation)),
+        chat_hash: chatHash,
         sync_required: true
       };
       res = await fetch('http://localhost:8000/api/chat/generate-text', {
