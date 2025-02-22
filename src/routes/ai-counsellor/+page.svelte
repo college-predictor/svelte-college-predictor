@@ -54,7 +54,7 @@
   };
 
   try {
-    let res = await fetch('http://localhost:8000/api/chat/generate-text', {
+    let res = await fetch('https://api.collegepredictor.co.in/api/chat/generate-text', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -72,7 +72,7 @@
         chat_hash: chatHash,
         sync_required: true
       };
-      res = await fetch('http://localhost:8000/api/chat/generate-text', {
+      res = await fetch('https://api.collegepredictor.co.in/api/chat/generate-text', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(syncPayload)
