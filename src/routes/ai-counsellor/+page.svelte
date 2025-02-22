@@ -1,141 +1,186 @@
 <script lang="ts">
-  import { onMount, afterUpdate } from 'svelte';
+  import { onMount, afterUpdate, onDestroy } from 'svelte';
   import { chatStore } from '$lib/stores';
   import { get } from 'svelte/store';
   import md5 from 'blueimp-md5';
+  import { browser } from '$app/environment';
 
   let message = '';
   let chatId = '';
   let isLoading = false;
-  // Reference to the scrollable container.
   let chatMessagesContainer: HTMLDivElement;
-  
+
+  // Chat object to manage messages
+  let chatObject = {
+    messages: [],
+    chatHash: '',
+    syncRequired: false,
+  };
+
+  // Slider state: right (chat) container width (in percent)
+  // Enforced to be between 25% and 50%
+  let chatRightWidth = 25; // initial value
+  let chatLeftWidth = 100 - chatRightWidth;
+  let isDragging = false;
+
+  // Reference to the overall container (for slider math)
+  let container: HTMLDivElement;
+
   onMount(() => {
+    // localStorage and window are available here only on the client
     chatId = localStorage.getItem('chat_id') || '';
     if (!chatId) {
       chatId = Math.random().toString(36).substr(2, 9);
       localStorage.setItem('chat_id', chatId);
     }
-  });
-  
-  function computeHash(messages: { role: string, content: string }[]) {
-    // Concatenate the 'content' of each message to form the final string
-    let messagesStr = '';
-    messages.forEach((message) => {
-      messagesStr += message.content; // Assuming message has a 'content' field
-    });
+    chatObject.messages = get(chatStore);
+    chatObject.chatHash = computeHash(chatObject.messages);
 
-    // Return the MD5 hash of the concatenated string
+    // Add event listeners only if running in the browser
+    if (browser) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+  });
+
+  onDestroy(() => {
+    if (browser) {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    }
+  });
+
+  function computeHash(messages) {
+    let messagesStr = messages.map(msg => msg.content).join('');
     return md5(messagesStr);
   }
 
   async function sendMessage() {
-  if (!message.trim()) return;
-  isLoading = true;
-  
-  // Save the current (in-sync) conversation
-  const originalConversation = get(chatStore);
-  
-  // Compute the hash using the modified function (now using the 'content' of messages)
-  const chatHash = computeHash(originalConversation); // MD5 hash of the conversation
-  
-  // Prepare optimistic updates:
-  const optimisticUserMsg = { role: 'user', content: message };
-  const loadingMsg = { role: 'assistant', content: 'Loading...' };
-  
-  // Immediately update the UI without affecting the hash computation.
-  chatStore.set([...originalConversation, optimisticUserMsg, loadingMsg]);
-  
-  // Prepare the payload using the original conversation.
-  const payload = {
-    chat_id: chatId,
-    prompt: message,
-    chat_hash: chatHash
-  };
+    if (!message.trim()) return;
+    isLoading = true;
 
-  try {
-    let res = await fetch('https://api.collegepredictor.co.in/api/chat/generate-text', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    const originalMessages = [...chatObject.messages];
+    const chatHash = computeHash(originalMessages);
 
-    console.log('Request:', payload);
+    const optimisticUserMsg = { role: 'user', content: message };
+    const loadingMsg = { role: 'assistant', content: 'Loading...' };
 
-    // If a sync is required, re-send with the full conversation.
-    if (res.status === 409) {
-      console.warn('Sync required. Resending full conversation...');
-      const syncPayload = {
-        chat_id: chatId,
-        prompt: message,
-        messages: originalConversation, // full conversation for syncing
-        chat_hash: chatHash,
-        sync_required: true
-      };
-      res = await fetch('https://api.collegepredictor.co.in/api/chat/generate-text', {
+    chatObject.messages.push(optimisticUserMsg, loadingMsg);
+    chatStore.set([...chatObject.messages]);
+
+    const payload = {
+      chat_id: chatId,
+      prompt: message,
+      chat_hash: chatHash,
+    };
+
+    try {
+      let res = await fetch('https://api.collegepredictor.co.in/api/chat/generate-text', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(syncPayload)
+        body: JSON.stringify(payload),
       });
 
-      console.log('Sync Request:', syncPayload);
-    }
-    
-    // If the response status is not OK, throw an error.
-    if (!res.ok) {
-      throw new Error("Request failed with status " + res.status);
-    }
-    
-    const data = await res.json();
-    
-    console.log('Response:', data);
-    // Validate that the server returned a proper assistant response.
-    if (!data.response || typeof data.response !== 'string') {
-      throw new Error("Invalid response from server");
-    }
-    
-    // Replace the optimistic loading message with the actual response.
-    const newConversation = [
-      ...originalConversation,
-      optimisticUserMsg,
-      { role: 'assistant', content: data.response }
-    ];
-    chatStore.set(newConversation);
-  } catch (error) {
-    console.error('Error:', error);
-    // On error, revert to the original conversation (i.e. do not store the new user message)
-    chatStore.set(originalConversation);
-  }
-  
-  // Reset the message and loading flag.
-  message = '';
-  isLoading = false;
-}
+      if (res.status === 409) {
+        console.warn('Sync required. Fetching full chat history.');
+        chatObject.syncRequired = true;
+        const syncPayload = {
+          chat_id: chatId,
+          prompt: message,
+          messages: originalMessages,
+          chat_hash: chatHash,
+          sync_required: true,
+        };
 
-  
+        res = await fetch('https://api.collegepredictor.co.in/api/chat/generate-text', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(syncPayload),
+        });
+      }
+
+      if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
+
+      const data = await res.json();
+      if (!data.response || typeof data.response !== 'string') {
+        throw new Error('Invalid response from server');
+      }
+
+      chatObject.messages.pop(); // Remove 'Loading...'
+      chatObject.messages.push({ role: 'assistant', content: data.response });
+      chatStore.set([...chatObject.messages]);
+      chatObject.chatHash = computeHash(chatObject.messages);
+    } catch (error) {
+      console.error('Error:', error);
+      chatObject.messages = originalMessages;
+      chatStore.set([...originalMessages]);
+    }
+
+    message = '';
+    isLoading = false;
+  }
+
   function clearChat() {
+    chatObject.messages = [];
     chatStore.set([]);
     localStorage.removeItem('chat_id');
-    // Generate a new chat id for a new conversation.
     chatId = Math.random().toString(36).substr(2, 9);
     localStorage.setItem('chat_id', chatId);
+    chatObject.chatHash = '';
   }
 
-  // After each update, scroll the chat container to the bottom.
   afterUpdate(() => {
     if (chatMessagesContainer) {
       chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
     }
   });
+
+  // Slider functions
+  function handleMouseDown(e: MouseEvent) {
+    isDragging = true;
+    e.preventDefault();
+  }
+
+  function handleMouseMove(e: MouseEvent) {
+    if (!isDragging || !container) return;
+
+    const rect = container.getBoundingClientRect();
+    // Calculate the new right container width as percentage of container's width.
+    // We use the distance from the right edge.
+    const offsetRight = rect.right - e.clientX;
+    let newRightWidth = (offsetRight / rect.width) * 100;
+
+    // Enforce minimum (25%) and maximum (50%) boundaries for the chat window.
+    if (newRightWidth < 25) newRightWidth = 25;
+    if (newRightWidth > 50) newRightWidth = 50;
+    chatRightWidth = newRightWidth;
+    chatLeftWidth = 100 - chatRightWidth;
+  }
+
+  function handleMouseUp() {
+    isDragging = false;
+  }
 </script>
 
+<style>
+  /* Simple styling for the slider separator */
+  .slider {
+    width: 4px;
+    cursor: col-resize;
+    background-color: #72a4e0;
+    height: calc(100vh-13rem);
+  }
+</style>
 
-<!-- Full Page Container (Keeps everything at a fixed height) -->
-<div class="flex flex-col flex-1 p-4">
-  <!-- Flex container splitting into 3:1 ratio -->
-  <div class="flex flex-1 h-full gap-2">
-    <!-- Left Container: 75% width (Scrolls when content overflows) -->
-    <div class="w-3/4 bg-white rounded-lg shadow-lg p-4 h-[calc(100vh-14rem)] overflow-y-auto">
+<!-- Overall page container -->
+<div bind:this={container} class="flex flex-col flex-1 p-2">
+  <!-- Flex container split into resizable panels -->
+  <div class="flex flex-1 h-full gap-0">
+    <!-- Left Container (Content) -->
+    <div
+      class="bg-white rounded shadow-lg p-4 h-[calc(100vh-6rem)] overflow-y-auto"
+      style="width: {chatLeftWidth}%"
+    >
       <!-- Section: Top Engineering Colleges -->
       <section>
         <h2 class="text-3xl font-bold text-gray-800 mb-4">Top Engineering Colleges</h2>
@@ -243,31 +288,26 @@
       </section>
     </div>
 
-    <!-- Right Container: 25% width -->
-    <div class="w-1/4 bg-white rounded-lg shadow-lg p-4 h-[calc(100vh-14rem)] flex flex-col">
+    <!-- Slider separator -->
+    <div class="slider" on:mousedown={handleMouseDown}></div>
+
+    <!-- Right Container (Chat) -->
+    <div
+      class="bg-white rounded shadow-lg p-4 h-[calc(100vh-6rem)] flex flex-col"
+      style="width: {chatRightWidth}%"
+    >
       <h3 class="text-xl font-semibold text-gray-800 mb-4">Chat with AI</h3>
       <button class="btn btn-blue" on:click={clearChat}>Clear Chat</button>
-      <!-- Chat messages container without justify-end -->
-      <div
-        class="flex-grow min-h-0 overflow-y-auto flex flex-col space-y-4 mb-4"
-        bind:this={chatMessagesContainer}
-      >
+      <div class="flex-grow min-h-0 overflow-y-auto flex flex-col space-y-4 mb-4" bind:this={chatMessagesContainer}>
         {#each $chatStore as msg}
-          <div
-            class="max-w-xs p-2 rounded-lg
-              {msg.role === 'user'
-                ? 'bg-blue-100 self-end translate-x'
-                : 'bg-green-100 self-start -translate-x'}"
-          >
-            <strong class="block text-sm mb-1">{msg.role === 'user' ? 'user' : 'AI'}</strong>
+          <div class="max-w-xs p-2 rounded-lg {msg.role === 'user' ? 'bg-blue-100 self-end' : 'bg-green-100 self-start'}">
+            <strong class="block text-sm mb-1">{msg.role === 'user' ? 'User' : 'AI'}</strong>
             <p class="text-gray-700 text-sm">{msg.content}</p>
           </div>
         {/each}
-        <!-- Dummy spacer to push messages to the bottom when there's little content -->
         <div class="mt-auto"></div>
       </div>
-
-      <!-- Message input and send button -->
+    
       <div class="flex">
         <input
           class="flex-grow rounded-lg border border-gray-300 p-2 mr-2"
@@ -276,10 +316,11 @@
           placeholder="Type your message..."
           on:keydown={(e) => e.key === 'Enter' && sendMessage()} />
         <button
-          type="button" 
-          class="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          on:click={sendMessage} disabled={isLoading}
-        >{isLoading ? 'Sending...' : 'Send'}</button>
+          type="button"
+          class="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+          on:click={sendMessage} disabled={isLoading}>
+          {isLoading ? 'Sending...' : 'Send'}
+        </button>
       </div>
     </div>
   </div>
