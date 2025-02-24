@@ -5,8 +5,7 @@
   const activeCategory = writable('engineering');
 
   // Exam categories data
-  const categories = [
-    {
+  const categories = [{
       id: 'engineering',
       title: 'Engineering',
       exams: [
@@ -42,46 +41,54 @@
 </script>
 
 <div class="container mx-auto px-4 py-8">
-  <div class="flex gap-8">
-    <!-- Left Sidebar with Toggle Buttons (25% width) -->
-    <div class="w-1/4 space-y-4">
-      {#each categories as category}
-        <button
-          class="w-full px-6 py-3 rounded-lg text-lg font-semibold transition-all duration-300
-                 {$activeCategory === category.id ? 
-                   'bg-blue-600 text-white shadow-lg' : 
-                   'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
-          on:click={() => selectCategory(category.id)}
-        >
-          {category.title}
-        </button>
-      {/each}
+  <div class="flex gap-4">
+    <!-- Left Section (25% width) -->
+    <div class="w-1/4">
+      <div class="flex flex-col gap-8 bg-white rounded-lg shadow-md p-6">
+        <!-- Category Toggle Buttons -->
+        <div class="flex flex-col gap-4">
+          {#each categories as category}
+            <button
+              class="px-6 py-3 rounded-lg text-lg font-semibold transition-all duration-300
+                     {$activeCategory === category.id ? 
+                       'bg-blue-600 text-white shadow-lg' : 
+                       'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
+              on:click={() => selectCategory(category.id)}
+            >
+              {category.title}
+            </button>
+          {/each}
+        </div>
+
+        <!-- Exam List Section -->
+        {#each categories as category}
+          {#if $activeCategory === category.id}
+            <div class="space-y-6 animate-fade-in">
+              <h1 class="text-3xl font-bold text-gray-800 mb-6">{category.title} Exams</h1>
+              
+              <div class="space-y-4">
+                {#each category.exams as exam}
+                  <div class="bg-gray-50 rounded-lg p-6 hover:shadow-md transition-shadow duration-300">
+                    <h3 class="text-xl font-semibold text-blue-600 mb-2">{exam.name}</h3>
+                    <p class="text-gray-600 mb-4">{exam.description}</p>
+                    <a 
+                      href="/exams/{exam.name.toLowerCase().replace(' ', '-')}"
+                      class="inline-block text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      Learn more →
+                    </a>
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {/if}
+        {/each}
+      </div>
     </div>
 
-    <!-- Right Content Section (75% width) -->
-    <div class="w-3/4">
-      {#each categories as category}
-        {#if $activeCategory === category.id}
-          <div class="space-y-6 animate-fade-in">
-            <h1 class="text-3xl font-bold text-gray-800 mb-6">{category.title} Exams</h1>
-            
-            <div class="grid gap-6 md:grid-cols-2">
-              {#each category.exams as exam}
-                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-                  <h3 class="text-xl font-semibold text-blue-600 mb-2">{exam.name}</h3>
-                  <p class="text-gray-600">{exam.description}</p>
-                  <a 
-                    href="/exams/{exam.name.toLowerCase().replace(' ', '-')}"
-                    class="inline-block mt-4 text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    Learn more →
-                  </a>
-                </div>
-              {/each}
-            </div>
-          </div>
-        {/if}
-      {/each}
+    <!-- Right Section (75% width) -->
+    <div class="w-3/4 bg-white rounded-lg shadow-md p-6">
+      <!-- Future content will go here -->
     </div>
   </div>
 </div>
