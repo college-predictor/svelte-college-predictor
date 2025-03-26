@@ -47,6 +47,69 @@ export const examData: Exam[] = [
         start_preparation: 'https://example.com/jee-preparation'
     },
     {
+        id: 'gate',
+        name: 'GATE 2024',
+        syllabus: 'https://example.com/gate-syllabus',
+        cutoff: {
+            general_cutoff: 25,
+            obc_cutoff: 22,
+            sc_cutoff: 18,
+            st_cutoff: 15,
+            pwd_cutoff: 12
+        },
+        calendar: {
+            application_start_date: '15/08/23',
+            application_end_date: '30/09/23',
+            exam_date: '03/02/24',
+            result_date: '16/03/24'
+        },
+        official_website: 'https://gate.iitkgp.ac.in',
+        duration: '3 hours',
+        start_preparation: 'https://example.com/gate-preparation'
+    },
+    {
+        id: 'cat',
+        name: 'CAT 2024',
+        syllabus: 'https://example.com/cat-syllabus',
+        cutoff: {
+            general_cutoff: 95,
+            obc_cutoff: 90,
+            sc_cutoff: 85,
+            st_cutoff: 80,
+            pwd_cutoff: 75
+        },
+        calendar: {
+            application_start_date: '01/08/24',
+            application_end_date: '15/09/24',
+            exam_date: '24/11/24',
+            result_date: '02/01/25'
+        },
+        official_website: 'https://iimcat.ac.in',
+        duration: '2 hours',
+        start_preparation: 'https://example.com/cat-preparation'
+    },
+    {
+        id: 'upsc',
+        name: 'UPSC CSE',
+        syllabus: 'https://example.com/upsc-syllabus',
+        cutoff: {
+            general_cutoff: 98,
+            obc_cutoff: 96,
+            sc_cutoff: 92,
+            st_cutoff: 90,
+            pwd_cutoff: 85
+        },
+        calendar: {
+            application_start_date: '14/02/24',
+            application_end_date: '05/03/24',
+            exam_date: '26/05/24',
+            result_date: '15/06/24'
+        },
+        official_website: 'https://upsc.gov.in',
+        duration: '6 hours',
+        start_preparation: 'https://example.com/upsc-preparation'
+    },
+    {
         id: 'neet',
         name: 'NEET',
         syllabus: 'https://example.com/neet-syllabus',
