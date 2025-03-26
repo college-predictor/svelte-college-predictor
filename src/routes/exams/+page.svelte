@@ -36,7 +36,21 @@
           <div class="w-full h-48 mb-6 overflow-hidden rounded-lg">
             <img src="/assets/engineering-cover.svg" alt="Exam Cover" class="w-full h-full object-cover">
           </div>
-          <h1 class="text-2xl font-bold text-gray-800">{selectedExam?.name} Overview</h1>
+          <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            {selectedExam?.name} Overview
+            <a
+              href={selectedExam?.official_website}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-600 hover:text-blue-600 transition-colors"
+              title="Visit official website"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+              </svg>
+            </a>
+          </h1>
           
           <!-- Profile Section -->
           <div class="flex items-center space-x-4 mb-6">
