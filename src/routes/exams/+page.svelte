@@ -33,60 +33,66 @@
       </div>
 
       <!-- Right Content Area -->
-      <div class="w-3/4 p-6 bg-green-800">
+      <div class="w-3/4 p-6 bg-[#D3D3D3]">
         {#if selectedCategory === 'jee'}
           <div class="space-y-6">
-            <h1 class="text-3xl font-bold text-black">JEE Main & Advanced</h1>
-            <!-- AI Generated Cover Image Section -->
-            <div class="w-full h-64 bg-gray-100 rounded-lg overflow-hidden relative mb-6">
-              <svg class="w-full h-full" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#9333EA;stop-opacity:1" />
-                  </linearGradient>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#grad1)" />
-                <circle cx="650" cy="100" r="80" fill="rgba(255,255,255,0.1)" />
-                <path d="M100,300 Q400,100 700,300" stroke="rgba(255,255,255,0.2)" stroke-width="8" fill="none" />
-                <text x="50%" y="50%" text-anchor="middle" fill="white" font-size="24" font-family="system-ui">JEE Main & Advanced 2024</text>
-                <text x="50%" y="60%" text-anchor="middle" fill="white" font-size="16" font-family="system-ui">Your Gateway to Premier Engineering Institutes</text>
-              </svg>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="bg-gray-100 p-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2 text-gray-800">Important Dates</h3>
-                <ul class="list-disc list-inside space-y-2 text-gray-700">
-                  <li>Registration Opens: January 2024</li>
-                  <li>First Attempt: April 2024</li>
-                  <li>Second Attempt: May 2024</li>
-                </ul>
-              </div>
-              <div class="bg-gray-100 p-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2 text-gray-800">Exam Pattern</h3>
-                <ul class="list-disc list-inside space-y-2 text-gray-700">
-                  <li>Computer Based Test (CBT)</li>
-                  <li>Multiple Choice Questions</li>
-                  <li>Numerical Value Questions</li>
-                </ul>
+            <h1 class="text-2xl font-bold text-gray-800">Engineering Exam Overview</h1>
+            
+            <!-- Profile Section -->
+            <div class="flex items-center space-x-4 mb-6">
+              <img src="/assets/image.png" alt="John Doe" class="w-12 h-12 rounded-full">
+              <div>
+                <h2 class="text-lg font-semibold">John Doe</h2>
+                <div class="flex items-center space-x-4 text-sm text-gray-600">
+                  <span>1h 30m</span>
+                  <span class="flex items-center">
+                    <span class="mr-1">4.9/5.0</span>
+                    <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  </span>
+                </div>
               </div>
             </div>
-            <div class="bg-gray-100 p-4 rounded-lg">
-              <h3 class="text-xl font-semibold mb-2">Preparation Resources</h3>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <a href="#" class="block p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-                  <h4 class="font-semibold text-blue-600">Study Material</h4>
-                  <p class="text-sm text-gray-600">Access comprehensive study materials</p>
-                </a>
-                <a href="#" class="block p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-                  <h4 class="font-semibold text-blue-600">Mock Tests</h4>
-                  <p class="text-sm text-gray-600">Practice with previous year papers</p>
-                </a>
-                <a href="#" class="block p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-                  <h4 class="font-semibold text-blue-600">Video Lectures</h4>
-                  <p class="text-sm text-gray-600">Learn from expert faculty</p>
-                </a>
+
+            <div class="flex space-x-4">
+              <!-- Calendar Section -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+              <h3 class="text-lg font-semibold mb-4">Calendar</h3>
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Application start</span>
+                  <span class="font-medium">23/03/24</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Application End</span>
+                  <span class="font-medium">30/04/24</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Admit card</span>
+                  <span class="font-medium">Exam</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Exam date</span>
+                  <span class="font-medium">Placem</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Result Date</span>
+                  <span class="font-medium">News</span>
+                </div>
               </div>
+            </div>
+
+            <!-- Exam Syllabus Section -->
+            <div class="bg-gray-50 rounded-lg p-4">
+              <h3 class="text-lg font-semibold mb-2">Exam Syllabus</h3>
+              <p class="text-gray-600 mb-4">Get detailed information about the engineering exam syllabus, topics.</p>
+              
+            </div>
+            </div>
+            <div class="flex space-x-4">
+              <button class="bg-white text-gray-800 px-6 py-2 rounded-lg shadow hover:shadow-md transition-shadow w-full">View syllabus</button>
+              <button class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:shadow-md transition-shadow w-full">Start preparation</button>
             </div>
           </div>
         {:else if selectedCategory === 'neet'}
