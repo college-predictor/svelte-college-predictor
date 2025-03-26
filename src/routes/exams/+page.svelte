@@ -1,12 +1,10 @@
 <script lang="ts">
+  import { examData } from '$lib/data/exams';
+  
   let selectedCategory = 'jee';
+  const examCategories = examData.map(exam => ({ id: exam.id, name: exam.name }));
 
-  const examCategories = [
-    { id: 'jee', name: 'JEE Main & Advanced' },
-    { id: 'neet', name: 'NEET' },
-    { id: 'gate', name: 'GATE' },
-    { id: 'cat', name: 'CAT' }
-  ];
+  $: selectedExam = examData.find(exam => exam.id === selectedCategory);
 
   function selectCategory(categoryId: string) {
     selectedCategory = categoryId;
@@ -36,6 +34,9 @@
       <div class="w-3/4 p-6 bg-[#D3D3D3]">
         {#if selectedCategory === 'jee'}
           <div class="space-y-6">
+            <div class="w-full h-48 mb-6 overflow-hidden rounded-lg">
+              <img src="/assets/engineering-cover.svg" alt="Engineering Cover" class="w-full h-full object-cover">
+            </div>
             <h1 class="text-2xl font-bold text-gray-800">Engineering Exam Overview</h1>
             
             <!-- Profile Section -->
@@ -62,37 +63,53 @@
               <div class="grid grid-cols-2 gap-4 text-sm">
                 <div class="flex justify-between">
                   <span class="text-gray-600">Application start</span>
-                  <span class="font-medium">23/03/24</span>
+                  <span class="font-medium">{selectedExam?.calendar.application_start_date}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-gray-600">Application End</span>
-                  <span class="font-medium">30/04/24</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Admit card</span>
-                  <span class="font-medium">Exam</span>
+                  <span class="font-medium">{selectedExam?.calendar.application_end_date}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-gray-600">Exam date</span>
-                  <span class="font-medium">Placem</span>
+                  <span class="font-medium">{selectedExam?.calendar.exam_date}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-gray-600">Result Date</span>
-                  <span class="font-medium">News</span>
+                  <span class="font-medium">{selectedExam?.calendar.result_date}</span>
                 </div>
               </div>
             </div>
 
             <!-- Exam Syllabus Section -->
             <div class="bg-gray-50 rounded-lg p-4">
-              <h3 class="text-lg font-semibold mb-2">Exam Syllabus</h3>
-              <p class="text-gray-600 mb-4">Get detailed information about the engineering exam syllabus, topics.</p>
-              
+              <h3 class="text-lg font-semibold mb-4">Cut Off</h3>
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">General</span>
+                  <span class="font-medium">{selectedExam?.cutoff.general_cutoff}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">OBC</span>
+                  <span class="font-medium">{selectedExam?.cutoff.obc_cutoff}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">SC</span>
+                  <span class="font-medium">{selectedExam?.cutoff.sc_cutoff}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">ST</span>
+                  <span class="font-medium">{selectedExam?.cutoff.st_cutoff}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">PWD</span>
+                  <span class="font-medium">{selectedExam?.cutoff.pwd_cutoff}</span>
+                </div>
+              </div>
             </div>
             </div>
             <div class="flex space-x-4">
-              <button class="bg-white text-gray-800 px-6 py-2 rounded-lg shadow hover:shadow-md transition-shadow w-full">View syllabus</button>
-              <button class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:shadow-md transition-shadow w-full">Start preparation</button>
+              <a href={selectedExam?.syllabus} target="_blank" rel="noopener noreferrer" class="bg-white text-gray-800 px-6 py-2 rounded-lg shadow hover:shadow-md transition-shadow w-full text-center">View syllabus</a>
+              <a href={selectedExam?.start_preparation} target="_blank" rel="noopener noreferrer" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:shadow-md transition-shadow w-full text-center">Start preparation</a>
             </div>
           </div>
         {:else if selectedCategory === 'neet'}
