@@ -16,6 +16,10 @@ interface ExamCutoff {
 interface Exam {
     id: string;
     name: string;
+    category: 'Engineering' | 'Medical' | 'Commerce' | 'Govt';
+    instructor: string;
+    progress: number;
+    image: string;
     syllabus: string;
     cutoff: ExamCutoff;
     calendar: ExamCalendar;
@@ -26,8 +30,12 @@ interface Exam {
 
 export const examData: Exam[] = [
     {
-        id: 'jee',
-        name: 'JEE Main & Advanced',
+        id: 'jee-main',
+        name: 'JEE Mains',
+        category: 'Engineering',
+        instructor: 'Jane Smith',
+        progress: 85,
+        image: '/assets/jee-main.svg',
         syllabus: 'https://example.com/jee-syllabus',
         cutoff: {
             general_cutoff: 23,
@@ -47,9 +55,13 @@ export const examData: Exam[] = [
         start_preparation: 'https://example.com/jee-preparation'
     },
     {
-        id: 'gate',
-        name: 'GATE 2024',
-        syllabus: 'https://example.com/gate-syllabus',
+        id: 'jee-advance',
+        name: 'JEE Advance',
+        category: 'Engineering',
+        instructor: 'Alex Johnson',
+        progress: 42,
+        image: '/assets/jee-advance.svg',
+        syllabus: 'https://example.com/jee-advance-syllabus',
         cutoff: {
             general_cutoff: 25,
             obc_cutoff: 22,
@@ -68,9 +80,13 @@ export const examData: Exam[] = [
         start_preparation: 'https://example.com/gate-preparation'
     },
     {
-        id: 'cat',
-        name: 'CAT 2024',
-        syllabus: 'https://example.com/cat-syllabus',
+        id: 'bits',
+        name: 'BITS Pilani',
+        category: 'Engineering',
+        instructor: 'Emily Brown',
+        progress: 19,
+        image: '/assets/bits.svg',
+        syllabus: 'https://example.com/bits-syllabus',
         cutoff: {
             general_cutoff: 95,
             obc_cutoff: 90,
@@ -89,9 +105,13 @@ export const examData: Exam[] = [
         start_preparation: 'https://example.com/cat-preparation'
     },
     {
-        id: 'upsc',
-        name: 'UPSC CSE',
-        syllabus: 'https://example.com/upsc-syllabus',
+        id: 'rpet',
+        name: 'RPET',
+        category: 'Engineering',
+        instructor: 'Michael Wilson',
+        progress: 35,
+        image: '/assets/rpet.svg',
+        syllabus: 'https://example.com/rpet-syllabus',
         cutoff: {
             general_cutoff: 98,
             obc_cutoff: 96,
@@ -128,6 +148,10 @@ export const examData: Exam[] = [
         },
         official_website: 'https://neet.nta.nic.in',
         duration: '3 hours',
-        start_preparation: 'https://example.com/neet-preparation'
+        start_preparation: 'https://example.com/neet-preparation',
+        category: "Medical",
+        instructor: "",
+        progress: 0,
+        image: '/assets/rpet.svg',
     }
 ];

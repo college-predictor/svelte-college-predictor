@@ -1,13 +1,18 @@
 <script lang="ts">
   import { examData } from '$lib/data/exams';
   
-  let selectedCategory = 'jee';
-  const examCategories = examData.map(exam => ({ id: exam.id, name: exam.name }));
+  let selectedCategory = 'Engineering';
+  const categories = ['Engineering', 'Medical', 'Commerce', 'Govt'];
 
-  $: selectedExam = examData.find(exam => exam.id === selectedCategory);
+  $: filteredExams = examData.filter(exam => exam.category === selectedCategory);
+  $: selectedExam = filteredExams[0];
 
-  function selectCategory(categoryId: string) {
-    selectedCategory = categoryId;
+  function selectCategory(category: string) {
+    selectedCategory = category;
+  }
+
+  function selectExam(exam: any) {
+    selectedExam = exam;
   }
 </script>
 
@@ -16,16 +21,49 @@
     <div class="flex">
       <!-- Left Sidebar - Exam Categories -->
       <div class="w-1/4 bg-white p-4 border-r">
-        <h2 class="text-xl font-bold text-gray-800 mb-4">Exam Categories</h2>
-        <div class="space-y-2">
-          {#each examCategories as category}
+        <div class="flex gap-2 mb-6">
+          {#each categories as category}
             <button
-              class="w-full text-left px-4 py-2 rounded-lg transition-colors
-                {selectedCategory === category.id ? 'bg-blue-600 text-white' : 'hover:bg-gray-200 text-gray-700'}"
-              on:click={() => selectCategory(category.id)}
+              class="px-3 py-1 rounded-full text-sm font-medium transition-colors
+                {selectedCategory === category ? 'bg-black text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}"
+              on:click={() => selectCategory(category)}
             >
-              {category.name}
+              {category}
             </button>
+          {/each}
+        </div>
+
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">{selectedCategory}</h2>
+          <button class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          {#each filteredExams as exam}
+            <div class="bg-gray-100 rounded-lg p-4 hover:bg-gray-200 cursor-pointer transition-colors"
+                 on:click={() => selectExam(exam)}>
+              <div class="flex gap-4 items-center mb-3">
+                <img src={exam.image} alt={exam.name} class="w-12 h-12 rounded-lg object-cover" />
+                <div>
+                  <h3 class="font-medium">{exam.name}</h3>
+                  <p class="text-sm text-gray-600">{exam.instructor}</p>
+                </div>
+                <button class="ml-auto p-1 rounded-full hover:bg-gray-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                  </svg>
+                </button>
+              </div>
+              <div class="relative w-full h-2 bg-gray-300 rounded-full overflow-hidden">
+                <div class="absolute top-0 left-0 h-full bg-blue-600 rounded-full"
+                     style="width: {exam.progress}%"></div>
+              </div>
+              <p class="text-sm text-gray-600 mt-2">{exam.progress}% complete</p>
+            </div>
           {/each}
         </div>
       </div>
@@ -39,6 +77,7 @@
           <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
             {selectedExam?.name} Overview
             <a
+              aria-label="Visit official website"
               href={selectedExam?.official_website}
               target="_blank"
               rel="noopener noreferrer"
