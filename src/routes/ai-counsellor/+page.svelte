@@ -9,6 +9,9 @@
   let chatId = '';
   let isLoading = false;
   let chatMessagesContainer: HTMLDivElement;
+  let socket: WebSocket;
+  let isConnected = false;
+  let connectionStatus = 'Disconnected';
 
   // Chat object to manage messages
   let chatObject = {
@@ -40,6 +43,9 @@
     if (browser) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
+      
+      // Initialize WebSocket connection
+      connectWebSocket();
     }
   });
 
@@ -47,8 +53,108 @@
     if (browser) {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
+      
+      // Close WebSocket connection
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+      }
     }
   });
+
+  function connectWebSocket() {
+    // For local testing, use localhost instead of production URL
+    const wsUrl = 'ws://localhost:8000/ws/' + chatId;
+    
+    connectionStatus = 'Connecting...';
+    
+    // Create URL with query parameters for authentication
+    const urlWithAuth = `${wsUrl}?chat_id=${chatId}`;
+    socket = new WebSocket(urlWithAuth);
+    
+    socket.onopen = () => {
+      console.log('WebSocket connected');
+      isConnected = true;
+      connectionStatus = 'Connected';
+    };
+    
+    socket.onclose = (event) => {
+      console.log('WebSocket disconnected', event);
+      isConnected = false;
+      connectionStatus = 'Disconnected';
+      
+      // Try to reconnect after 3 seconds
+      setTimeout(() => {
+        if (browser) connectWebSocket();
+      }, 3000);
+    };
+    
+    socket.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      connectionStatus = 'Error';
+    };
+    
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        
+        // Handle different message types
+        switch (data.type) {
+          case 'system':
+            console.log('System message:', data.message);
+            break;
+          case 'assistant':
+            // Handle assistant message
+            if (chatObject.messages.length > 0 && 
+                chatObject.messages[chatObject.messages.length - 1].role === 'assistant' && 
+                chatObject.messages[chatObject.messages.length - 1].content === 'Loading...') {
+              chatObject.messages[chatObject.messages.length - 1].content = data.message;
+            } else {
+              chatObject.messages.push({ role: 'assistant', content: data.message });
+            }
+            chatStore.set([...chatObject.messages]);
+            isLoading = false;
+            break;
+          case 'error':
+            // Handle error message
+            console.error('Server error:', data.message);
+            chatObject.messages.pop(); // Remove 'Loading...' message
+            chatStore.set([...chatObject.messages]);
+            isLoading = false;
+            break;
+          default:
+            console.warn('Unknown message type:', data.type);
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+  }
+  
+  function handleStreamMessage(data) {
+    // If this is the first chunk, replace the "Loading..." message
+    if (chatObject.messages.length > 0 && 
+        chatObject.messages[chatObject.messages.length - 1].role === 'assistant' && 
+        chatObject.messages[chatObject.messages.length - 1].content === 'Loading...') {
+      chatObject.messages[chatObject.messages.length - 1].content = data.content;
+    } else {
+      // Otherwise append to the last assistant message
+      const lastMsg = chatObject.messages[chatObject.messages.length - 1];
+      if (lastMsg.role === 'assistant') {
+        lastMsg.content += data.content;
+      }
+    }
+    
+    // Update the store to trigger UI refresh
+    chatStore.set([...chatObject.messages]);
+  }
+  
+  function handleCompleteMessage(data) {
+    // Finalize the message
+    isLoading = false;
+    
+    // Update chat hash
+    chatObject.chatHash = computeHash(chatObject.messages);
+  }
 
   function computeHash(messages) {
     let messagesStr = messages.map(msg => msg.content).join('');
@@ -56,7 +162,7 @@
   }
 
   async function sendMessage() {
-    if (!message.trim()) return;
+    if (!message.trim() || isLoading) return;
     isLoading = true;
 
     const originalMessages = [...chatObject.messages];
@@ -68,6 +174,37 @@
     chatObject.messages.push(optimisticUserMsg, loadingMsg);
     chatStore.set([...chatObject.messages]);
 
+    // Check if WebSocket is connected
+    if (!isConnected || socket.readyState !== WebSocket.OPEN) {
+      console.warn('WebSocket not connected. Attempting to reconnect...');
+      connectWebSocket();
+      
+      // Fall back to REST API if WebSocket connection fails
+      setTimeout(() => {
+        if (!isConnected) {
+          sendMessageViaREST();
+        } else {
+          sendMessageViaWebSocket();
+        }
+      }, 1000);
+    } else {
+      sendMessageViaWebSocket();
+    }
+  }
+  
+  function sendMessageViaWebSocket() {
+    const payload = {
+      message: message
+    };
+    
+    socket.send(JSON.stringify(payload));
+    message = '';
+  }
+  
+  async function sendMessageViaREST() {
+    const originalMessages = [...chatObject.messages];
+    const chatHash = computeHash(originalMessages);
+    
     const payload = {
       chat_id: chatId,
       prompt: message,
@@ -75,7 +212,8 @@
     };
 
     try {
-      let res = await fetch('http://127.0.0.1:8000/api/chat/generate-text', {
+      // Use localhost for testing
+      let res = await fetch('http://localhost:8000/api/chat/generate-text', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -92,7 +230,7 @@
           sync_required: true,
         };
 
-        res = await fetch('http://127.0.0.1:8000/api/chat/generate-text', {
+        res = await fetch('http://localhost:8000/api/chat/generate-text', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(syncPayload),
@@ -127,6 +265,12 @@
     chatId = Math.random().toString(36).substr(2, 9);
     localStorage.setItem('chat_id', chatId);
     chatObject.chatHash = '';
+    
+    // Reconnect WebSocket with new chat ID
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.close();
+    }
+    connectWebSocket();
   }
 
   afterUpdate(() => {
@@ -169,6 +313,28 @@
     cursor: col-resize;
     background-color: #72a4e0;
     height: calc(100vh-13rem);
+  }
+  
+  .connection-status {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    margin-left: 0.5rem;
+  }
+  
+  .status-connected {
+    background-color: #10b981;
+    color: white;
+  }
+  
+  .status-connecting {
+    background-color: #f59e0b;
+    color: white;
+  }
+  
+  .status-disconnected, .status-error {
+    background-color: #ef4444;
+    color: white;
   }
 </style>
 
@@ -296,8 +462,13 @@
       class="bg-white rounded shadow-lg p-4 h-[calc(100vh-6rem)] flex flex-col"
       style="width: {chatRightWidth}%"
     >
-      <h3 class="text-xl font-semibold text-gray-800 mb-4">Chat with AI</h3>
-      <button class="btn btn-blue" on:click={clearChat}>Clear Chat</button>
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-semibold text-gray-800">Chat with AI</h3>
+        <span class="connection-status status-{connectionStatus.toLowerCase()}">{connectionStatus}</span>
+      </div>
+      
+      <button class="btn btn-blue mb-4" on:click={clearChat}>Clear Chat</button>
+      
       <div class="flex-grow min-h-0 overflow-y-auto flex flex-col space-y-4 mb-4" bind:this={chatMessagesContainer}>
         {#each $chatStore as msg}
           <div class="max-w-xs p-2 rounded-lg {msg.role === 'user' ? 'bg-blue-100 self-end' : 'bg-green-100 self-start'}">
@@ -314,11 +485,11 @@
           type="text"
           bind:value={message}
           placeholder="Type your message..."
-          on:keydown={(e) => e.key === 'Enter' && sendMessage()} />
+          on:keydown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()} />
         <button
           type="button"
-          class="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
-          on:click={sendMessage} disabled={isLoading}>
+          class="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:bg-indigo-300"
+          on:click={sendMessage} disabled={isLoading || !message.trim()}>
           {isLoading ? 'Sending...' : 'Send'}
         </button>
       </div>
