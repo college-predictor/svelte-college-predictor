@@ -7,10 +7,29 @@ export const isConnected = writable(false);
 export const isConnecting = writable(false);
 export const connectionError = writable('');
 
-// Reference to the current bot message DOM element
-let currentStreamingMsgEl = null;
 // A promise chain that ensures each received chunk is displayed in order
 let typewriterChain = Promise.resolve();
+
+// Store for the current message being typed
+let currentMessageIndex = -1;
+
+// Function to type out a chunk character by character with a delay
+async function typeChunk(chunk) {
+  // For each character in the chunk
+  for (let ch of chunk) {
+    // Update the message in the store one character at a time
+    messages.update(msgs => {
+      if (msgs.length === 0 || currentMessageIndex === -1) return msgs;
+      
+      const updatedMsgs = [...msgs];
+      updatedMsgs[currentMessageIndex].message += ch;
+      return updatedMsgs;
+    });
+    
+    // Add a small delay between characters for the typewriter effect
+    await new Promise(resolve => setTimeout(resolve, 15));
+  }
+}
 
 // WebSocket instance
 let socket = null;
@@ -69,32 +88,57 @@ function handleWebSocketMessage(event) {
     if (data.sender === 'bot') {
       // When a chunk is received
       if (data.is_chunk === true) {
+        // If there's no existing bot message or the last message isn't from the bot, create a new one
         messages.update(msgs => {
-          // If there's no existing bot message or the last message isn't from the bot, create a new one
           if (msgs.length === 0 || msgs[msgs.length - 1].sender !== 'bot') {
-            return [...msgs, { sender: 'bot', message: data.message, isComplete: false }];
+            currentMessageIndex = msgs.length;
+            // Start with an empty message that will be filled character by character
+            return [...msgs, { sender: 'bot', message: '', isComplete: false }];
           }
           
-          // Otherwise, append to the existing bot message
-          const updatedMsgs = [...msgs];
-          updatedMsgs[updatedMsgs.length - 1].message += data.message;
-          return updatedMsgs;
+          // Otherwise, keep the existing bot message index
+          currentMessageIndex = msgs.length - 1;
+          return msgs;
         });
+        
+        // Chain the new chunk onto the existing typewriter chain
+        console.log('Typing chunk:', data.message);
+        typewriterChain = typewriterChain.then(() => typeChunk(data.message));
       } else {
         // For non-chunk messages
         if (data.message === 'DONE') {
           console.log('Received DONE signal from backend.');
-          messages.update(msgs => {
-            if (msgs.length > 0 && msgs[msgs.length - 1].sender === 'bot') {
-              const updatedMsgs = [...msgs];
-              updatedMsgs[updatedMsgs.length - 1].isComplete = true;
-              return updatedMsgs;
-            }
-            return msgs;
+          // Let the current chain complete and then mark the message as complete
+          typewriterChain.then(() => {
+            messages.update(msgs => {
+              if (msgs.length > 0 && currentMessageIndex >= 0 && currentMessageIndex < msgs.length) {
+                const updatedMsgs = [...msgs];
+                updatedMsgs[currentMessageIndex].isComplete = true;
+                currentMessageIndex = -1; // Reset the current message index
+                return updatedMsgs;
+              }
+              return msgs;
+            });
           });
         } else {
           // If the backend sends a complete (non-chunk) message
-          messages.update(msgs => [...msgs, { sender: 'bot', message: data.message, isComplete: true }]);
+          messages.update(msgs => {
+            currentMessageIndex = msgs.length;
+            return [...msgs, { sender: 'bot', message: '', isComplete: false }];
+          });
+          
+          // Type out the complete message
+          typewriterChain = typewriterChain.then(() => typeChunk(data.message)).then(() => {
+            messages.update(msgs => {
+              if (msgs.length > 0 && currentMessageIndex >= 0 && currentMessageIndex < msgs.length) {
+                const updatedMsgs = [...msgs];
+                updatedMsgs[currentMessageIndex].isComplete = true;
+                currentMessageIndex = -1; // Reset the current message index
+                return updatedMsgs;
+              }
+              return msgs;
+            });
+          });
         }
       }
     } else if (data.sender === 'system') {
