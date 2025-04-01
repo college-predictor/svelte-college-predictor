@@ -1,51 +1,31 @@
 <script lang="ts">
-  import { onMount, afterUpdate, onDestroy } from 'svelte';
-  import { chatStore } from '$lib/stores';
-  import { get } from 'svelte/store';
-  import md5 from 'blueimp-md5';
+  import { onMount, onDestroy, afterUpdate } from 'svelte';
   import { browser } from '$app/environment';
-
-  let message = '';
-  let chatId = '';
-  let isLoading = false;
-  let chatMessagesContainer: HTMLDivElement;
-  let socket: WebSocket;
-  let isConnected = false;
-  let connectionStatus = 'Disconnected';
-
-  // Chat object to manage messages
-  let chatObject = {
-    messages: [],
-    chatHash: '',
-    syncRequired: false,
-  };
+  import { messages, isConnected, isConnecting, connectionError, initWebSocket, sendMessage, closeWebSocket } from '$lib/stores/chatStore';
 
   // Slider state: right (chat) container width (in percent)
-  // Enforced to be between 25% and 50%
-  let chatRightWidth = 25; // initial value
+  // Enforced to be between 25% and 60%
+  let chatRightWidth = 30; // initial value (slightly wider for chat)
   let chatLeftWidth = 100 - chatRightWidth;
   let isDragging = false;
 
   // Reference to the overall container (for slider math)
   let container: HTMLDivElement;
+  let chatMessagesContainer: HTMLDivElement;
+  let userInput = '';
+  
+  // For typewriter effect
+  let currentStreamingMsgEl: HTMLElement | null = null;
+  let typewriterChain = Promise.resolve();
 
   onMount(() => {
-    // localStorage and window are available here only on the client
-    chatId = localStorage.getItem('chat_id') || '';
-    if (!chatId) {
-      chatId = Math.random().toString(36).substr(2, 9);
-      localStorage.setItem('chat_id', chatId);
-    }
-    chatObject.messages = get(chatStore);
-    chatObject.chatHash = computeHash(chatObject.messages);
-
     // Add event listeners only if running in the browser
     if (browser) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
       
       // Initialize WebSocket connection
-      connectWebSocket();
+      initWebSocket();
     }
   });
 
@@ -55,225 +35,12 @@
       window.removeEventListener('mouseup', handleMouseUp);
       
       // Close WebSocket connection
-      if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.close();
-      }
+      closeWebSocket();
     }
   });
 
-  function connectWebSocket() {
-    // For local testing, use localhost instead of production URL
-    const wsUrl = 'ws://localhost:8000/ws/' + chatId;
-    
-    connectionStatus = 'Connecting...';
-    
-    // Create URL with query parameters for authentication
-    const urlWithAuth = `${wsUrl}?chat_id=${chatId}`;
-    socket = new WebSocket(urlWithAuth);
-    
-    socket.onopen = () => {
-      console.log('WebSocket connected');
-      isConnected = true;
-      connectionStatus = 'Connected';
-    };
-    
-    socket.onclose = (event) => {
-      console.log('WebSocket disconnected', event);
-      isConnected = false;
-      connectionStatus = 'Disconnected';
-      
-      // Try to reconnect after 3 seconds
-      setTimeout(() => {
-        if (browser) connectWebSocket();
-      }, 3000);
-    };
-    
-    socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      connectionStatus = 'Error';
-    };
-    
-    socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        
-        // Handle different message types
-        switch (data.type) {
-          case 'system':
-            console.log('System message:', data.message);
-            break;
-          case 'assistant':
-            // Handle assistant message
-            if (chatObject.messages.length > 0 && 
-                chatObject.messages[chatObject.messages.length - 1].role === 'assistant' && 
-                chatObject.messages[chatObject.messages.length - 1].content === 'Loading...') {
-              chatObject.messages[chatObject.messages.length - 1].content = data.message;
-            } else {
-              chatObject.messages.push({ role: 'assistant', content: data.message });
-            }
-            chatStore.set([...chatObject.messages]);
-            isLoading = false;
-            break;
-          case 'error':
-            // Handle error message
-            console.error('Server error:', data.message);
-            chatObject.messages.pop(); // Remove 'Loading...' message
-            chatStore.set([...chatObject.messages]);
-            isLoading = false;
-            break;
-          default:
-            console.warn('Unknown message type:', data.type);
-        }
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
-      }
-    };
-  }
-  
-  function handleStreamMessage(data) {
-    // If this is the first chunk, replace the "Loading..." message
-    if (chatObject.messages.length > 0 && 
-        chatObject.messages[chatObject.messages.length - 1].role === 'assistant' && 
-        chatObject.messages[chatObject.messages.length - 1].content === 'Loading...') {
-      chatObject.messages[chatObject.messages.length - 1].content = data.content;
-    } else {
-      // Otherwise append to the last assistant message
-      const lastMsg = chatObject.messages[chatObject.messages.length - 1];
-      if (lastMsg.role === 'assistant') {
-        lastMsg.content += data.content;
-      }
-    }
-    
-    // Update the store to trigger UI refresh
-    chatStore.set([...chatObject.messages]);
-  }
-  
-  function handleCompleteMessage(data) {
-    // Finalize the message
-    isLoading = false;
-    
-    // Update chat hash
-    chatObject.chatHash = computeHash(chatObject.messages);
-  }
-
-  function computeHash(messages) {
-    let messagesStr = messages.map(msg => msg.content).join('');
-    return md5(messagesStr);
-  }
-
-  async function sendMessage() {
-    if (!message.trim() || isLoading) return;
-    isLoading = true;
-
-    const originalMessages = [...chatObject.messages];
-    const chatHash = computeHash(originalMessages);
-
-    const optimisticUserMsg = { role: 'user', content: message };
-    const loadingMsg = { role: 'assistant', content: 'Loading...' };
-
-    chatObject.messages.push(optimisticUserMsg, loadingMsg);
-    chatStore.set([...chatObject.messages]);
-
-    // Check if WebSocket is connected
-    if (!isConnected || socket.readyState !== WebSocket.OPEN) {
-      console.warn('WebSocket not connected. Attempting to reconnect...');
-      connectWebSocket();
-      
-      // Fall back to REST API if WebSocket connection fails
-      setTimeout(() => {
-        if (!isConnected) {
-          sendMessageViaREST();
-        } else {
-          sendMessageViaWebSocket();
-        }
-      }, 1000);
-    } else {
-      sendMessageViaWebSocket();
-    }
-  }
-  
-  function sendMessageViaWebSocket() {
-    const payload = {
-      message: message
-    };
-    
-    socket.send(JSON.stringify(payload));
-    message = '';
-  }
-  
-  async function sendMessageViaREST() {
-    const originalMessages = [...chatObject.messages];
-    const chatHash = computeHash(originalMessages);
-    
-    const payload = {
-      chat_id: chatId,
-      prompt: message,
-      chat_hash: chatHash,
-    };
-
-    try {
-      // Use localhost for testing
-      let res = await fetch('http://localhost:8000/api/chat/generate-text', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.status === 409) {
-        console.warn('Sync required. Fetching full chat history.');
-        chatObject.syncRequired = true;
-        const syncPayload = {
-          chat_id: chatId,
-          prompt: message,
-          messages: originalMessages,
-          chat_hash: chatHash,
-          sync_required: true,
-        };
-
-        res = await fetch('http://localhost:8000/api/chat/generate-text', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(syncPayload),
-        });
-      }
-
-      if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
-
-      const data = await res.json();
-      if (!data.response || typeof data.response !== 'string') {
-        throw new Error('Invalid response from server');
-      }
-
-      chatObject.messages.pop(); // Remove 'Loading...'
-      chatObject.messages.push({ role: 'assistant', content: data.response });
-      chatStore.set([...chatObject.messages]);
-      chatObject.chatHash = computeHash(chatObject.messages);
-    } catch (error) {
-      console.error('Error:', error);
-      chatObject.messages = originalMessages;
-      chatStore.set([...originalMessages]);
-    }
-
-    message = '';
-    isLoading = false;
-  }
-
-  function clearChat() {
-    chatObject.messages = [];
-    chatStore.set([]);
-    localStorage.removeItem('chat_id');
-    chatId = Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('chat_id', chatId);
-    chatObject.chatHash = '';
-    
-    // Reconnect WebSocket with new chat ID
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.close();
-    }
-    connectWebSocket();
-  }
-
   afterUpdate(() => {
+    // Scroll to the bottom of the chat container when new messages arrive
     if (chatMessagesContainer) {
       chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
     }
@@ -289,20 +56,25 @@
     if (!isDragging || !container) return;
 
     const rect = container.getBoundingClientRect();
-    // Calculate the new right container width as percentage of container's width.
-    // We use the distance from the right edge.
     const offsetRight = rect.right - e.clientX;
     let newRightWidth = (offsetRight / rect.width) * 100;
 
-    // Enforce minimum (25%) and maximum (50%) boundaries for the chat window.
     if (newRightWidth < 25) newRightWidth = 25;
-    if (newRightWidth > 50) newRightWidth = 50;
+    if (newRightWidth > 60) newRightWidth = 60;
     chatRightWidth = newRightWidth;
     chatLeftWidth = 100 - chatRightWidth;
   }
 
   function handleMouseUp() {
     isDragging = false;
+  }
+  
+  // Handle form submission
+  function handleSubmit() {
+    if (userInput.trim() === '') return;
+    
+    sendMessage(userInput.trim());
+    userInput = '';
   }
 </script>
 
@@ -315,26 +87,33 @@
     height: calc(100vh-13rem);
   }
   
-  .connection-status {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 9999px;
-    margin-left: 0.5rem;
+  /* Chat message styling */
+  .message {
+    display: flex;
+    margin-bottom: 0.75rem;
   }
   
-  .status-connected {
-    background-color: #10b981;
-    color: white;
+  .message.user {
+    justify-content: flex-end;
   }
   
-  .status-connecting {
-    background-color: #f59e0b;
-    color: white;
+  .message.bot {
+    justify-content: flex-start;
   }
   
-  .status-disconnected, .status-error {
-    background-color: #ef4444;
-    color: white;
+  .message.system {
+    justify-content: center;
+  }
+  
+  /* Typing indicator animation */
+  .typing-indicator {
+    display: inline-block;
+    animation: blink 1s step-end infinite;
+  }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
   }
 </style>
 
@@ -457,41 +236,74 @@
     <!-- Slider separator -->
     <div class="slider" on:mousedown={handleMouseDown}></div>
 
-    <!-- Right Container (Chat) -->
+    <!-- Right Container (Chat panel) -->
     <div
       class="bg-white rounded shadow-lg p-4 h-[calc(100vh-6rem)] flex flex-col"
       style="width: {chatRightWidth}%"
     >
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-semibold text-gray-800">Chat with AI</h3>
-        <span class="connection-status status-{connectionStatus.toLowerCase()}">{connectionStatus}</span>
+        <h3 class="text-xl font-semibold text-gray-800">AI Counsellor</h3>
+        <!-- Connection status indicator -->
+        <div class="flex items-center">
+          {#if $isConnecting}
+            <span class="inline-block w-3 h-3 rounded-full bg-yellow-400 mr-2"></span>
+            <span class="text-sm text-gray-600">Connecting...</span>
+          {:else if $isConnected}
+            <span class="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+            <span class="text-sm text-gray-600">Connected</span>
+          {:else}
+            <span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+            <span class="text-sm text-gray-600">Disconnected</span>
+          {/if}
+        </div>
       </div>
       
-      <button class="btn btn-blue mb-4" on:click={clearChat}>Clear Chat</button>
-      
-      <div class="flex-grow min-h-0 overflow-y-auto flex flex-col space-y-4 mb-4" bind:this={chatMessagesContainer}>
-        {#each $chatStore as msg}
-          <div class="max-w-xs p-2 rounded-lg {msg.role === 'user' ? 'bg-blue-100 self-end' : 'bg-green-100 self-start'}">
-            <strong class="block text-sm mb-1">{msg.role === 'user' ? 'User' : 'AI'}</strong>
-            <p class="text-gray-700 text-sm">{msg.content}</p>
+      <!-- Chat messages container -->
+      <div class="flex-grow min-h-0 overflow-y-auto p-2 bg-gray-50 rounded" bind:this={chatMessagesContainer}>
+        {#if $connectionError}
+          <div class="message system p-2 mb-3 bg-red-100 text-red-800 rounded">
+            {$connectionError}
           </div>
-        {/each}
-        <div class="mt-auto"></div>
+        {/if}
+        
+        {#if $messages.length === 0}
+          <div class="flex items-center justify-center h-full">
+            <p class="text-gray-500 text-center">
+              Welcome to the AI Counsellor! Ask me anything about college admissions, courses, or career paths.
+            </p>
+          </div>
+        {:else}
+          {#each $messages as message}
+            <div class="message mb-3 {message.sender === 'user' ? 'user' : message.sender === 'system' ? 'system' : 'bot'}">
+              <div class="p-3 rounded-lg inline-block max-w-[85%] {message.sender === 'user' ? 'bg-blue-500 text-white ml-auto' : message.sender === 'system' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-200 text-gray-800'}">
+                {message.message}
+                {#if message.sender === 'bot' && !message.isComplete}
+                  <span class="typing-indicator">▌</span>
+                {/if}
+              </div>
+            </div>
+          {/each}
+        {/if}
       </div>
-    
-      <div class="flex">
-        <input
-          class="flex-grow rounded-lg border border-gray-300 p-2 mr-2"
-          type="text"
-          bind:value={message}
-          placeholder="Type your message..."
-          on:keydown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()} />
-        <button
-          type="button"
-          class="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:bg-indigo-300"
-          on:click={sendMessage} disabled={isLoading || !message.trim()}>
-          {isLoading ? 'Sending...' : 'Send'}
-        </button>
+      
+      <!-- Chat input form -->
+      <div class="mt-4">
+        <form on:submit|preventDefault={handleSubmit} class="flex">
+          <input
+            type="text"
+            bind:value={userInput}
+            placeholder="Type your message here..."
+            class="flex-grow p-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={!$isConnected}
+          />
+          <button
+            type="submit"
+            class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            disabled={!$isConnected || userInput.trim() === ''}
+          >
+            Send
+          </button>
+        </form>
       </div>
     </div>
   </div>

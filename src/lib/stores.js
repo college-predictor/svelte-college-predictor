@@ -1,12 +1,3 @@
 // src/lib/stores.js
-import { writable } from 'svelte/store';
-import Cookies from 'js-cookie';
-
-const chatCookie = Cookies.get('chat');
-const initialChat = chatCookie ? JSON.parse(chatCookie) : [];
-
-export const chatStore = writable(initialChat);
-
-chatStore.subscribe((value) => {
-  Cookies.set('chat', JSON.stringify(value), { expires: 7 });
-});
+// This file is kept as a placeholder but all chat functionality has been removed
+// No stores are needed for the slider functionality
