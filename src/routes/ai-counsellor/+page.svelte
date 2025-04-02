@@ -99,6 +99,11 @@
     justify-content: flex-start;
   }
   
+  /* Adding assistant class for new naming convention */
+  .message.assistant {
+    justify-content: flex-start;
+  }
+  
   .message.system {
     justify-content: center;
   }
@@ -181,10 +186,10 @@
           </div>
         {:else}
           {#each $messages as message}
-            <div class="message mb-3 {message.sender === 'user' ? 'user' : message.sender === 'system' ? 'system' : 'bot'}">
-              <div class="p-3 rounded-lg inline-block max-w-[85%] {message.sender === 'user' ? 'bg-blue-500 text-white ml-auto' : message.sender === 'system' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-200 text-gray-800'}">
-                {message.message}
-                {#if message.sender === 'bot' && !message.isComplete}
+            <div class="message mb-3 {message.role === 'user' ? 'user' : message.role === 'system' ? 'system' : 'bot'}">
+              <div class="p-3 rounded-lg inline-block max-w-[85%] {message.role === 'user' ? 'bg-blue-500 text-white ml-auto' : message.role === 'system' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-200 text-gray-800'}">
+                {message.content}
+                {#if message.role === 'assistant' && !message.isComplete}
                   <span class="typing-indicator">▌</span>
                 {/if}
               </div>

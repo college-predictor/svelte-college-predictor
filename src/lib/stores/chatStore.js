@@ -50,7 +50,7 @@ async function typeChunk(chunk) {
       if (msgs.length === 0 || currentMessageIndex === -1) return msgs;
       
       const updatedMsgs = [...msgs];
-      updatedMsgs[currentMessageIndex].message += ch;
+      updatedMsgs[currentMessageIndex].content += ch;
       return updatedMsgs;
     });
     
@@ -61,6 +61,24 @@ async function typeChunk(chunk) {
 
 // WebSocket instance
 let socket = null;
+
+// Function to sync conversation history with backend
+async function syncConversationHistory() {
+  if (!socket || socket.readyState !== WebSocket.OPEN) return;
+  
+  try {
+    const storedMessages = loadMessages();
+    if (storedMessages.length > 0) {
+      socket.send(JSON.stringify({
+        type: 'sync',
+        content: storedMessages,
+        role: 'user'
+      }));
+    }
+  } catch (error) {
+    console.error('Error syncing conversation history:', error);
+  }
+}
 
 // Initialize WebSocket connection
 export function initWebSocket() {
@@ -79,6 +97,8 @@ export function initWebSocket() {
       console.log('WebSocket connection established.');
       isConnected.set(true);
       isConnecting.set(false);
+      // Sync conversation history when connection is established
+      syncConversationHistory();
     };
     
     socket.onerror = (error) => {
@@ -108,33 +128,33 @@ function handleWebSocketMessage(event) {
     const data = JSON.parse(event.data);
     
     if (data.type === 'error') {
-      console.error('Server error:', data.message);
-      messages.update(msgs => [...msgs, { sender: 'system', message: `Error: ${data.message}` }]);
+      console.error('Server error:', data.message || data.content);
+      messages.update(msgs => [...msgs, { role: 'system', content: `Error: ${data.message || data.content}` }]);
       return;
     }
     
-    if (data.sender === 'bot') {
+    if (data.role === 'assistant' || data.sender === 'bot') {
       // When a chunk is received
       if (data.is_chunk === true) {
-        // If there's no existing bot message or the last message isn't from the bot, create a new one
+        // If there's no existing assistant message or the last message isn't from the assistant, create a new one
         messages.update(msgs => {
-          if (msgs.length === 0 || msgs[msgs.length - 1].sender !== 'bot') {
+          if (msgs.length === 0 || msgs[msgs.length - 1].role !== 'assistant') {
             currentMessageIndex = msgs.length;
             // Start with an empty message that will be filled character by character
-            return [...msgs, { sender: 'bot', message: '', isComplete: false }];
+            return [...msgs, { role: 'assistant', content: '', isComplete: false }];
           }
           
-          // Otherwise, keep the existing bot message index
+          // Otherwise, keep the existing assistant message index
           currentMessageIndex = msgs.length - 1;
           return msgs;
         });
         
         // Chain the new chunk onto the existing typewriter chain
-        console.log('Typing chunk:', data.message);
-        typewriterChain = typewriterChain.then(() => typeChunk(data.message));
+        console.log('Typing chunk:', data.content || data.message);
+        typewriterChain = typewriterChain.then(() => typeChunk(data.content || data.message));
       } else {
         // For non-chunk messages
-        if (data.message === 'DONE') {
+        if ((data.content || data.message) === 'DONE') {
           console.log('Received DONE signal from backend.');
           // Let the current chain complete and then mark the message as complete
           typewriterChain.then(() => {
@@ -152,11 +172,11 @@ function handleWebSocketMessage(event) {
           // If the backend sends a complete (non-chunk) message
           messages.update(msgs => {
             currentMessageIndex = msgs.length;
-            return [...msgs, { sender: 'bot', message: '', isComplete: false }];
+            return [...msgs, { role: 'assistant', content: '', isComplete: false }];
           });
           
           // Type out the complete message
-          typewriterChain = typewriterChain.then(() => typeChunk(data.message)).then(() => {
+          typewriterChain = typewriterChain.then(() => typeChunk(data.content || data.message)).then(() => {
             messages.update(msgs => {
               if (msgs.length > 0 && currentMessageIndex >= 0 && currentMessageIndex < msgs.length) {
                 const updatedMsgs = [...msgs];
@@ -169,11 +189,11 @@ function handleWebSocketMessage(event) {
           });
         }
       }
-    } else if (data.sender === 'system') {
-      messages.update(msgs => [...msgs, { sender: 'system', message: data.message }]);
-    } else if (data.sender === 'user') {
+    } else if (data.role === 'system' || data.sender === 'system') {
+      messages.update(msgs => [...msgs, { role: 'system', content: data.content || data.message }]);
+    } else if (data.role === 'user' || data.sender === 'user') {
       // This would typically come from the UI directly, but handle it just in case
-      messages.update(msgs => [...msgs, { sender: 'user', message: data.message }]);
+      messages.update(msgs => [...msgs, { role: 'user', content: data.content || data.message }]);
     }
   } catch (err) {
     console.error('Error parsing message:', err);
@@ -183,18 +203,18 @@ function handleWebSocketMessage(event) {
 // Send a message through the WebSocket
 export function sendMessage(text) {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
-    messages.update(msgs => [...msgs, { sender: 'system', message: 'Not connected to server' }]);
+    messages.update(msgs => [...msgs, { role: 'system', content: 'Not connected to server' }]);
     return false;
   }
   
   // Add user message to the messages store
-  messages.update(msgs => [...msgs, { sender: 'user', message: text }]);
+  messages.update(msgs => [...msgs, { role: 'user', content: text }]);
   
   // Send the message to the server
   socket.send(JSON.stringify({
     type: 'text',
     content: text,
-    sender: 'user'
+    role: 'user'
   }));
   
   return true;
