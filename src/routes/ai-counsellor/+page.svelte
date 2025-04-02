@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy, afterUpdate } from 'svelte';
   import { browser } from '$app/environment';
-  import { messages, isConnected, isConnecting, connectionError, initWebSocket, sendMessage, closeWebSocket } from '$lib/stores/chatStore';
+  import { messages, isConnected, isConnecting, connectionError, initWebSocket, sendMessage, closeWebSocket, clearChat } from '$lib/stores/chatStore';
 
   // Slider state: right (chat) container width (in percent)
   // Enforced to be between 25% and 60%
@@ -136,18 +136,32 @@
     >
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-xl font-semibold text-gray-800">AI Counsellor</h3>
-        <!-- Connection status indicator -->
-        <div class="flex items-center">
-          {#if $isConnecting}
-            <span class="inline-block w-3 h-3 rounded-full bg-yellow-400 mr-2"></span>
-            <span class="text-sm text-gray-600">Connecting...</span>
-          {:else if $isConnected}
-            <span class="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span>
-            <span class="text-sm text-gray-600">Connected</span>
-          {:else}
-            <span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>
-            <span class="text-sm text-gray-600">Disconnected</span>
-          {/if}
+        <div class="flex items-center gap-4">
+          <!-- Clear chat button -->
+          <button
+            class="text-sm px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded flex items-center"
+            on:click={() => clearChat()}
+            title="Clear chat history"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Clear Chat
+          </button>
+          
+          <!-- Connection status indicator -->
+          <div class="flex items-center">
+            {#if $isConnecting}
+              <span class="inline-block w-3 h-3 rounded-full bg-yellow-400 mr-2"></span>
+              <span class="text-sm text-gray-600">Connecting...</span>
+            {:else if $isConnected}
+              <span class="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+              <span class="text-sm text-gray-600">Connected</span>
+            {:else}
+              <span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+              <span class="text-sm text-gray-600">Disconnected</span>
+            {/if}
+          </div>
         </div>
       </div>
       

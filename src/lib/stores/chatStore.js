@@ -1,11 +1,39 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
+// Local storage key for chat messages
+const STORAGE_KEY = 'college-predictor-chat-messages';
+
+// Function to load messages from localStorage
+function loadMessages() {
+  if (browser) {
+    try {
+      const storedMessages = localStorage.getItem(STORAGE_KEY);
+      return storedMessages ? JSON.parse(storedMessages) : [];
+    } catch (error) {
+      console.error('Error loading messages from localStorage:', error);
+      return [];
+    }
+  }
+  return [];
+}
+
 // Create stores for chat state
-export const messages = writable([]);
+export const messages = writable(loadMessages());
 export const isConnected = writable(false);
 export const isConnecting = writable(false);
 export const connectionError = writable('');
+
+// Subscribe to messages store to save changes to localStorage
+if (browser) {
+  messages.subscribe(value => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+    } catch (error) {
+      console.error('Error saving messages to localStorage:', error);
+    }
+  });
+}
 
 // A promise chain that ensures each received chunk is displayed in order
 let typewriterChain = Promise.resolve();
@@ -27,7 +55,7 @@ async function typeChunk(chunk) {
     });
     
     // Add a small delay between characters for the typewriter effect
-    await new Promise(resolve => setTimeout(resolve, 15));
+    await new Promise(resolve => setTimeout(resolve, 10));
   }
 }
 
@@ -179,4 +207,16 @@ export function closeWebSocket() {
     socket = null;
   }
   isConnected.set(false);
+}
+
+// Clear chat messages from store and localStorage
+export function clearChat() {
+  messages.set([]);
+  if (browser) {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error('Error clearing messages from localStorage:', error);
+    }
+  }
 }
