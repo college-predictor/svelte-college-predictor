@@ -7,25 +7,25 @@
         title: 'AI Counsellor',
         description: 'Get expert AI-based counselling to guide your college journey.',
         icon: faUserGraduate,
-        link: "/aicounsellor",
+        link: "/ai-counsellor",
       },
       {
-        title: 'Course Planner',
-        description: 'Plan your course path to ensure optimal learning and career growth.',
+        title: 'Study Materials',
+        description: 'Access free study materials for various entrance exams.',
         icon: faBookOpen,
-        link: "/courseplanner",  // Added a valid link here
+        link: "/study-material",
       },
       {
-        title: 'Exams',
-        description: 'Prepare for exams with our tailored guidance and resources.',
+        title: 'JOSAA Discussion',
+        description: 'Join the discussion forum for JOSAA counselling queries and advice.',
         icon: faClipboardList,
-        link: "/exams",  // Added a valid link here
+        link: "/discussion-forum",
       },
       {
         title: 'Colleges',
         description: 'Explore colleges that match your academic profile and preferences.',
         icon: faUniversity,
-        link: "/colleges",  // Added a valid link here
+        link: "/college-list",
       },
     ];
   </script>

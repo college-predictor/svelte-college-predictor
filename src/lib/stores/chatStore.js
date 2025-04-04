@@ -3,6 +3,7 @@ import { browser } from '$app/environment';
 
 // Local storage key for chat messages
 const STORAGE_KEY = 'college-predictor-chat-messages';
+const STORAGE_KEY_RESEARCH = 'college-predictor-chat-research';
 
 // Function to load messages from localStorage
 function loadMessages() {

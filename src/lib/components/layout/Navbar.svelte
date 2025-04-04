@@ -5,6 +5,8 @@
 
   const links = [
     { href: '/', label: 'Home' },
+    { href: '/study-material', label: 'Free Study Material' },
+    { href: '/discussion-forum', label: 'Discussion Forum' },
     { href: '/about', label: 'About' },
     // {
     //   href: '/exams',
@@ -47,11 +49,18 @@
 
       <!-- Desktop Menu -->
       <div class="hidden md:flex md:items-center">
-        <ul class="flex space-x-6 md:flex md:items-center">
+        <ul class="flex space-x-2 md:flex md:items-center">
+          <li>
+            <a href="/ai-counsellor">
+              <button class="px-3 py-2 bg-yellow-400 text-indigo-700 rounded-lg hover:bg-yellow-500 transition duration-300 font-medium">
+                AI Counsellor
+              </button>
+            </a>
+          </li>
           {#each links as link}
             <li class="relative group">
               {#if link.dropdown}
-              <a href="{link.href}" class="text-white hover:text-yellow-300 transition duration-300 font-medium">
+              <a href="{link.href}" class="bg-indigo-600 px-4 py-2 rounded-lg text-white hover:bg-indigo-700 hover:text-yellow-300 transition duration-300 font-medium">
                 {link.label}
               </a>
                 <ul class="absolute left-0 mt-2 w-40 bg-white text-gray-800 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
@@ -62,19 +71,12 @@
                   {/each}
                 </ul>
               {:else}
-              <a href="{link.href}" class="text-white hover:text-yellow-300 transition duration-300 font-medium">
+              <a href="{link.href}" class="bg-indigo-500 px-4 py-2 rounded-lg text-white hover:bg-indigo-700 hover:text-yellow-300 transition duration-300 font-medium">
                 {link.label}
               </a>
               {/if}
             </li>
           {/each}
-          <li>
-            <a href="/ai-counsellor">
-              <button class="px-4 py-2 bg-yellow-400 text-indigo-700 rounded-lg hover:bg-yellow-500 transition duration-300 font-medium">
-                AI Counsellor
-              </button>
-            </a>
-          </li>
           <!-- <li>
             <a href="/login" class="text-white hover:text-yellow-300 transition duration-300 font-medium">
               Login
