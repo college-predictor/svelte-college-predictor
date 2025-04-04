@@ -237,7 +237,7 @@
     if (questionForm.messageType) {
       const messageText = questionForm.messageType === 'custom' ? questionForm.customMessage : messageTypes.find(t => t.value === questionForm.messageType)?.label;
       if (messageText) {
-        questionContent += `<div class="mt-2 text-sm text-indigo-600">${messageText}</div>`;
+        questionContent += `<div class="mt-2 text-sm text-black-600">${messageText}</div>`;
       }
     }
     
