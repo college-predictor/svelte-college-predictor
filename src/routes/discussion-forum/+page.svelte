@@ -9,6 +9,7 @@
   let newMessage = '';
   let showQuestionModal = false;
   let fileInput;
+  let currentUser = null;
   
   // Question form data
   let questionForm = {
@@ -18,8 +19,31 @@
     optionB: { text: '', image: null },
     optionC: { text: '', image: null },
     optionD: { text: '', image: null },
-    difficulty: 3
+    difficulty: 3,
+    myAnswer: '',
+    messageType: '',
+    customMessage: ''
   };
+
+  // Predefined message types
+  const messageTypes = [
+    { value: '', label: 'Type your message here...' },
+    { value: 'is_correct', label: 'Is this option correct?' },
+    { value: 'what_answer', label: 'What is the answer to this question?' },
+    { value: 'difficulty', label: 'What is its difficulty level?' },
+    { value: 'how_solve', label: 'How to solve this?' },
+    { value: 'is_wrong', label: 'Is this question wrong?' },
+    { value: 'custom', label: 'Write your own...' }
+  ];
+
+  // Answer options
+  const answerOptions = [
+    { value: '', label: 'Select your answer' },
+    { value: 'A', label: 'Option A' },
+    { value: 'B', label: 'Option B' },
+    { value: 'C', label: 'Option C' },
+    { value: 'D', label: 'Option D' }
+  ];
 
   // Preview images
   let questionImagePreview = '';
@@ -31,6 +55,9 @@
   };
 
   onMount(() => {
+    // Initialize user
+    currentUser = initializeUser();
+
     // Load messages from localStorage if available
     const storedMessages = localStorage.getItem('discussion-forum-messages');
     if (storedMessages) {
@@ -54,12 +81,35 @@
     localStorage.setItem('discussion-forum-messages', JSON.stringify(messages));
   }
 
+  // Username generation data with emojis
+  const adjectives = ['Tiny', 'Witty', 'Quirky', 'Zippy', 'Cozy', 'Perky', 'Snazzy', 'Jolly', 'Peppy', 'Zesty'];
+  const nouns = ['Panda🐼', 'Fox🦊', 'Owl🦉', 'Bear🐻', 'Cat😺', 'Wolf🐺', 'Duck🦆', 'Lion🦁', 'Tiger🐯', 'Koala🐨'];
+  const colors = ['text-blue-800', 'text-green-800', 'text-purple-800', 'text-red-800', 'text-indigo-800', 'text-pink-800'];
+
+  function generateUsername() {
+    const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const noun = nouns[Math.floor(Math.random() * nouns.length)];
+    const name = `${adjective}${noun}`;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    return { name, color };
+  }
+
+  function initializeUser() {
+    let user = localStorage.getItem('forum-user');
+    if (!user) {
+      user = JSON.stringify(generateUsername());
+      localStorage.setItem('forum-user', user);
+    }
+    return JSON.parse(user);
+  }
+
   function sendMessage() {
     if (!newMessage.trim()) return;
     
     const message = {
       id: Date.now(),
-      user: 'You', // In a real app, this would be the logged-in user
+      user: currentUser.name,
+      userColor: currentUser.color,
       content: newMessage,
       timestamp: new Date().toISOString(),
       isQuestion: false
@@ -93,7 +143,10 @@
       optionB: { text: '', image: null },
       optionC: { text: '', image: null },
       optionD: { text: '', image: null },
-      difficulty: 3
+      difficulty: 3,
+      myAnswer: '',
+      messageType: '',
+      customMessage: ''
     };
     
     questionImagePreview = '';
@@ -149,12 +202,9 @@
     }
     
     if (questionForm.questionImage) {
-      // In a real app, you would upload the image to a server and get a URL
-      // For this demo, we'll use the data URL
       questionContent += `<div class="mb-3"><img src="${questionImagePreview}" alt="Question Image" class="max-w-full rounded"></div>`;
     }
     
-    // Add options
     questionContent += '<div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">';
     
     const options = ['A', 'B', 'C', 'D'];
@@ -177,14 +227,24 @@
     });
     
     questionContent += '</div>';
-    
-    // Add difficulty indicator
     questionContent += `<div class="mt-3 text-sm text-gray-600">Difficulty: ${'★'.repeat(questionForm.difficulty)}${'☆'.repeat(5 - questionForm.difficulty)}</div>`;
     
-    // Create the message
+    // Add message type and answer
+    if (questionForm.myAnswer) {
+      questionContent += `<div class="mt-1 text-sm text-green-600">My Answer: Option ${questionForm.myAnswer}</div>`;
+    }
+
+    if (questionForm.messageType) {
+      const messageText = questionForm.messageType === 'custom' ? questionForm.customMessage : messageTypes.find(t => t.value === questionForm.messageType)?.label;
+      if (messageText) {
+        questionContent += `<div class="mt-2 text-sm text-indigo-600">${messageText}</div>`;
+      }
+    }
+    
     const message = {
       id: Date.now(),
-      user: 'You', // In a real app, this would be the logged-in user
+      user: currentUser.name,
+      userColor: currentUser.color,
       content: questionContent,
       timestamp: new Date().toISOString(),
       isQuestion: true
@@ -194,7 +254,6 @@
     saveMessages();
     closeQuestionModal();
     
-    // Auto-scroll to bottom
     setTimeout(() => {
       const chatContainer = document.querySelector('.chat-messages');
       chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -220,10 +279,10 @@
       <!-- Messages -->
       <div class="chat-messages flex-grow p-4 overflow-y-auto">
         {#each messages as message (message.id)}
-          <div class="mb-4 {message.user === 'You' ? 'text-right' : ''}">
-            <div class="inline-block max-w-[80%] {message.user === 'You' ? 'bg-blue-100 text-left' : message.user === 'System' ? 'bg-yellow-100' : 'bg-gray-100'} rounded-lg p-3 shadow-sm">
+          <div class="mb-4 text-right">
+            <div class="inline-block max-w-[80%] {message.user === 'System' ? 'bg-yellow-100' : 'bg-gray-100'} rounded-lg p-3 shadow-sm text-left">
               <div class="flex justify-between items-start mb-1">
-                <span class="font-semibold text-sm {message.user === 'System' ? 'text-yellow-800' : 'text-blue-800'}">{message.user}</span>
+                <span class="font-semibold text-sm {message.user === 'System' ? 'text-yellow-800' : message.userColor}">{message.user}</span>
                 <span class="text-xs text-gray-500 ml-2">{formatTimestamp(message.timestamp)}</span>
               </div>
               
@@ -241,29 +300,30 @@
       
       <!-- Input area -->
       <div class="border-t border-gray-200 p-4 bg-gray-50">
-        <div class="flex items-center">
-          <button 
-            class="mr-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full p-2 transition duration-200"
-            on:click={openQuestionModal}
-            title="Add Question"
-          >
-            <FontAwesomeIcon icon={faPlus} />
-          </button>
-          
+        <div class="flex items-center gap-2">
           <input 
             type="text" 
             bind:value={newMessage} 
             placeholder="Type your message here..." 
-            class="flex-grow border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="flex-grow border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             on:keypress={(e) => e.key === 'Enter' && sendMessage()}
           />
           
           <button 
-            class="bg-blue-500 hover:bg-blue-600 text-white rounded-r-lg px-4 py-2 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            class="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed mr-2"
             on:click={sendMessage}
             disabled={!newMessage.trim()}
           >
             <FontAwesomeIcon icon={faPaperPlane} />
+          </button>
+          
+          <button 
+            class="bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg px-4 py-2 transition duration-200 flex items-center gap-2"
+            on:click={openQuestionModal}
+            title="Add Question"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            <span>Upload Question</span>
           </button>
         </div>
       </div>
@@ -398,6 +458,41 @@
             </div>
           </div>
           
+          <!-- My Answer Dropdown -->
+          <div class="mb-4">
+            <label class="block text-gray-700 font-medium mb-2">My Answer</label>
+            <select
+              bind:value={questionForm.myAnswer}
+              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {#each answerOptions as option}
+                <option value={option.value}>{option.label}</option>
+              {/each}
+            </select>
+          </div>
+
+          <!-- Message Type Dropdown -->
+          <div class="mb-4">
+            <label class="block text-gray-700 font-medium mb-2">Message Type</label>
+            <select
+              bind:value={questionForm.messageType}
+              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+            >
+              {#each messageTypes as type}
+                <option value={type.value}>{type.label}</option>
+              {/each}
+            </select>
+
+            {#if questionForm.messageType === 'custom'}
+              <textarea
+                bind:value={questionForm.customMessage}
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows="2"
+                placeholder="Write your question here..."
+              ></textarea>
+            {/if}
+          </div>
+
           <!-- Submit Button -->
           <div class="flex justify-end">
             <button 
