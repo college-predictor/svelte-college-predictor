@@ -66,6 +66,9 @@ if (browser) {
 // WebSocket instance
 let socket = null;
 
+// Export socket for external use
+export { socket };
+
 // Get or generate client ID
 export function getClientId() {
   if (browser) {
@@ -138,22 +141,110 @@ function handleWebSocketMessage(event) {
   try {
     const data = JSON.parse(event.data);
     console.log('Message received:', data);
+    // Debug - log message status updates more explicitly
+    if (data.type === 'message_validated' || (data.type === 'message' && data.messageId)) {
+      console.log('Status update for message ID:', data.messageId, '- Setting status to sent');
+    }
     
     switch (data.type) {
-      case 'message':
-        // Regular text message
+      case 'message':  
+        // Regular text message from server (validated)
+        // First check if this is a validation response for a pending message
+        if (data.messageId) {
+          // Update the status of the pending message to 'sent'
+          messages.update(msgs => {
+            // Create a completely new array with the updated message to ensure reactivity
+            return [...msgs.map(msg => 
+              msg.id === data.messageId ? { ...msg, status: 'sent' } : { ...msg }
+            )];
+          });
+        } else {
+          // This is a new message from another user
+          messages.update(msgs => [...msgs, {
+            id: data.id,
+            user_id: data.user_id,
+            user: data.username,
+            userColor: data.color || '',
+            content: data.content,
+            timestamp: data.timestamp,
+            isQuestion: data.type === 'question',
+            status: 'sent' // Messages from others are always in 'sent' state
+          }]);
+        }
+        break;
+        
+      case 'message_validated':
+        // Message validation response
+        console.log('Received message_validated event for message ID:', data.messageId);
+        // Force a complete refresh of the messages store to trigger reactivity
+        // Add a small delay to ensure the UI has time to update
+        setTimeout(() => {
+          messages.update(msgs => {
+            // Create a new array with the updated message, ensuring each object reference is new
+            const updatedMsgs = msgs.map(msg => 
+              msg.id === data.messageId ? { ...msg, status: 'sent' } : { ...msg }
+            );
+            
+            // Return a completely new array to ensure Svelte detects the change
+            return [...updatedMsgs];
+          });
+        }, 50); // Small delay to ensure the UI updates
+        break;
+        
+      case 'message_error':
+        // Message validation error - remove the message
+        messages.update(msgs => msgs.filter(msg => msg.id !== data.messageId));
+        
+        // Show error notification
         messages.update(msgs => [...msgs, {
-          id: data.id,
-          user_id: data.user_id,
-          user: data.username,
-          userColor: data.color || 'text-gray-800',
-          content: data.content,
-          timestamp: data.timestamp,
-          isQuestion: data.type === 'question'
+          id: Date.now(),
+          user: 'System',
+          content: `Error: ${data.error || 'Your message could not be delivered'}`,
+          timestamp: new Date().toISOString(),
+          isQuestion: false,
+          status: 'sent'
         }]);
         break;
         
-
+      case 'validation':
+        // Handle message validation response
+        if (data.status === 'error') {
+          // Remove message completely if validation failed
+          messages.update(msgs => msgs.filter(msg => msg.id !== data.messageId));
+          
+          // Show error notification
+          messages.update(msgs => [...msgs, {
+            id: Date.now(),
+            user: 'System',
+            content: `Error: Message could not be validated`,
+            timestamp: new Date().toISOString(),
+            isQuestion: false,
+            status: 'sent'
+          }]);
+        } else {
+          // Update status for validated messages
+          messages.update(msgs => {
+            const updatedMsgs = [...msgs];
+            let targetIndex = -1;
+            for (let i = updatedMsgs.length - 1; i >= 0; i--) {
+              if (updatedMsgs[i].id === data.messageId) {
+                targetIndex = i;
+                break;
+              }
+            }
+            
+            if (targetIndex !== -1) {
+              updatedMsgs[targetIndex] = {
+                ...updatedMsgs[targetIndex],
+                status: 'validated'
+              };
+            }
+            
+            return updatedMsgs;
+          });
+        }
+        console.log(`Message ID: ${data.messageId} validation status: ${data.status}`);
+        break;
         
       case 'system':
         // System notification
@@ -162,7 +253,8 @@ function handleWebSocketMessage(event) {
           user: 'System',
           content: data.content,
           timestamp: new Date().toISOString(),
-          isQuestion: false
+          isQuestion: false,
+          status: 'sent'
         }]);
         break;
         
@@ -178,10 +270,11 @@ function handleWebSocketMessage(event) {
             id: msg.id,
             user_id: msg.user_id,
             user: msg.username,
-            userColor: msg.color || 'text-gray-800',
+            userColor: msg.color || '',
             content: msg.content,
             timestamp: msg.timestamp,
-            isQuestion: msg.type === 'question'
+            isQuestion: msg.type === 'question',
+            status: 'sent' // All history messages are in 'sent' state
           })));
         }
         break;
@@ -206,30 +299,52 @@ export function sendTextMessage(text) {
   let user;
   currentUser.subscribe(value => { user = value; })();
   
-  // Add message to the messages store
+  // Generate a unique message ID
+  const messageId = Date.now();
+  
+  // Add message to the messages store with pending status
   const message = {
-    id: Date.now(),
+    id: messageId,
     user_id: getClientId(), // Add user_id to ensure proper message alignment
     user: user.name,
     userColor: user.color,
     content: text,
     timestamp: new Date().toISOString(),
-    isQuestion: false
+    isQuestion: false,
+    status: 'pending' // Add status field for tracking message state
   };
   
+  // Add the message to the store
   messages.update(msgs => [...msgs, message]);
   
   // Send the message to the server
   socket.send(JSON.stringify({
     type: 'message',
+    messageId: messageId, // Include message ID for tracking
     content: text
   }));
   
-  return true;
+  // Automatically set status to 'sent' after a delay if no validation received
+  // This ensures the UI updates even if there's an issue with the WebSocket response
+  setTimeout(() => {
+    messages.update(msgs => {
+      // Check if the message still exists and is still pending
+      const messageStillPending = msgs.some(msg => msg.id === messageId && msg.status === 'pending');
+      
+      if (messageStillPending) {
+        console.log('Auto-updating message status for ID:', messageId);
+        // Force update with new object references
+        return msgs.map(msg => msg.id === messageId ? { ...msg, status: 'sent' } : { ...msg });
+      }
+      return msgs;
+    });
+  }, 2000); // 2 second timeout
+  
+  return messageId; // Return message ID for tracking
 }
 
 // Send a question message through the WebSocket
-export function sendQuestionMessage(questionContent) {
+export function sendQuestionMessage(questionContent, questionData) {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     connectionError.set('Not connected to server');
     return false;
@@ -238,28 +353,45 @@ export function sendQuestionMessage(questionContent) {
   let user;
   currentUser.subscribe(value => { user = value; })();
   
-  // Add question to the messages store
+  // Generate a unique message ID
+  const messageId = Date.now();
+  
+  // Add question to the messages store with pending status
   const message = {
-    id: Date.now(),
+    id: messageId,
     user_id: getClientId(), // Add user_id to ensure proper message alignment
     user: user.name,
     userColor: user.color,
     content: questionContent,
     timestamp: new Date().toISOString(),
-    isQuestion: true
+    isQuestion: true,
+    status: 'pending' // Add status field for tracking message state
   };
   
   messages.update(msgs => [...msgs, message]);
   
-  // Send the question to the server
+  // Send the question to the server with full data
   socket.send(JSON.stringify({
     type: 'question',
+    messageId: messageId, // Include message ID for tracking
     user: user.name,
     userColor: user.color,
-    content: questionContent
+    content: questionContent,
+    questionData: {
+      ...questionData,
+      shiftDate: questionData.shiftDate || '',
+      shiftType: questionData.shiftType || 'day',
+      difficulty: questionData.difficulty || 3,
+      options: {
+        A: questionData.optionA,
+        B: questionData.optionB,
+        C: questionData.optionC,
+        D: questionData.optionD
+      }
+    }
   }));
   
-  return true;
+  return messageId; // Return message ID for tracking
 }
 
 // Send username update

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy, afterUpdate } from 'svelte';
   import { fade, scale } from 'svelte/transition';
-  import { faPlus, faPaperPlane, faTimes, faImage, faTrash, faUsers } from '@fortawesome/free-solid-svg-icons';
+  import { faPlus, faPaperPlane, faTimes, faImage, faTrash, faUsers, faCircle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
   import { browser } from '$app/environment';
   import { 
@@ -18,6 +18,12 @@
     initializeUser,
     getClientId
   } from '$lib/stores/forumStore';
+  
+  // Get access to the socket for sending answer selections
+  import { socket } from '$lib/stores/forumStore';
+  
+  // Import additional icons for option selection
+  import { faHandPointRight } from '@fortawesome/free-solid-svg-icons';
 
   // Local variables
   let newMessage = '';
@@ -29,35 +35,19 @@
   let questionForm = {
     question: '',
     questionImage: null,
-    optionA: { text: '', image: null },
-    optionB: { text: '', image: null },
-    optionC: { text: '', image: null },
-    optionD: { text: '', image: null },
+    optionA: { text: '', image: null, selected: false },
+    optionB: { text: '', image: null, selected: false },
+    optionC: { text: '', image: null, selected: false },
+    optionD: { text: '', image: null, selected: false },
     difficulty: 3,
-    myAnswer: '',
-    messageType: '',
-    customMessage: ''
+    message: '',
+    shiftDate: '',
+    shiftType: 'day'
   };
 
-  // Predefined message types
-  const messageTypes = [
-    { value: '', label: 'Type your message here...' },
-    { value: 'is_correct', label: 'Is this option correct?' },
-    { value: 'what_answer', label: 'What is the answer to this question?' },
-    { value: 'difficulty', label: 'What is its difficulty level?' },
-    { value: 'how_solve', label: 'How to solve this?' },
-    { value: 'is_wrong', label: 'Is this question wrong?' },
-    { value: 'custom', label: 'Write your own...' }
-  ];
-
-  // Answer options
-  const answerOptions = [
-    { value: '', label: 'Select your answer' },
-    { value: 'A', label: 'Option A' },
-    { value: 'B', label: 'Option B' },
-    { value: 'C', label: 'Option C' },
-    { value: 'D', label: 'Option D' }
-  ];
+  // Shift dates and types
+  const shiftDates = ['3 April', '4 April', '5 April', '6 April'];
+  const shiftTypes = ['day', 'night'];
 
   // Preview images
   let questionImagePreview = '';
@@ -75,6 +65,14 @@
       
       // Initialize user (now handled by the store)
       $currentUser = initializeUser();
+      
+      // Add event listener for option selection in questions
+      document.addEventListener('selectQuestionOption', (event) => {
+        const { messageId, option } = event.detail;
+        if (messageId && option) {
+          selectAnswerInQuestion(messageId, option);
+        }
+      });
     }
   });
   
@@ -82,6 +80,14 @@
     if (browser) {
       // Close WebSocket connection
       closeWebSocket();
+      
+      // Remove event listener for option selection
+      document.removeEventListener('selectQuestionOption', (event) => {
+        const { messageId, option } = event.detail;
+        if (messageId && option) {
+          selectAnswerInQuestion(messageId, option);
+        }
+      });
     }
   });
   
@@ -100,7 +106,8 @@
     if (!newMessage.trim()) return;
     
     // Use the WebSocket store to send the message
-    sendTextMessage(newMessage);
+    // sendTextMessage now returns the message ID for tracking
+    const messageId = sendTextMessage(newMessage);
     newMessage = '';
     
     // Auto-scrolling is now handled by afterUpdate
@@ -119,41 +126,74 @@
     questionForm = {
       question: '',
       questionImage: null,
-      optionA: { text: '', image: null },
-      optionB: { text: '', image: null },
-      optionC: { text: '', image: null },
-      optionD: { text: '', image: null },
+      optionA: { text: '', image: null, selected: false },
+      optionB: { text: '', image: null, selected: false },
+      optionC: { text: '', image: null, selected: false },
+      optionD: { text: '', image: null, selected: false },
       difficulty: 3,
-      myAnswer: '',
-      messageType: '',
-      customMessage: ''
+      message: '',
+      shiftDate: '3 April',
+      shiftType: 'day'
     };
     
     questionImagePreview = '';
     optionImagePreviews = { A: '', B: '', C: '', D: '' };
   }
 
-  function handleQuestionImageUpload(event) {
-    const file = event.target.files[0];
-    if (file) {
-      questionForm.questionImage = file;
+  // Function to resize image and convert to base64 (max 150x150)
+  async function resizeAndConvertToBase64(file, maxWidth = 150, maxHeight = 150, quality = 0.6) {
+    return new Promise((resolve) => {
       const reader = new FileReader();
-      reader.onload = e => {
-        questionImagePreview = e.target.result;
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          // Calculate new dimensions
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > maxWidth) {
+            height = Math.round(height * (maxWidth / width));
+            width = maxWidth;
+          }
+          
+          if (height > maxHeight) {
+            width = Math.round(width * (maxHeight / height));
+            height = maxHeight;
+          }
+          
+          // Create canvas and resize
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Convert to base64
+          const base64 = canvas.toDataURL('image/jpeg', quality);
+          resolve(base64);
+        };
+        img.src = e.target.result;
       };
       reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleQuestionImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+      // Resize and convert to base64
+      questionImagePreview = await resizeAndConvertToBase64(file);
+      questionForm.questionImage = questionImagePreview;
     }
   }
 
-  function handleOptionImageUpload(event, option) {
+  async function handleOptionImageUpload(event, option) {
     const file = event.target.files[0];
     if (file) {
-      questionForm[`option${option}`].image = file;
-      const reader = new FileReader();
-      reader.onload = e => {
-        optionImagePreviews[option] = e.target.result;
-      };
-      reader.readAsDataURL(file);
+      // Resize and convert to base64 (max 150x150)
+      optionImagePreviews[option] = await resizeAndConvertToBase64(file, 150, 150, 0.6);
+      questionForm[`option${option}`].image = optionImagePreviews[option];
     }
   }
 
@@ -167,62 +207,102 @@
     optionImagePreviews[option] = '';
   }
 
+  function selectOption(option) {
+    // Deselect all options first
+    ['A', 'B', 'C', 'D'].forEach(opt => {
+      questionForm[`option${opt}`].selected = false;
+    });
+    
+    // Select the clicked option
+    questionForm[`option${option}`].selected = true;
+  }
+  
   function submitQuestion() {
     // Validate form
     if (!questionForm.question.trim() && !questionForm.questionImage) {
       alert('Please provide a question text or image');
       return;
     }
+    
+    // Validate shift date is selected
+    if (!questionForm.shiftDate) {
+      alert('Please select a shift date');
+      return;
+    }
 
-    // Create question content HTML
+    // Create question content HTML for display
     let questionContent = '';
     
+    // Add shift information at the top
+    questionContent += `<div class="mb-2 text-sm text-gray-500">Date: ${questionForm.shiftDate || 'Not specified'}, ${questionForm.shiftType} shift</div>`;
+    
+    // Question content (text and/or image)
     if (questionForm.question.trim()) {
-      questionContent += `<p class="mb-2">${questionForm.question}</p>`;
+      questionContent += `<p class="mb-2 font-medium">${questionForm.question}</p>`;
     }
     
     if (questionForm.questionImage) {
-      questionContent += `<div class="mb-3"><img src="${questionImagePreview}" alt="Question Image" class="max-w-full rounded"></div>`;
+      questionContent += `<div class="mb-3"><img src="${questionImagePreview}" alt="Question Image" class="max-w-full max-h-[200px] rounded"></div>`;
     }
     
+    // Options grid
     questionContent += '<div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">';
     
     const options = ['A', 'B', 'C', 'D'];
     options.forEach(opt => {
       const option = questionForm[`option${opt}`];
-      if (option.text.trim() || option.image) {
-        questionContent += `<div class="p-2 border border-gray-300 rounded">`;
-        questionContent += `<span class="font-bold">${opt}:</span> `;
-        
-        if (option.text.trim()) {
-          questionContent += `<span>${option.text}</span>`;
-        }
-        
-        if (option.image) {
-          questionContent += `<div class="mt-1"><img src="${optionImagePreviews[opt]}" alt="Option ${opt} Image" class="max-w-full rounded"></div>`;
-        }
-        
-        questionContent += '</div>';
+      
+      // Create a div for each option, even if empty
+      questionContent += `<div class="p-2 border ${option.selected ? 'bg-blue-100 border-blue-500' : 'border-gray-300'} rounded">`;
+      questionContent += `<span class="font-bold">${opt}:</span> `;
+      
+      if (option.text.trim()) {
+        questionContent += `<span>${option.text}</span>`;
+      } else if (!option.image) {
+        questionContent += `<span class="text-gray-400">No text provided</span>`;
       }
+      
+      if (option.image) {
+        questionContent += `<div class="mt-1"><img src="${optionImagePreviews[opt]}" alt="Option ${opt} Image" class="max-w-full max-h-[200px] rounded"></div>`;
+      }
+      
+      if (option.selected) {
+        questionContent += `<div class="mt-1 text-sm font-medium text-green-600">✓ Selected Answer</div>`;
+      }
+      
+      questionContent += '</div>';
     });
     
     questionContent += '</div>';
+    
+    // Difficulty indicator
     questionContent += `<div class="mt-3 text-sm text-gray-600">Difficulty: ${'★'.repeat(questionForm.difficulty)}${'☆'.repeat(5 - questionForm.difficulty)}</div>`;
     
-    // Add message type and answer
-    if (questionForm.myAnswer) {
-      questionContent += `<div class="mt-1 text-sm text-green-600">My Answer: Option ${questionForm.myAnswer}</div>`;
-    }
-
-    if (questionForm.messageType) {
-      const messageText = questionForm.messageType === 'custom' ? questionForm.customMessage : messageTypes.find(t => t.value === questionForm.messageType)?.label;
-      if (messageText) {
-        questionContent += `<div class="mt-2 text-sm text-black-600">${messageText}</div>`;
-      }
+    // Add message if provided (at the bottom in smaller text)
+    if (questionForm.message.trim()) {
+      questionContent += `<div class="mt-3 text-xs text-gray-700 border-t pt-2 border-gray-200">${questionForm.message}</div>`;
     }
     
+    // Prepare question data for WebSocket
+    const questionData = {
+      question: questionForm.question.trim(),
+      questionImage: questionForm.questionImage,
+      options: {
+        A: { text: questionForm.optionA.text, image: questionForm.optionA.image, selected: questionForm.optionA.selected },
+        B: { text: questionForm.optionB.text, image: questionForm.optionB.image, selected: questionForm.optionB.selected },
+        C: { text: questionForm.optionC.text, image: questionForm.optionC.image, selected: questionForm.optionC.selected },
+        D: { text: questionForm.optionD.text, image: questionForm.optionD.image, selected: questionForm.optionD.selected }
+      },
+      difficulty: questionForm.difficulty,
+      message: questionForm.message,
+      shiftDate: questionForm.shiftDate,
+      shiftType: questionForm.shiftType,
+      htmlContent: questionContent
+    };
+    
     // Use the WebSocket store to send the question
-    sendQuestionMessage(questionContent);
+    // sendQuestionMessage now returns the message ID for tracking
+    const messageId = sendQuestionMessage(questionContent, questionData);
     closeQuestionModal();
     
     // Auto-scrolling is now handled by afterUpdate
@@ -231,6 +311,66 @@
   function formatTimestamp(timestamp) {
     const date = new Date(timestamp);
     return date.toLocaleString();
+  }
+  
+  // Function to handle option selection in displayed questions
+  function selectAnswerInQuestion(messageId, optionKey) {
+    // Update the local messages store
+    messages.update(msgs => {
+      return msgs.map(msg => {
+        if (msg.id === messageId) {
+          // Create a new content string with the selected option
+          let updatedContent = msg.content;
+          
+          // Find all option divs and update the selected one
+          const optionKeys = ['A', 'B', 'C', 'D'];
+          optionKeys.forEach(key => {
+            // Replace the class for the option div
+            const isSelected = key === optionKey;
+            const oldClass = isSelected ? 'border-gray-300' : 'bg-blue-100 border-blue-500';
+            const newClass = isSelected ? 'bg-blue-100 border-blue-500' : 'border-gray-300';
+            
+            // Update the class in the content
+            updatedContent = updatedContent.replace(
+              new RegExp(`<div class="p-2 border (${oldClass}|${newClass}) rounded`, 'g'),
+              `<div class="p-2 border ${isSelected ? newClass : oldClass} rounded`
+            );
+            
+            // Add or remove the selected answer text
+            if (isSelected) {
+              // Check if this option already has the selected text
+              const optionSection = updatedContent.match(new RegExp(`<div class="p-2 border ${newClass} rounded[^>]*>[\s\S]*?<span class="font-bold">${key}:</span>[\s\S]*?</div>`, 'g'));
+              
+              if (optionSection && optionSection[0] && !optionSection[0].includes('✓ Selected Answer')) {
+                // Add selected answer text
+                updatedContent = updatedContent.replace(
+                  optionSection[0],
+                  optionSection[0].replace('</div>', '<div class="mt-1 text-sm font-medium text-green-600">✓ Selected Answer</div></div>')
+                );
+              }
+            } else {
+              // Remove selected answer text if it exists
+              updatedContent = updatedContent.replace(
+                new RegExp(`<div class="mt-1 text-sm font-medium text-green-600">✓ Selected Answer</div>`, 'g'),
+                ''
+              );
+            }
+          });
+          
+          // Send the selection to the server
+          if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({
+              type: 'question_answer',
+              messageId: messageId,
+              selectedOption: optionKey
+            }));
+          }
+          
+          return { ...msg, content: updatedContent };
+        }
+        return msg;
+      });
+    });
   }
 </script>
 
@@ -288,14 +428,22 @@
         {:else}
           {#each $messages as message (message.id)}
             <div class="mb-2 sm:mb-4 {message.user_id === getClientId() ? 'text-right' : 'text-left'}">
-              <div class="inline-block max-w-[90%] sm:max-w-[80%] {message.user === 'System' ? 'bg-yellow-100' : message.user_id === getClientId() ? 'bg-blue-100' : 'bg-gray-100'} rounded-lg p-2 sm:p-3 shadow-sm {message.user_id === getClientId() ? 'text-right' : 'text-left'}">
+              <div class="inline-block max-w-[90%] sm:max-w-[80%] {message.user === 'System' ? 'bg-yellow-100' : message.user_id === getClientId() ? 'bg-blue-100' : 'bg-gray-100'} rounded-lg p-2 sm:p-3 shadow-sm {message.user_id === getClientId() ? 'text-right' : 'text-left'} {message.status === 'pending' ? 'opacity-60' : 'opacity-100'} transition-opacity duration-200">
                 <div class="flex justify-between items-start mb-1">
                   <span class="font-semibold text-xs sm:text-sm {message.user === 'System' ? 'text-yellow-800' : message.userColor}">{message.user}</span>
+                  {#if message.status === 'pending' && message.user_id === getClientId()}
+                    <span class="text-xs text-gray-500 ml-2">Sending...</span>
+                  {/if}
                 </div>
                 
                 {#if message.isQuestion}
-                  <div class="question-content text-xs sm:text-sm">
-                    {@html message.content}
+                  <div class="question-content text-xs sm:text-sm">                    
+                    <!-- Parse the content to make options clickable -->
+                    {@html message.content.replace(
+                      /<div class="p-2 border (.*?) rounded">[\s\S]*?<span class="font-bold">([A-D]):<\/span>/g, 
+                      `<div class="p-2 border $1 rounded cursor-pointer hover:bg-gray-50 transition-colors" onclick="document.dispatchEvent(new CustomEvent('selectQuestionOption', {detail: {messageId: ${message.id}, option: '$2'}}))">
+                      <span class="font-bold">$2:</span>`
+                    )}
                   </div>
                 {:else}
                   <p class="text-xs sm:text-sm">{message.content}</p>
@@ -357,6 +505,44 @@
       <!-- Modal Body -->
       <div class="p-3 sm:p-6">
         <form on:submit|preventDefault={submitQuestion}>
+          <!-- Shift Date Selection (Moved to top) -->
+          <div class="mb-3 sm:mb-4">
+            <label class="block text-gray-700 font-medium mb-1 sm:mb-2 text-xs sm:text-sm">Shift Date <span class="text-red-500">*</span></label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {#each shiftDates as date}
+                <button 
+                  type="button"
+                  class="px-2 py-1 border rounded-lg text-xs sm:text-sm {questionForm.shiftDate === date ? 'bg-blue-100 border-blue-400' : 'border-gray-300 hover:bg-gray-50'}"
+                  on:click={() => questionForm.shiftDate = date}
+                >
+                  {date}
+                </button>
+              {/each}
+            </div>
+            {#if questionForm.shiftDate === ''}
+              <p class="text-xs text-red-500 mt-1">Please select a shift date</p>
+            {/if}
+          </div>
+
+          <!-- Shift Type Selection (Moved to top) -->
+          <div class="mb-3 sm:mb-4">
+            <label class="block text-gray-700 font-medium mb-1 sm:mb-2 text-xs sm:text-sm">Shift Type <span class="text-red-500">*</span></label>
+            <div class="flex gap-4">
+              {#each shiftTypes as type}
+                <label class="flex items-center">
+                  <input 
+                    type="radio" 
+                    name="shiftType" 
+                    value={type} 
+                    bind:group={questionForm.shiftType}
+                    class="mr-1"
+                  />
+                  <span class="text-xs sm:text-sm capitalize">{type}</span>
+                </label>
+              {/each}
+            </div>
+          </div>
+          
           <!-- Question -->
           <div class="mb-3 sm:mb-4">
             <label class="block text-gray-700 font-medium mb-1 sm:mb-2 text-sm">Question</label>
@@ -404,8 +590,21 @@
           <!-- Options -->
           <div class="mb-3 sm:mb-4 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
             {#each ['A', 'B', 'C', 'D'] as option}
-              <div class="border border-gray-200 rounded-lg p-2 sm:p-3">
-                <label class="block text-gray-700 font-medium mb-1 sm:mb-2 text-xs sm:text-sm">Option {option}</label>
+              <div class="border border-gray-200 rounded-lg p-2 sm:p-3 {questionForm[`option${option}`].selected ? 'bg-blue-50 border-blue-300' : ''}">
+                <div class="flex items-center justify-between mb-1 sm:mb-2">
+                  <label class="block text-gray-700 font-medium text-xs sm:text-sm">Option {option}</label>
+                  <button 
+                    type="button" 
+                    class="flex items-center justify-center w-5 h-5 rounded-full focus:outline-none"
+                    on:click={() => selectOption(option)}
+                  >
+                    <FontAwesomeIcon 
+                      icon={questionForm[`option${option}`].selected ? faCheckCircle : faCircle} 
+                      class="{questionForm[`option${option}`].selected ? 'text-blue-500' : 'text-gray-400'} text-lg"
+                    />
+                  </button>
+                </div>
+                
                 <input 
                   type="text" 
                   bind:value={questionForm[`option${option}`].text} 
@@ -469,39 +668,17 @@
             </div>
           </div>
           
-          <!-- My Answer Dropdown -->
+          <!-- Shift Date and Type sections moved to the top of the form -->
+
+          <!-- Message Textarea -->
           <div class="mb-3 sm:mb-4">
-            <label class="block text-gray-700 font-medium mb-1 sm:mb-2 text-xs sm:text-sm">My Answer</label>
-            <select
-              bind:value={questionForm.myAnswer}
+            <label class="block text-gray-700 font-medium mb-1 sm:mb-2 text-xs sm:text-sm">Message</label>
+            <textarea
+              bind:value={questionForm.message}
               class="w-full border border-gray-300 rounded-lg px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {#each answerOptions as option}
-                <option value={option.value}>{option.label}</option>
-              {/each}
-            </select>
-          </div>
-
-          <!-- Message Type Dropdown -->
-          <div class="mb-3 sm:mb-4">
-            <label class="block text-gray-700 font-medium mb-1 sm:mb-2 text-xs sm:text-sm">Message Type</label>
-            <select
-              bind:value={questionForm.messageType}
-              class="w-full border border-gray-300 rounded-lg px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-1 sm:mb-2"
-            >
-              {#each messageTypes as type}
-                <option value={type.value}>{type.label}</option>
-              {/each}
-            </select>
-
-            {#if questionForm.messageType === 'custom'}
-              <textarea
-                bind:value={questionForm.customMessage}
-                class="w-full border border-gray-300 rounded-lg px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows="2"
-                placeholder="Write your question here..."
-              ></textarea>
-            {/if}
+              rows="2"
+              placeholder="Write your message here..."
+            ></textarea>
           </div>
 
           <!-- Submit Button -->
