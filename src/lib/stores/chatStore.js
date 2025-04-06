@@ -92,7 +92,7 @@ export function initWebSocket() {
   const clientId = Math.random().toString(36).substring(2, 15);
   
   try {
-    socket = new WebSocket(`${protocol}//localhost:8000/api/ws/${clientId}`);
+    socket = new WebSocket(`${protocol}//api.collegepredictor.co.in/api/ws/${clientId}`);
     
     socket.onopen = () => {
       console.log('WebSocket connection established.');
