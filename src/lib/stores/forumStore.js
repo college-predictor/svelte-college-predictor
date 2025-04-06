@@ -90,7 +90,7 @@ export async function getQuestionById(questionId) {
     return questionCache.get(questionId);
   }
   try {
-    const response = await fetch(`http://api.collegepredictor.co.in/api/question/${questionId}`);
+    const response = await fetch(`https://api.collegepredictor.co.in/api/question/${questionId}`);
     if (!response.ok) throw new Error('Failed to fetch question');
     
     const questionData = await response.json();
