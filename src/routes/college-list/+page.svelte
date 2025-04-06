@@ -91,9 +91,9 @@
       });
 
       console.log('Fetching colleges with parameters:', filteredQueryParams);
-
+      const protocol = window.location.protocol
       // Construct the API URL with query parameters
-      const apiUrl = new URL('https://api.collegepredictor.co.in/api/colleges');
+      const apiUrl = new URL(`${protocol}//localhost:8000/api/colleges`);
       Object.entries(filteredQueryParams).forEach(([key, value]) => {
         apiUrl.searchParams.append(key, value.toString());
       });
