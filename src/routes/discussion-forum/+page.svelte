@@ -14,7 +14,7 @@
     initWebSocket, 
     closeWebSocket, 
     sendTextMessage, 
-    sendQuestionMessage, 
+    sendQuestion, 
     initializeUser,
     getClientId
   } from '$lib/stores/forumStore';
@@ -229,88 +229,30 @@
       alert('Please select a shift date');
       return;
     }
-
-    // Create question content HTML for display
-    let questionContent = '';
-    
-    // Add shift information at the top
-    questionContent += `<div class="mb-2 text-sm text-gray-500">Date: ${questionForm.shiftDate || 'Not specified'}, ${questionForm.shiftType} shift</div>`;
-    
-    // Question content (text and/or image)
-    if (questionForm.question.trim()) {
-      questionContent += `<p class="mb-2 font-medium">${questionForm.question}</p>`;
-    }
-    
-    if (questionForm.questionImage) {
-      questionContent += `<div class="mb-3"><img src="${questionImagePreview}" alt="Question Image" class="max-w-full max-h-[200px] rounded"></div>`;
-    }
-    
-    // Options grid
-    questionContent += '<div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">';
-    
-    const options = ['A', 'B', 'C', 'D'];
-    options.forEach(opt => {
-      const option = questionForm[`option${opt}`];
-      
-      // Create a div for each option, even if empty
-      questionContent += `<div class="p-2 border ${option.selected ? 'bg-blue-100 border-blue-500' : 'border-gray-300'} rounded">`;
-      questionContent += `<span class="font-bold">${opt}:</span> `;
-      
-      if (option.text.trim()) {
-        questionContent += `<span>${option.text}</span>`;
-      } else if (!option.image) {
-        questionContent += `<span class="text-gray-400">No text provided</span>`;
-      }
-      
-      if (option.image) {
-        questionContent += `<div class="mt-1"><img src="${optionImagePreviews[opt]}" alt="Option ${opt} Image" class="max-w-full max-h-[200px] rounded"></div>`;
-      }
-      
-      if (option.selected) {
-        questionContent += `<div class="mt-1 text-sm font-medium text-green-600">✓ Selected Answer</div>`;
-      }
-      
-      questionContent += '</div>';
-    });
-    
-    questionContent += '</div>';
-    
-    // Difficulty indicator
-    questionContent += `<div class="mt-3 text-sm text-gray-600">Difficulty: ${'★'.repeat(questionForm.difficulty)}${'☆'.repeat(5 - questionForm.difficulty)}</div>`;
-    
-    // Add message if provided (at the bottom in smaller text)
-    if (questionForm.message.trim()) {
-      questionContent += `<div class="mt-3 text-xs text-gray-700 border-t pt-2 border-gray-200">${questionForm.message}</div>`;
-    }
     
     // Prepare question data for WebSocket
     const questionData = {
+      type: 'question',
       question: questionForm.question.trim(),
       questionImage: questionForm.questionImage,
       options: {
-        A: { text: questionForm.optionA.text, image: questionForm.optionA.image, selected: questionForm.optionA.selected },
-        B: { text: questionForm.optionB.text, image: questionForm.optionB.image, selected: questionForm.optionB.selected },
-        C: { text: questionForm.optionC.text, image: questionForm.optionC.image, selected: questionForm.optionC.selected },
-        D: { text: questionForm.optionD.text, image: questionForm.optionD.image, selected: questionForm.optionD.selected }
+        A: questionForm.optionA,
+        B: questionForm.optionB,
+        C: questionForm.optionC,
+        D: questionForm.optionD
       },
       difficulty: questionForm.difficulty,
       message: questionForm.message,
       shiftDate: questionForm.shiftDate,
-      shiftType: questionForm.shiftType,
-      htmlContent: questionContent
+      shiftType: questionForm.shiftType
     };
     
     // Use the WebSocket store to send the question
-    // sendQuestionMessage now returns the message ID for tracking
-    const messageId = sendQuestionMessage(questionContent, questionData);
-    closeQuestionModal();
+    var questionId = sendQuestion(questionData);
     
-    // Auto-scrolling is now handled by afterUpdate
-  }
-
-  function formatTimestamp(timestamp) {
-    const date = new Date(timestamp);
-    return date.toLocaleString();
+    sendTextMessage(questionForm.message, questionId);
+    
+    closeQuestionModal();
   }
   
   // Function to handle option selection in displayed questions
@@ -436,7 +378,7 @@
                   {/if}
                 </div>
                 
-                {#if message.isQuestion}
+                {#if message.hasQuestion}
                   <div class="question-content text-xs sm:text-sm">                    
                     <!-- Parse the content to make options clickable -->
                     {@html message.content.replace(
@@ -444,9 +386,10 @@
                       `<div class="p-2 border $1 rounded cursor-pointer hover:bg-gray-50 transition-colors" onclick="document.dispatchEvent(new CustomEvent('selectQuestionOption', {detail: {messageId: ${message.id}, option: '$2'}}))">
                       <span class="font-bold">$2:</span>`
                     )}
+                    <span class="text-gray-500 text-xs">(Question ID: {message.questionId})</span>
                   </div>
                 {:else}
-                  <p class="text-xs sm:text-sm">{message.content}</p>
+                  <p class="text-xs sm:text-sm">{message.content}{#if message.questionId} <span class="text-gray-500 text-xs">(Question ID: {message.questionId})</span>{/if}</p>
                 {/if}
               </div>
             </div>
