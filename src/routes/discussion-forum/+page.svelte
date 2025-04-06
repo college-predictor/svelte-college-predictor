@@ -16,7 +16,8 @@
     sendTextMessage, 
     sendQuestion, 
     initializeUser,
-    getClientId
+    getClientId,
+    getQuestionById
   } from '$lib/stores/forumStore';
   
   // Get access to the socket for sending answer selections
@@ -377,19 +378,42 @@
                     <span class="text-xs text-gray-500 ml-2">Sending...</span>
                   {/if}
                 </div>
-                
+                <p class="text-xs sm:text-sm">{message.content}</p>
+                <!-- <div class="text-xs text-gray-500 mt-1">
+                  {#if message.timestamp}
+                    <span>{new Date(message.timestamp).toLocaleTimeString()}</span>
+                  {/if}
+                  {#if message.id}
+                    <span class="ml-2">ID: {message.id}</span>
+                  {/if}
+                  {#if message.user_id}
+                    <span class="ml-2">User ID: {message.user_id}</span>
+                  {/if}
+                  {#if message.type}
+                    <span class="ml-2">Type: {message.type}</span>
+                  {/if}
+                  {#if message.status}
+                    <span class="ml-2">Status: {message.status}</span>
+                  {/if}
+                  {#if message.hasQuestion}
+                    <span class="ml-2">Has Question: {message.hasQuestion}</span>
+                  {/if}
+                  {#if message.questionId}
+                    <span class="ml-2">Question ID: {message.questionId}</span>
+                  {/if}
+                </div> -->
                 {#if message.hasQuestion}
-                  <div class="question-content text-xs sm:text-sm">                    
-                    <!-- Parse the content to make options clickable -->
-                    {@html message.content.replace(
-                      /<div class="p-2 border (.*?) rounded">[\s\S]*?<span class="font-bold">([A-D]):<\/span>/g, 
-                      `<div class="p-2 border $1 rounded cursor-pointer hover:bg-gray-50 transition-colors" onclick="document.dispatchEvent(new CustomEvent('selectQuestionOption', {detail: {messageId: ${message.id}, option: '$2'}}))">
-                      <span class="font-bold">$2:</span>`
-                    )}
-                    <span class="text-gray-500 text-xs">(Question ID: {message.questionId})</span>
+                  <div class="text-xs sm:text-sm mt-2">                    
+                    <span class="inline-block bg-gray-100 border border-gray-200 rounded px-2 py-1">
+                      {#if message.questionHtml}
+                        <span class="text-gray-700">{@html message.questionHtml}</span>
+                      {:else}
+                        {#await getQuestionById(message.questionId) then html}
+                        <span class="text-gray-700">{@html html}</span>
+                      {/await}
+                      {/if}
+                    </span>
                   </div>
-                {:else}
-                  <p class="text-xs sm:text-sm">{message.content}{#if message.questionId} <span class="text-gray-500 text-xs">(Question ID: {message.questionId})</span>{/if}</p>
                 {/if}
               </div>
             </div>
@@ -682,39 +706,5 @@
     background: #4f46e5;
     border-radius: 50%;
     cursor: pointer;
-  }
-  
-  /* Mobile-friendly adjustments */
-  @media (max-width: 640px) {
-    .question-content :global(p) {
-      font-size: 0.75rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    .question-content :global(img) {
-      max-height: 150px;
-    }
-    
-    .question-content :global(.grid) {
-      gap: 0.5rem;
-    }
-    
-    .question-content :global(.p-2) {
-      padding: 0.375rem;
-    }
-    
-    .question-content :global(.mt-2),
-    .question-content :global(.mt-3) {
-      margin-top: 0.375rem;
-    }
-    
-    .question-content :global(.mb-2),
-    .question-content :global(.mb-3) {
-      margin-bottom: 0.375rem;
-    }
-    
-    .question-content :global(.text-sm) {
-      font-size: 0.7rem;
-    }
   }
 </style>

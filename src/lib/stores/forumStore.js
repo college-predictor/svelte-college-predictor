@@ -83,9 +83,14 @@ export function getClientId() {
 }
 
 // Function to fetch question by ID and format as HTML
+const questionCache = new Map();
+
 export async function getQuestionById(questionId) {
+  if (questionCache.has(questionId)) {
+    return questionCache.get(questionId);
+  }
   try {
-    const response = await fetch(`/api/questions/${questionId}`);
+    const response = await fetch(`http://localhost:8000/api/question/${questionId}`);
     if (!response.ok) throw new Error('Failed to fetch question');
     
     const questionData = await response.json();
@@ -132,15 +137,12 @@ export async function getQuestionById(questionId) {
     // Difficulty indicator
     htmlContent += `<div class="mt-3 text-sm text-gray-600">Difficulty: ${'★'.repeat(questionData.difficulty)}${'☆'.repeat(5 - questionData.difficulty)}</div>`;
     
-    // Additional message
-    if (questionData.message) {
-      htmlContent += `<div class="mt-3 text-xs text-gray-700 border-t pt-2 border-gray-200">${questionData.message}</div>`;
-    }
-    
+    questionCache.set(questionId, htmlContent);
     return htmlContent;
   } catch (error) {
     console.error('Error fetching question:', error);
-    return '<div class="text-red-500">Error loading question</div>';
+    questionCache.set(questionId, '<div class="text-red-500">Error loading question</div>');
+    return questionCache.get(questionId);
   }
 }
 
@@ -238,6 +240,8 @@ function handleWebSocketMessage(event) {
                 userColor: data.color || '',
                 content: data.content,
                 timestamp: data.timestamp,
+                hasQuestion: data.has_question,
+                questionId: data.question_id,
                 status: 'sent' // Messages from others are always in 'sent' state
               }];
             }
