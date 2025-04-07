@@ -14,7 +14,4 @@
   <main class="flex-grow flex flex-col pt-16 min-h-0">
     <slot />
   </main>
-
-  <!-- Footer -->
-  <Footer />
 </div>

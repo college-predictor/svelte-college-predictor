@@ -43,7 +43,8 @@
 <AiServiceSection />
 <RecommandationSection />
 
-
+<!-- Footer -->
+<Footer />
 
 <style>
   /* Add custom styles if necessary */
