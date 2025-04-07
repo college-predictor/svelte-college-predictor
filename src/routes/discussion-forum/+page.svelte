@@ -331,21 +331,25 @@
           <div class="flex items-center text-xs sm:text-sm">
             <FontAwesomeIcon icon={faUsers} class="mr-1" />
             <span>{$activeUsers} online</span>
+              </div>
+
+              <!-- Connection status indicator -->
+              <div class="flex items-center">
+                {#if $isConnecting}
+                  <span class="inline-block w-3 h-3 sm:w-3 sm:h-3 rounded-full bg-yellow-400 mr-1 sm:mr-2"></span>
+                  <span class="text-xs sm:text-sm">Connecting...</span>
+                {:else if $isConnected}
+                  <span class="inline-block w-3 h-3 sm:w-3 sm:h-3 rounded-full bg-green-500 mr-1 sm:mr-2"></span>
+                  <span class="text-xs sm:text-sm">Connected</span>
+                {:else}
+                  <span class="inline-block w-3 h-3 sm:w-3 sm:h-3 rounded-full bg-red-500 mr-1 sm:mr-2"></span>
+                  <span class="text-xs sm:text-sm">Disconnected</span>
+                {/if}
+              </div>
+            </div>
           </div>
           
-          <!-- Connection status indicator -->
-          <div class="flex items-center">
-            {#if $isConnecting}
-              <span class="inline-block w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-400 mr-1 sm:mr-2"></span>
-              <span class="text-xs sm:text-sm">Connecting...</span>
-            {:else if $isConnected}
-              <span class="inline-block w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500 mr-1 sm:mr-2"></span>
-              <span class="text-xs sm:text-sm">Connected</span>
-            {:else}
-              <span class="inline-block w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500 mr-1 sm:mr-2"></span>
-              <span class="text-xs sm:text-sm">Disconnected</span>
-            {/if}
-          </div>
+          <p class="text-xs sm:text-xxs opacity-80">Connect with fellow students, share knowledge</p>
         </div>
       </div>
     </div>
@@ -354,21 +358,24 @@
     <!-- Chat area -->
     <div class="flex flex-col h-screen bg-white">
       <div class="flex-1 overflow-y-auto chat-messages" bind:this={chatContainer}>
+        
         {#if $messages.length === 0}
-          <div class="flex items-center justify-center h-full text-gray-500 text-sm">
-            No messages yet
+          <div class="flex items-center justify-center h-full">
+            <p class="text-gray-500 text-center  px-2">
+              Welcome to the JEE Discussion Forum! Ask questions or share your knowledge with fellow students.
+            </p>
           </div>
         {:else}
           {#each $messages as message}
             <div class="mb-2 sm:mb-4 {message.user_id === getClientId() ? 'text-right' : 'text-left'}">
-              <div class="inline-block max-w-[90%] sm:max-w-[80%] {message.user === 'System' ? 'bg-yellow-100' : message.user_id === getClientId() ? 'bg-blue-100' : 'bg-gray-100'} rounded-lg p-2 sm:p-3 shadow-sm {message.user_id === getClientId() ? 'text-right' : 'text-left'} {message.status === 'pending' ? 'opacity-60' : 'opacity-100'} transition-opacity duration-200">
+              <div class="inline-block max-w-[95%] sm:max-w-[80%] {message.user === 'System' ? 'bg-yellow-100' : message.user_id === getClientId() ? 'bg-blue-100' : 'bg-gray-100'} rounded-lg p-3 sm:p-3 shadow-sm {message.user_id === getClientId() ? 'text-right' : 'text-left'} {message.status === 'pending' ? 'opacity-60' : 'opacity-100'} transition-opacity duration-200">
                 <div class="flex justify-between items-start mb-1">
-                  <span class="font-semibold text-xs sm:text-sm {message.user === 'System' ? 'text-yellow-800' : message.userColor}">{message.user}</span>
+                  <span class="font-semibold  {message.user === 'System' ? 'text-yellow-800' : message.userColor}">{message.user}</span>
                   {#if message.status === 'pending' && message.user_id === getClientId()}
                     <span class="text-xs text-gray-500 ml-2">Sending...</span>
                   {/if}
                 </div>
-                <p class="text-xs sm:text-sm">{message.content}</p>
+                <p class="">{message.content}</p>
                 <!-- <div class="text-xs text-gray-500 mt-1">
                   {#if message.timestamp}
                     <span>{new Date(message.timestamp).toLocaleTimeString()}</span>
@@ -393,7 +400,7 @@
                   {/if}
                 </div> -->
                 {#if message.hasQuestion}
-                  <div class="text-xs sm:text-sm mt-2">                    
+                  <div class=" mt-2">                    
                     <span class="inline-block bg-gray-100 border border-gray-200 rounded px-2 py-1">
                       {#if message.questionHtml}
                         <span class="text-gray-700">{@html message.questionHtml}</span>
@@ -418,13 +425,13 @@
             type="text" 
             bind:value={newMessage} 
             placeholder="Type your message here..." 
-            class="flex-grow border border-gray-300 rounded-lg px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="flex-grow border border-gray-300 rounded-lg px-3 sm:px-4 py-2 sm:py-2 text-sm sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             on:keypress={(e) => e.key === 'Enter' && sendMessage()}
             disabled={!$isConnected}
           />
           
           <button 
-            class="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-2 sm:px-4 py-1 sm:py-2 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed mr-1 sm:mr-2 text-xs sm:text-sm"
+            class="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-2 sm:px-4 py-1 sm:py-2 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed mr-1 sm:mr-2 "
             on:click={sendMessage}
             disabled={!$isConnected || !newMessage.trim()}
           >
@@ -432,7 +439,7 @@
           </button>
           
           <button 
-            class="bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg px-2 sm:px-4 py-1 sm:py-2 transition duration-200 flex items-center gap-1 sm:gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed text-xs sm:text-sm"
+            class="bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg px-2 sm:px-4 py-1 sm:py-2 transition duration-200 flex items-center gap-1 sm:gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
             on:click={openQuestionModal}
             title="Add Question"
             disabled={!$isConnected}

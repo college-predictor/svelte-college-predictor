@@ -73,4 +73,6 @@ temp/
 # Specific build tools and frameworks
 dist/
 public/
-.static/
+
+# PEM Keys
+*.pem
