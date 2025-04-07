@@ -326,11 +326,13 @@
           <h1 class="text-xl sm:text-2xl font-semibold">JEE Discussion Forum</h1>
           <p class="text-xs sm:text-sm opacity-80">Connect with fellow students, ask questions, and share knowledge</p>
         </div>
-        <div class="flex items-center gap-2 sm:gap-4">
-          <!-- Active users indicator -->
-          <div class="flex items-center text-xs sm:text-sm">
-            <FontAwesomeIcon icon={faUsers} class="mr-1" />
-            <span>{$activeUsers} online</span>
+        <div>
+          <div class="flex items-center gap-2 sm:gap-4">
+            <div>
+              <!-- Active users indicator -->
+              <div class="flex items-center text-xs sm:text-sm">
+                <FontAwesomeIcon icon={faUsers} class="mr-1" />
+                <span>{$activeUsers} online</span>
               </div>
 
               <!-- Connection status indicator -->
@@ -348,8 +350,6 @@
               </div>
             </div>
           </div>
-          
-          <p class="text-xs sm:text-xxs opacity-80">Connect with fellow students, share knowledge</p>
         </div>
       </div>
     </div>
