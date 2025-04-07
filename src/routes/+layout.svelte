@@ -2,6 +2,7 @@
   import '../app.css';
   import Navbar from '$lib/components/layout/Navbar.svelte';
   import Footer from '$lib/components/layout/Footer.svelte';
+  import { page } from '$app/stores';
 </script>
 
 <div class="flex flex-col min-h-screen">
@@ -15,6 +16,8 @@
     <slot />
   </main>
 
-  <!-- Footer -->
-  <Footer />
+  <!-- Footer (hidden on discussion forum page) -->
+  {#if !$page.url.pathname.startsWith('/discussion-forum')}
+    <Footer />
+  {/if}
 </div>
