@@ -317,19 +317,20 @@
   }
 </script>
 
-<div class="container mx-auto px-0 sm:px-2 py-0 sm:py-4 max-w-6xl">
-  <div class="bg-white sm:rounded-lg shadow-lg overflow-hidden">
+<!-- <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-6xl">
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden"> -->
     <!-- Header -->
-    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-1 py-1 sm:p-4 text-white">
+    <div class="fixed top-16 left-0 right-0 z-40 bg-gray-200 sm:p-2 text-black">
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-        <div class="w-full">
-          <div class="flex justify-between items-center">
-            <h1 class="text-lg sm:text-2xl font-bold flex-1">JEE Discussion Forum</h1>
-            <div class="flex items-center gap-2 sm:gap-4 min-w-max">
-              <!-- Active users indicator -->
-              <div class="flex items-center text-xs sm:text-sm">
-                <FontAwesomeIcon icon={faUsers} class="mr-1 w-4 h-4 sm:w-4 sm:h-4" />
-                <span>{$activeUsers} online</span>
+        <div class="mb-2 sm:mb-0">
+          <h1 class="text-xl sm:text-2xl font-semibold">JEE Discussion Forum</h1>
+          <p class="text-xs sm:text-sm opacity-80">Connect with fellow students, ask questions, and share knowledge</p>
+        </div>
+        <div class="flex items-center gap-2 sm:gap-4">
+          <!-- Active users indicator -->
+          <div class="flex items-center text-xs sm:text-sm">
+            <FontAwesomeIcon icon={faUsers} class="mr-1" />
+            <span>{$activeUsers} online</span>
               </div>
 
               <!-- Connection status indicator -->
@@ -352,18 +353,11 @@
         </div>
       </div>
     </div>
+    <!-- <div class="mt-32"> -->
     
     <!-- Chat area -->
-    <div class="flex flex-col h-[calc(100vh-7.3rem)] sm:h-[calc(100vh-12rem)]">
-      <!-- Messages -->
-      <div class="chat-messages flex-grow p-2 sm:p-4 overflow-y-auto text-sm sm:text-base" bind:this={chatContainer}>
-        {#if $connectionError}
-          <div class="mb-2 sm:mb-4 text-center">
-            <div class="inline-block bg-red-100 text-red-800 p-1 sm:p-2 rounded ">
-              {$connectionError}
-            </div>
-          </div>
-        {/if}
+    <div class="flex flex-col h-screen bg-white">
+      <div class="flex-1 overflow-y-auto chat-messages" bind:this={chatContainer}>
         
         {#if $messages.length === 0}
           <div class="flex items-center justify-center h-full">
@@ -372,7 +366,7 @@
             </p>
           </div>
         {:else}
-          {#each $messages as message (message.id)}
+          {#each $messages as message}
             <div class="mb-2 sm:mb-4 {message.user_id === getClientId() ? 'text-right' : 'text-left'}">
               <div class="inline-block max-w-[95%] sm:max-w-[80%] {message.user === 'System' ? 'bg-yellow-100' : message.user_id === getClientId() ? 'bg-blue-100' : 'bg-gray-100'} rounded-lg p-3 sm:p-3 shadow-sm {message.user_id === getClientId() ? 'text-right' : 'text-left'} {message.status === 'pending' ? 'opacity-60' : 'opacity-100'} transition-opacity duration-200">
                 <div class="flex justify-between items-start mb-1">
@@ -424,8 +418,8 @@
         {/if}
       </div>
       
-      <!-- Input area -->
-      <div class="border-t border-gray-200 p-2 sm:p-4 bg-gray-50">
+      <!-- Input area - sticky at bottom -->
+      <div class="sticky bottom-0 border-t border-gray-200 p-2 sm:p-4 bg-gray-50">
         <div class="flex items-center gap-1 sm:gap-2">
           <input 
             type="text" 
@@ -457,8 +451,8 @@
         </div>
       </div>
     </div>
-  </div>
-</div>
+  <!-- </div>
+</div> -->
 
 <!-- Question Modal -->
 {#if showQuestionModal}
