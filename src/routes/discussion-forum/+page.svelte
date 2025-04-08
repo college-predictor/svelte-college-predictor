@@ -33,13 +33,16 @@
 	import { socket } from '$lib/stores/forumStore';
 
 	// Import additional icons for option selection
-	import { faHandPointRight } from '@fortawesome/free-solid-svg-icons';
+	import { faHandPointRight, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 
 	// Local variables
 	let newMessage = '';
 	let showQuestionModal = false;
 	let fileInput;
 	let chatContainer; // Reference to chat container for auto-scrolling
+	let shouldAutoScroll = true; // Flag to track if we should auto-scroll
+	let isUserScrolling = false; // Flag to track if user is manually scrolling
+	let showScrollButton = false; // Flag to show scroll-to-bottom button
 
 	// Question form data
 	let questionForm = {
@@ -68,6 +71,63 @@
 		D: ''
 	};
 
+	// Function to check if user is at the bottom of the chat
+	function isAtBottom() {
+		if (!chatContainer) return true;
+
+		const tolerance = 150; // pixels of tolerance for considering "at bottom"
+		const scrollBottom = chatContainer.scrollTop + chatContainer.clientHeight;
+		return scrollBottom >= chatContainer.scrollHeight - tolerance;
+	}
+
+	// Function to scroll to the bottom of the chat
+	function scrollToBottom() {
+		if (!chatContainer) return;
+
+		chatContainer.scrollTop = chatContainer.scrollHeight + 100; // Extra padding to ensure visibility
+	}
+
+	// Handle scroll events to determine if user is manually scrolling
+	function handleScroll() {
+		isUserScrolling = true;
+		shouldAutoScroll = isAtBottom();
+
+		// Show scroll button if not at bottom
+		showScrollButton = !shouldAutoScroll;
+
+		// Reset the user scrolling flag after a short delay
+		setTimeout(() => {
+			isUserScrolling = false;
+		}, 100);
+	}
+
+	// Watch for changes to the messages store and scroll to bottom when new messages arrive
+	let previousMessagesLength = 0;
+
+	// Function to handle new messages
+	function handleNewMessages() {
+		// Check if new messages have arrived
+		if ($messages.length > previousMessagesLength) {
+			// Only auto-scroll if we're already at the bottom or it's a new message from the current user
+			if (shouldAutoScroll) {
+				setTimeout(() => {
+					scrollToBottom();
+				}, 100);
+			} else {
+				// Show the scroll button if we're not auto-scrolling
+				showScrollButton = true;
+			}
+		}
+
+		// Update the previous messages length
+		previousMessagesLength = $messages.length;
+	}
+
+	// Use afterUpdate to watch for changes to the messages store
+	afterUpdate(() => {
+		handleNewMessages();
+	});
+
 	onMount(() => {
 		if (browser) {
 			// Initialize WebSocket connection
@@ -86,8 +146,11 @@
 
 			// Scroll to bottom on initial load after a delay to ensure DOM is ready
 			setTimeout(() => {
+				scrollToBottom(); // Scroll to bottom on initial load
+
+				// Add scroll event listener
 				if (chatContainer) {
-					chatContainer.scrollTop = chatContainer.scrollHeight;
+					chatContainer.addEventListener('scroll', handleScroll);
 				}
 			}, 300);
 		}
@@ -98,13 +161,18 @@
 			// Close WebSocket connection
 			closeWebSocket();
 
-			// Remove event listener for option selection
+			// Remove event listeners
 			document.removeEventListener('selectQuestionOption', (event) => {
 				const { messageId, option } = event.detail;
 				if (messageId && option) {
 					selectAnswerInQuestion(messageId, option);
 				}
 			});
+
+			// Remove scroll event listener
+			if (chatContainer) {
+				chatContainer.removeEventListener('scroll', handleScroll);
+			}
 		}
 	});
 
@@ -117,14 +185,15 @@
 
 		// Use the WebSocket store to send the message
 		// sendTextMessage now returns the message ID for tracking
-		const messageId = sendTextMessage(newMessage);
+		sendTextMessage(newMessage);
 		newMessage = '';
+
+		// Always scroll to bottom when user sends a message
+		shouldAutoScroll = true;
 
 		// Force an immediate scroll to the bottom after sending
 		setTimeout(() => {
-			if (chatContainer) {
-				chatContainer.scrollTop = chatContainer.scrollHeight;
-			}
+			scrollToBottom();
 		}, 100);
 	}
 
@@ -361,29 +430,27 @@
 				</p>
 			</div>
 			<div>
-				<div class="flex items-center gap-2 sm:gap-4">
-					<div>
-						<!-- Active users indicator -->
-						<div class="flex items-center text-xs sm:text-sm">
-							<FontAwesomeIcon icon={faUsers} class="mr-1 text-blue-500" />
-							<span class="font-medium">{$activeUsers} online</span>
-						</div>
+				<div class="justify-content flex items-center gap-2 sm:gap-4">
+					<!-- Active users indicator -->
+					<div class="flex items-center text-xs sm:text-sm">
+						<FontAwesomeIcon icon={faUsers} class="mr-1 text-blue-500" />
+						<span class="font-medium">{$activeUsers} online</span>
+					</div>
 
-						<!-- Connection status indicator -->
-						<div class="mt-1 flex items-center">
-							{#if $isConnecting}
-								<span
-									class="mr-1 inline-block h-3 w-3 animate-pulse rounded-full bg-yellow-400 sm:mr-2"
-								></span>
-								<span class="text-xs sm:text-sm">Connecting...</span>
-							{:else if $isConnected}
-								<span class="mr-1 inline-block h-3 w-3 rounded-full bg-green-500 sm:mr-2"></span>
-								<span class="text-xs font-medium text-green-700 sm:text-sm">Connected</span>
-							{:else}
-								<span class="mr-1 inline-block h-3 w-3 rounded-full bg-red-500 sm:mr-2"></span>
-								<span class="text-xs font-medium text-red-700 sm:text-sm">Disconnected</span>
-							{/if}
-						</div>
+					<!-- Connection status indicator -->
+					<div class="flex items-center">
+						{#if $isConnecting}
+							<span
+								class="mr-1 inline-block h-3 w-3 animate-pulse rounded-full bg-yellow-400 sm:mr-2"
+							></span>
+							<span class="text-xs sm:text-sm">Connecting...</span>
+						{:else if $isConnected}
+							<span class="mr-1 inline-block h-3 w-3 rounded-full bg-green-500 sm:mr-2"></span>
+							<span class="text-xs font-medium text-green-700 sm:text-sm">Connected</span>
+						{:else}
+							<span class="mr-1 inline-block h-3 w-3 rounded-full bg-red-500 sm:mr-2"></span>
+							<span class="text-xs font-medium text-red-700 sm:text-sm">Disconnected</span>
+						{/if}
 					</div>
 				</div>
 			</div>
@@ -392,8 +459,27 @@
 
 	<!-- Chat area -->
 	<div class="overflow-hidden rounded-b-lg bg-white shadow-md">
+		<!-- Scroll to bottom button -->
+		{#if showScrollButton}
+			<button
+				class="z-45 fixed bottom-20 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-white shadow-lg transition-all hover:bg-blue-600"
+				on:click={() => {
+					shouldAutoScroll = true;
+					showScrollButton = false;
+					scrollToBottom();
+				}}
+				title="Scroll to bottom"
+			>
+				<FontAwesomeIcon icon={faArrowDown} />
+			</button>
+		{/if}
+
 		<!-- Messages container with its own scrollbar -->
-		<div class="h-[calc(100vh-14rem)] overflow-y-auto px-4 py-6" bind:this={chatContainer}>
+		<div
+			class="h-[calc(100vh-13rem)] overflow-y-auto px-4 py-6"
+			bind:this={chatContainer}
+			on:scroll={handleScroll}
+		>
 			{#if $messages.length === 0}
 				<div class="flex flex-col items-center justify-center py-16">
 					<div class="mb-4 text-blue-500">
@@ -482,7 +568,7 @@
 
 <!-- Input area - fixed at bottom with no space -->
 <div
-	class="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white p-3 shadow-[0_-4px_15px_rgba(0,0,0,0.1)] sm:p-4"
+	class="z-45 fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white p-3 shadow-[0_-4px_15px_rgba(0,0,0,0.1)] sm:p-4"
 >
 	<div class="container mx-auto flex items-center gap-2">
 		<input
@@ -518,7 +604,7 @@
 <!-- Question Modal -->
 {#if showQuestionModal}
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-2"
+		class="z-45 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-2"
 		transition:fade={{ duration: 200 }}
 	>
 		<div
