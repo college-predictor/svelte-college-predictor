@@ -176,7 +176,8 @@ export function initWebSocket() {
         
         // Request chat history
         socket.send(JSON.stringify({
-          type: 'get_history'
+          type: 'get_history',
+          last_timestamp: new Date().toISOString(),
         }));
       };
       

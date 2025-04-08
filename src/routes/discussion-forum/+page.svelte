@@ -419,37 +419,34 @@
 
 <!-- Main container -->
 <div class="w-full">
-	<!-- Header (not fixed anymore) -->
 	<!-- Header with fixed position -->
-	<div class="sticky top-0 z-40 rounded-t-lg bg-white p-3 shadow-md sm:p-4">
+	<div class="sticky top-0 z-0 rounded-t-lg bg-white p-3 shadow-md sm:p-4">
 		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
 			<div class="mb-2 sm:mb-0">
 				<h1 class="text-xl font-semibold text-blue-600 sm:text-2xl">JEE Discussion Forum</h1>
-				<p class="text-xs text-gray-600 sm:text-sm">
+				<p class="text-xs text-gray-600 sm:text-md">
 					Connect with fellow students, ask questions, and share knowledge
 				</p>
 			</div>
 			<div>
 				<div class="justify-content flex items-center gap-2 sm:gap-4">
 					<!-- Active users indicator -->
-					<div class="flex items-center text-xs sm:text-sm">
+					<div class="flex items-center text-sm sm:text-md">
 						<FontAwesomeIcon icon={faUsers} class="mr-1 text-blue-500" />
 						<span class="font-medium">{$activeUsers} online</span>
 					</div>
 
 					<!-- Connection status indicator -->
-					<div class="flex items-center">
+					<div class="flex items-center text-sm sm:text-md">
 						{#if $isConnecting}
-							<span
-								class="mr-1 inline-block h-3 w-3 animate-pulse rounded-full bg-yellow-400 sm:mr-2"
-							></span>
-							<span class="text-xs sm:text-sm">Connecting...</span>
+							<span class="mr-1 inline-block h-3 w-3 animate-pulse rounded-full bg-yellow-400 sm:mr-2"></span>
+							<span >Connecting...</span>
 						{:else if $isConnected}
 							<span class="mr-1 inline-block h-3 w-3 rounded-full bg-green-500 sm:mr-2"></span>
-							<span class="text-xs font-medium text-green-700 sm:text-sm">Connected</span>
+							<span class="font-medium text-green-700">Connected</span>
 						{:else}
 							<span class="mr-1 inline-block h-3 w-3 rounded-full bg-red-500 sm:mr-2"></span>
-							<span class="text-xs font-medium text-red-700 sm:text-sm">Disconnected</span>
+							<span class="font-medium text-red-700">Disconnected</span>
 						{/if}
 					</div>
 				</div>
@@ -476,7 +473,7 @@
 
 		<!-- Messages container with its own scrollbar -->
 		<div
-			class="h-[calc(100vh-13rem)] overflow-y-auto px-4 py-6"
+			class="h-[calc(100vh-14rem)] overflow-y-auto px-4 py-6"
 			bind:this={chatContainer}
 			on:scroll={handleScroll}
 		>
@@ -516,33 +513,10 @@
 										: message.userColor}">{message.user}</span
 								>
 								{#if message.status === 'pending' && message.user_id === getClientId()}
-									<span class="ml-2 text-xs text-gray-500">Sending...</span>
+									<span class="ml-2 text-sm text-gray-500">Sending...</span>
 								{/if}
 							</div>
 							<p class="">{message.content}</p>
-							<!-- <div class="text-xs text-gray-500 mt-1">
-                  {#if message.timestamp}
-                    <span>{new Date(message.timestamp).toLocaleTimeString()}</span>
-                  {/if}
-                  {#if message.id}
-                    <span class="ml-2">ID: {message.id}</span>
-                  {/if}
-                  {#if message.user_id}
-                    <span class="ml-2">User ID: {message.user_id}</span>
-                  {/if}
-                  {#if message.type}
-                    <span class="ml-2">Type: {message.type}</span>
-                  {/if}
-                  {#if message.status}
-                    <span class="ml-2">Status: {message.status}</span>
-                  {/if}
-                  {#if message.hasQuestion}
-                    <span class="ml-2">Has Question: {message.hasQuestion}</span>
-                  {/if}
-                  {#if message.questionId}
-                    <span class="ml-2">Question ID: {message.questionId}</span>
-                  {/if}
-                </div> -->
 							{#if message.hasQuestion}
 								<div class=" mt-2">
 									<span class="inline-block rounded border border-gray-200 bg-gray-100 px-2 py-1">
@@ -575,7 +549,7 @@
 			type="text"
 			bind:value={newMessage}
 			placeholder="Type your message here..."
-			class="flex-grow rounded-lg border border-gray-300 px-4 py-3 text-sm shadow-md focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:px-5"
+			class="flex-grow rounded-lg border border-gray-300 px-4 py-3 text-base shadow-md focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:px-5" style="font-size: 16px;"
 			on:keypress={(e) => e.key === 'Enter' && sendMessage()}
 			disabled={!$isConnected}
 		/>
@@ -608,7 +582,7 @@
 		transition:fade={{ duration: 200 }}
 	>
 		<div
-			class="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white shadow-xl"
+			class="max-h-[70vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white shadow-xl"
 			transition:scale={{ duration: 200, start: 0.95 }}
 		>
 			<!-- Modal Header -->
@@ -628,7 +602,7 @@
 					<div class="mb-3 sm:mb-4">
 						<label
 							for="shift-date"
-							class="mb-1 block text-xs font-medium text-gray-700 sm:mb-2 sm:text-sm"
+							class="mb-1 block text-sm font-medium text-gray-700 sm:mb-2 sm:text-md"
 							>Shift Date <span class="text-red-500">*</span></label
 						>
 						<input
@@ -641,7 +615,7 @@
 							{#each shiftDates as date}
 								<button
 									type="button"
-									class="rounded-lg border px-2 py-1 text-xs sm:text-sm {questionForm.shiftDate ===
+									class="rounded-lg border px-2 py-1 text-sm sm:text-md {questionForm.shiftDate ===
 									date
 										? 'border-blue-400 bg-blue-100'
 										: 'border-gray-300 hover:bg-gray-50'}"
@@ -652,7 +626,7 @@
 							{/each}
 						</div>
 						{#if questionForm.shiftDate === ''}
-							<p class="mt-1 text-xs text-red-500">Please select a shift date</p>
+							<p class="mt-1 text-sm text-red-500">Please select a shift date</p>
 						{/if}
 					</div>
 
@@ -660,7 +634,7 @@
 					<div class="mb-3 sm:mb-4">
 						<label
 							for="shift-type-group"
-							class="mb-1 block text-xs font-medium text-gray-700 sm:mb-2 sm:text-sm"
+							class="mb-1 block text-sm font-medium text-gray-700 sm:mb-2 sm:text-md"
 							>Shift Type <span class="text-red-500">*</span></label
 						>
 						<div id="shift-type-group" class="flex gap-4">
@@ -673,7 +647,7 @@
 										bind:group={questionForm.shiftType}
 										class="mr-1"
 									/>
-									<span class="text-xs capitalize sm:text-sm">{type}</span>
+									<span class="text-sm capitalize sm:text-md">{type}</span>
 								</label>
 							{/each}
 						</div>
@@ -687,7 +661,7 @@
 						<textarea
 							id="question-text"
 							bind:value={questionForm.question}
-							class="w-full rounded-lg border border-gray-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 sm:px-4 sm:py-2 sm:text-sm"
+							class="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:px-4 sm:py-2 sm:text-md"
 							rows="3"
 							placeholder="Enter your question here..."
 						></textarea>
@@ -696,7 +670,7 @@
 						<div class="mt-1 flex items-center sm:mt-2">
 							<button
 								type="button"
-								class="flex items-center text-xs text-blue-600 hover:text-blue-800 sm:text-sm"
+								class="flex items-center text-sm text-blue-600 hover:text-blue-800 sm:text-md"
 								on:click={() => fileInput.click()}
 							>
 								<FontAwesomeIcon icon={faImage} class="mr-1" />
@@ -742,7 +716,7 @@
 								<div class="mb-1 flex items-center justify-between sm:mb-2">
 									<label
 										for="option-{option}-text"
-										class="block text-xs font-medium text-gray-700 sm:text-sm"
+										class="block text-sm font-medium text-gray-700 sm:text-md"
 										>Option {option}</label
 									>
 									<button
@@ -763,7 +737,7 @@
 									id="option-{option}-text"
 									type="text"
 									bind:value={questionForm[`option${option}`].text}
-									class="mb-1 w-full rounded-lg border border-gray-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 sm:mb-2 sm:px-4 sm:py-2 sm:text-sm"
+									class="mb-1 w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:mb-2 sm:px-4 sm:py-2 sm:text-md"
 									placeholder={`Enter option ${option}...`}
 								/>
 
@@ -771,7 +745,7 @@
 								<div class="flex items-center">
 									<button
 										type="button"
-										class="flex items-center text-xs text-blue-600 hover:text-blue-800 sm:text-sm"
+										class="flex items-center text-sm text-blue-600 hover:text-blue-800 sm:text-md"
 										on:click={() => document.getElementById(`option${option}FileInput`).click()}
 									>
 										<FontAwesomeIcon icon={faImage} class="mr-1" />
@@ -811,7 +785,7 @@
 					<div class="mb-4 sm:mb-6">
 						<label
 							for="difficulty-slider"
-							class="mb-1 block text-xs font-medium text-gray-700 sm:mb-2 sm:text-sm"
+							class="mb-1 block text-sm font-medium text-gray-700 sm:mb-2 sm:text-md"
 						>
 							Difficulty: {questionForm.difficulty}
 						</label>
@@ -824,7 +798,7 @@
 							step="1"
 							class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200"
 						/>
-						<div class="mt-1 flex justify-between text-xs text-gray-500">
+						<div class="mt-1 flex justify-between text-sm text-gray-500">
 							<span>Easy</span>
 							<span>Medium</span>
 							<span>Hard</span>
@@ -837,12 +811,12 @@
 					<div class="mb-3 sm:mb-4">
 						<label
 							for="message-text"
-							class="mb-1 block text-xs font-medium text-gray-700 sm:mb-2 sm:text-sm">Message</label
+							class="mb-1 block text-sm font-medium text-gray-700 sm:mb-2 sm:text-md">Message</label
 						>
 						<textarea
 							id="message-text"
 							bind:value={questionForm.message}
-							class="w-full rounded-lg border border-gray-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 sm:px-4 sm:py-2 sm:text-sm"
+							class="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:px-4 sm:py-2 sm:text-md"
 							rows="2"
 							placeholder="Write your message here..."
 						></textarea>
@@ -852,14 +826,14 @@
 					<div class="flex justify-end">
 						<button
 							type="button"
-							class="mr-2 rounded-lg border border-gray-300 px-2 py-1 text-xs transition duration-200 hover:bg-gray-100 sm:px-4 sm:py-2 sm:text-sm"
+							class="mr-2 rounded-lg border border-gray-300 px-2 py-1 text-sm transition duration-200 hover:bg-gray-100 sm:px-4 sm:py-2 sm:text-md"
 							on:click={closeQuestionModal}
 						>
 							Cancel
 						</button>
 						<button
 							type="submit"
-							class="rounded-lg bg-blue-500 px-2 py-1 text-xs text-white transition duration-200 hover:bg-blue-600 sm:px-4 sm:py-2 sm:text-sm"
+							class="rounded-lg bg-blue-500 px-2 py-1 text-sm text-white transition duration-200 hover:bg-blue-600 sm:px-4 sm:py-2 sm:text-md"
 						>
 							Add Question
 						</button>
