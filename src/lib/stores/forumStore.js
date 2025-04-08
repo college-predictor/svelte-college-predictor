@@ -296,34 +296,33 @@ function handleWebSocketMessage(event) {
           // Remove message completely if validation failed
           messages.update(msgs => msgs.filter(msg => msg.id !== data.messageId));
           
-          // Show error notification
+          // Show error notification with backend reason
           messages.update(msgs => [...msgs, {
             id: Date.now(),
             user: 'System',
-            content: `Error: Message could not be validated`,
-            timestamp: new Date().toISOString(),
+            content: `Error: ${data.reason || 'Message could not be validated'}`,            timestamp: new Date().toISOString(),
             hasQuestion: false,
             questionId: null,
             status: 'sent'
           }]);
-        } else {
+        } else if (data.status === 'validated') {
           // Update status for validated messages
           messages.update(msgs => {
             // Check if message exists and update its status
             const messageExists = msgs.some(msg => msg.id === data.messageId);
             
             if (messageExists) {
-              // Create a new array with the updated message status
+              // Create new array with updated status and preserve other properties
               return msgs.map(msg => 
-                msg.id === data.messageId ? { ...msg, status: 'sent' } : msg
+                msg.id === data.messageId 
+                  ? { ...msg, status: 'sent' }
+                  : msg
               );
             }
-            
-            // If message doesn't exist (rare case), just return current messages
             return msgs;
           });
         }
-        console.log(`Message ID: ${data.messageId} validation status: ${data.status}`);
+        console.log(`Message ID: ${data.messageId} validation status: ${data.status}${data.reason ? ', Reason: ' + data.reason : ''}`);
         break;
         
       case 'system':
