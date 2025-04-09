@@ -22,17 +22,21 @@
         link: "/discussion-forum",
       },
       {
-        title: 'Colleges',
-        description: 'Explore colleges that match your academic profile and preferences.',
+        title: 'Exams',
+        description: 'Explore Exams that match your academic profile and preferences.',
         icon: faUniversity,
-        link: "/college-list",
+        link: "/exams",
       },
     ];
   </script>
   
-  <section class="bg-gray-100 py-16">
-    <div class="container mx-auto text-center">
-      <h2 class="text-4xl font-bold mb-12 text-blue-600">Our AI Services</h2>
+  <section class="bg-gradient-to-br from-blue-50 to-indigo-100 py-20 relative overflow-hidden">
+    <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
+    <div class="container mx-auto px-4 text-center relative z-10">
+      <div class="max-w-3xl mx-auto mb-16">
+        <h2 class="text-4xl md:text-5xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Our AI Services</h2>
+        <p class="text-gray-600 text-lg">Empowering your educational journey with cutting-edge AI solutions</p>
+      </div>
       <div class="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {#each services as { title, description, icon, link }}
           <ServiceCard {title} {description} {icon} {link}/>
@@ -40,4 +44,12 @@
       </div>
     </div>
   </section>
+
+<style>
+  .bg-grid-pattern {
+    background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+      linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+</style>
   
