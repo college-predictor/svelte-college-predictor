@@ -102,9 +102,6 @@
 <AiServiceSection />
 <RecommandationSection />
 
-<!-- Footer -->
-<Footer />
-
 <style>
 	/* Add subtle animation for the hero section */
 	@keyframes fadeIn {
