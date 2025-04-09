@@ -420,7 +420,7 @@
 <!-- Main container -->
 <div class="w-full">
 	<!-- Header with fixed position -->
-	<div class="sticky top-0 z-0 rounded-t-lg bg-white p-3 shadow-md sm:p-4">
+	<div class="sticky top-0 z-50 rounded-t-lg bg-white p-3 shadow-md sm:p-4">
 		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
 			<div class="mb-2 sm:mb-0">
 				<h1 class="text-xl font-semibold text-blue-600 sm:text-2xl">JEE Discussion Forum</h1>

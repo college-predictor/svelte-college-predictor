@@ -91,7 +91,7 @@ export async function getQuestionById(questionId) {
   }
   try {
     const protocol = window.location.protocol
-    const response = await fetch(`${protocol}//api.collegepredictor.co.in/api/question/${questionId}`);
+    const response = await fetch(`${protocol}//api.collegepredictor.in/api/question/${questionId}`);
     if (!response.ok) throw new Error('Failed to fetch question');
     
     const questionData = await response.json();
@@ -157,7 +157,7 @@ export function initWebSocket() {
     const clientId = getClientId();
     
     try {
-      socket = new WebSocket(`${protocol}//api.collegepredictor.co.in/api/ws-discussion-forum/${clientId}`);
+      socket = new WebSocket(`${protocol}//api.collegepredictor.in/api/ws-discussion-forum/${clientId}`);
       
       socket.onopen = () => {
         console.log('WebSocket connection established for discussion forum.');
