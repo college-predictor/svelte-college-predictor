@@ -224,8 +224,8 @@
 		optionImagePreviews = { A: '', B: '', C: '', D: '' };
 	}
 
-	// Function to resize image and convert to base64 (max 150x150)
-	async function resizeAndConvertToBase64(file, maxWidth = 150, maxHeight = 150, quality = 0.6) {
+	// Function to resize image and convert to base64 (max 200x200)
+	async function resizeAndConvertToBase64(file, maxWidth = 200, maxHeight = 200, quality = 0.7) {
 		return new Promise((resolve) => {
 			const reader = new FileReader();
 			reader.onload = (e) => {
@@ -275,8 +275,8 @@
 	async function handleOptionImageUpload(event, option) {
 		const file = event.target.files[0];
 		if (file) {
-			// Resize and convert to base64 (max 150x150)
-			optionImagePreviews[option] = await resizeAndConvertToBase64(file, 150, 150, 0.6);
+			// Resize and convert to base64 (max 200x200)
+			optionImagePreviews[option] = await resizeAndConvertToBase64(file, 200, 200, 0.7);
 			questionForm[`option${option}`].image = optionImagePreviews[option];
 		}
 	}
@@ -529,6 +529,18 @@
 										{/if}
 									</span>
 								</div>
+							{/if}
+							{#if message.timestamp}
+								<span class="text-xs text-gray-500 ml-2">
+									{new Date(new Date(message.timestamp).getTime() + (5.5 * 60) * 60 * 1000).toLocaleString('en-IN', {
+										day: '2-digit',
+										month: '2-digit',
+										year: 'numeric',
+										hour: '2-digit',
+										minute: '2-digit',
+										hour12: true
+									})}
+								</span>
 							{/if}
 						</div>
 					</div>

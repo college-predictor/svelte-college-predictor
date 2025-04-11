@@ -10,6 +10,7 @@
 	const links = [
 		{ href: '/', label: 'Home' },
 		{ href: '/study-material', label: 'Study Material' },
+		{ href: '/rank-converter', label: 'Rank Converter' },
 		{ href: '/discussion-forum', label: 'Discussion Forum' },
 		{ href: '/about', label: 'About' }
 	];
