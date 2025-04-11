@@ -157,7 +157,8 @@
   /* Mobile optimization styles */
   @media (max-width: 768px) {
     .filter-grid {
-      grid-template-columns: 1fr !important;
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 0.5rem !important;
     }
     
     .container-padding {
@@ -165,7 +166,26 @@
     }
     
     .filter-section {
-      padding: 0.75rem !important;
+      padding: 0.5rem !important;
+    }
+    
+    .filter-grid > div {
+      padding: 0.5rem !important;
+    }
+    
+    .filter-grid p {
+      margin-top: 0.25rem !important;
+      font-size: 0.65rem !important;
+    }
+    
+    .filter-grid label {
+      font-size: 0.75rem !important;
+      margin-bottom: 0.25rem !important;
+    }
+    
+    .filter-grid select {
+      padding: 0.375rem 0.5rem !important;
+      font-size: 0.75rem !important;
     }
   }
 </style>
@@ -190,10 +210,10 @@
           </h2>
         </div>
         
-        <div class="p-5">
+        <div class="p-3">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 filter-grid">
             <!-- Rank Margin -->
-            <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:shadow-md transition-all duration-200">
+            <div class="bg-gray-50 p-2 rounded-lg border border-gray-100 hover:shadow-md transition-all duration-200">
               <label for="inputMarginSelect" class="block text-sm font-medium text-gray-700 mb-2">Rank Margin</label>
               <select 
                 id="inputMarginSelect" 
@@ -211,7 +231,7 @@
             </div>
 
             <!-- Year -->
-            <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:shadow-md transition-all duration-200">
+            <div class="bg-gray-50 p-2 rounded-lg border border-gray-100 hover:shadow-md transition-all duration-200">
               <label for="yearSelect" class="block text-sm font-medium text-gray-700 mb-2">Admission Year</label>
               <select 
                 id="yearSelect" 
@@ -228,69 +248,70 @@
               </select>
               <p class="text-xs text-gray-500 mt-2">View historical data from previous years</p>
             </div>
-          <!-- NIRF Ranking Filter -->
-          <!-- <div>
-            <label class="block text-sm font-medium text-gray-700">Max NIRF Ranking</label>
-            <input
-              type="number"
-              bind:value={filters.nirfRanking}
-              class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-              placeholder="e.g., 50"
-            />
-          </div> -->
+
+            <!-- NIRF Ranking Filter -->
+            <!-- <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:shadow-md transition-all duration-200">
+              <label class="block text-sm font-medium text-gray-700">Max NIRF Ranking</label>
+              <input
+                type="number"
+                bind:value={filters.nirfRanking}
+                class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                placeholder="e.g., 50"
+              />
+            </div> -->
           
-          <!-- Placement Rating Filter -->
-          <!-- <div>
-            <label class="block text-sm font-medium text-gray-700">Min Placement Rating</label>
-            <select bind:value={filters.placementRating} class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
-              <option value="">Any</option>
-              <option value="4">4+</option>
-              <option value="4.5">4.5+</option>
-              <option value="5">5</option>
-            </select>
-          </div> -->
-          
-          <!-- College Life Rating Filter -->
-          <!-- <div>
-            <label class="block text-sm font-medium text-gray-700">Min College Life Rating</label>
-            <select bind:value={filters.collegeLifeRating} class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
-              <option value="">Any</option>
-              <option value="4">4+</option>
-              <option value="4.5">4.5+</option>
-              <option value="5">5</option>
-            </select>
-          </div> -->
-          
-          <!-- Campus Rating Filter -->
-          <!-- <div>
-            <label class="block text-sm font-medium text-gray-700">Min Campus Rating</label>
-            <select bind:value={filters.campusRating} class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
-              <option value="">Any</option>
-              <option value="4">4+</option>
-              <option value="4.5">4.5+</option>
-              <option value="5">5</option>
-            </select>
-          </div> -->
-          
-          <!-- Seat Type Filter -->
-          <!-- <div>
-            <label class="block text-sm font-medium text-gray-700">Seat Type</label>
-            <select bind:value={filters.quota} class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
-              <option value="">Any</option>
-              <option value="AI">All India</option>
-              <option value="HS">Home State</option>
-            </select>
-          </div> -->
-          
-          <!-- Reset Filters Button -->
-          <!-- <div class="flex items-end">
-            <button
-              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full"
-              on:click={resetFilters}
-            >
-              Reset Filters
-            </button>
-          </div> -->
+            <!-- Placement Rating Filter -->
+            <!-- <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:shadow-md transition-all duration-200">
+              <label class="block text-sm font-medium text-gray-700">Min Placement Rating</label>
+              <select bind:value={filters.placementRating} class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                <option value="">Any</option>
+                <option value="4">4+</option>
+                <option value="4.5">4.5+</option>
+                <option value="5">5</option>
+              </select>
+            </div> -->
+            
+            <!-- College Life Rating Filter -->
+            <!-- <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:shadow-md transition-all duration-200">
+              <label class="block text-sm font-medium text-gray-700">Min College Life Rating</label>
+              <select bind:value={filters.collegeLifeRating} class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                <option value="">Any</option>
+                <option value="4">4+</option>
+                <option value="4.5">4.5+</option>
+                <option value="5">5</option>
+              </select>
+            </div> -->
+            
+            <!-- Campus Rating Filter -->
+            <!-- <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:shadow-md transition-all duration-200">
+              <label class="block text-sm font-medium text-gray-700">Min Campus Rating</label>
+              <select bind:value={filters.campusRating} class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                <option value="">Any</option>
+                <option value="4">4+</option>
+                <option value="4.5">4.5+</option>
+                <option value="5">5</option>
+              </select>
+            </div> -->
+            
+            <!-- Seat Type Filter -->
+            <!-- <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:shadow-md transition-all duration-200">
+              <label class="block text-sm font-medium text-gray-700">Seat Type</label>
+              <select bind:value={filters.quota} class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                <option value="">Any</option>
+                <option value="AI">All India</option>
+                <option value="HS">Home State</option>
+              </select>
+            </div> -->
+            
+            <!-- Reset Filters Button -->
+            <!-- <div class="flex items-end">
+              <button
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full"
+                on:click={resetFilters}
+              >
+                Reset Filters
+              </button>
+            </div> -->
           </div>
         </div>
       </div>
