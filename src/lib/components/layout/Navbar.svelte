@@ -9,11 +9,61 @@
 
 	const links = [
 		{ href: '/', label: 'Home' },
-		{ href: '/study-material', label: 'Study Material' },
+		{ href: '/exams', label: 'Exams' },
 		{ href: '/rank-converter', label: 'Rank Converter' },
 		{ href: '/discussion-forum', label: 'Discussion Forum' },
 		{ href: '/about', label: 'About' }
 	];
+
+	// Exams dropdown data
+	const examCategories = [
+		{
+			name: 'Engineering',
+			exams: [
+				{ href: '/exams/jee-main', label: 'JEE Main' },
+				{ href: '/exams/jee-advanced', label: 'JEE Advanced' },
+				{ href: '/exams/gate', label: 'GATE' }
+			]
+		},
+		{
+			name: 'Medical',
+			exams: [
+				{ href: '/exams/neet', label: 'NEET' },
+				{ href: '/exams/aiims', label: 'AIIMS' }
+			]
+		},
+		{
+			name: 'Management',
+			exams: [
+				{ href: '/exams/cat', label: 'CAT' },
+				{ href: '/exams/mat', label: 'MAT' },
+				{ href: '/exams/xat', label: 'XAT' }
+			]
+		}
+	];
+
+	let isExamDropdownOpen = false;
+	let isMobileExamExpanded = false;
+
+	function toggleExamDropdown() {
+		isExamDropdownOpen = !isExamDropdownOpen;
+	}
+
+	let closeTimeout;
+
+	function closeExamDropdown() {
+		closeTimeout = setTimeout(() => {
+			isExamDropdownOpen = false;
+		}, 200);
+	}
+
+	function cancelClose() {
+		clearTimeout(closeTimeout);
+	}
+
+	function toggleMobileExamMenu() {
+		isMobileExamExpanded = !isMobileExamExpanded;
+	}
 
 	onMount(() => {
 		const handleScroll = () => {
@@ -62,22 +112,94 @@
 			<!-- Desktop Menu -->
 			<div class="hidden items-center space-x-6 md:flex">
 				{#each links as link}
-					<a
-						href={link.href}
-						class="relative text-sm font-medium {isScrolled
-							? 'text-gray-700'
-							: 'text-white'} {activeLink === link.href
-							? 'text-blue-400'
-							: ''} transition-colors duration-200 hover:text-blue-400"
-					>
-						{link.label}
-						<span
-							class="absolute bottom-0 left-0 h-0.5 w-full transform bg-blue-400 transition-transform duration-300 {activeLink ===
+					<!-- Special handling for Exams - show as dropdown -->
+					{#if link.label === 'Exams'}
+						<div class="relative" on:mouseleave={closeExamDropdown} on:mouseenter={cancelClose}>
+							<button
+								on:mouseenter={toggleExamDropdown}
+								on:click={() => window.location.href = '/exams'}
+								class="relative flex items-center text-sm font-medium {isScrolled
+									? 'text-gray-700'
+									: 'text-white'} {activeLink.startsWith('/exams')
+									? 'text-blue-400'
+									: ''} transition-colors duration-200 hover:text-blue-400"
+							>
+								{link.label}
+								<svg
+									class="ml-1 h-4 w-4 transition-transform duration-200 {isExamDropdownOpen
+										? 'rotate-180'
+										: ''}"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M19 9l-7 7-7-7"
+									/>
+								</svg>
+								<span
+									class="absolute bottom-0 left-0 h-0.5 w-full transform bg-blue-400 transition-transform duration-300 {activeLink.startsWith('/exams')
+										? 'scale-x-100'
+										: 'scale-x-0'} group-hover:scale-x-100"
+								></span>
+							</button>
+							
+							<!-- Dropdown Menu -->
+							{#if isExamDropdownOpen}
+								<div
+									transition:fade={{ duration: 200 }}
+									class="absolute left-0 z-50 mt-2 w-64 origin-top-left rounded-md bg-white py-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+								>
+									{#each examCategories as category}
+										<div class="px-4 py-2">
+											<h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+												{category.name}
+											</h3>
+											<div class="mt-2 space-y-1">
+												{#each category.exams as exam}
+													<a
+														href={exam.href}
+														class="block rounded-md px-2 py-1 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+														on:click={closeExamDropdown}
+													>
+														{exam.label}
+													</a>
+												{/each}
+											</div>
+										</div>
+									{/each}
+									<div class="mt-2 border-t border-gray-100 pt-2">
+										<a
+											href="/exams"
+											class="block px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50"
+										>
+											View All Exams
+										</a>
+									</div>
+								</div>
+							{/if}
+						</div>
+					{:else}
+						<a
+							href={link.href}
+							class="relative text-sm font-medium {isScrolled
+								? 'text-gray-700'
+								: 'text-white'} {activeLink === link.href
+								? 'text-blue-400'
+								: ''} transition-colors duration-200 hover:text-blue-400"
+						>
+							{link.label}
+							<span
+								class="absolute bottom-0 left-0 h-0.5 w-full transform bg-blue-400 transition-transform duration-300 {activeLink ===
 							link.href
 								? 'scale-x-100'
 								: 'scale-x-0'} group-hover:scale-x-100"
-						></span>
-					</a>
+							></span>
+						</a>
+					{/if}
 				{/each}
 				<a
 					href="/ai-counsellor"
@@ -159,16 +281,70 @@
 				</div>
 				<nav class="space-y-3 p-4">
 					{#each links as link}
-						<a
-							href={link.href}
-							class="block rounded-md px-3 py-2.5 text-sm font-medium text-gray-800 hover:bg-blue-100 hover:text-blue-600 {activeLink ===
+						{#if link.label === 'Exams'}
+							<div class="mb-1">
+								<button
+									class="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium text-gray-800 hover:bg-blue-100 hover:text-blue-600 {activeLink.startsWith('/exams') ? 'bg-blue-100 text-blue-600' : ''} transition-colors duration-200"
+									on:click={toggleMobileExamMenu}
+								>
+									<span>{link.label}</span>
+									<svg
+										class="h-4 w-4 transition-transform duration-200 {isMobileExamExpanded ? 'rotate-180' : ''}"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M19 9l-7 7-7-7"
+										/>
+									</svg>
+								</button>
+								
+								{#if isMobileExamExpanded}
+									<div class="ml-4 mt-1 border-l border-blue-100 pl-2">
+										{#each examCategories as category}
+											<div class="mb-2">
+												<h3 class="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+													{category.name}
+												</h3>
+												<div class="mt-1 space-y-0.5">
+													{#each category.exams as exam}
+														<a
+															href={exam.href}
+															class="block rounded px-2 py-1.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+															on:click={closeMenu}
+														>
+															{exam.label}
+														</a>
+													{/each}
+												</div>
+											</div>
+										{/each}
+										<a
+											href="/exams"
+											class="mt-1 block px-2 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50"
+											on:click={closeMenu}
+										>
+											View All Exams
+										</a>
+									</div>
+								{/if}
+							</div>
+						{:else}
+							<a
+								href={link.href}
+								class="block rounded-md px-3 py-2.5 text-sm font-medium text-gray-800 hover:bg-blue-100 hover:text-blue-600 {activeLink ===
 							link.href
 								? 'bg-blue-100 text-blue-600'
 								: ''} transition-colors duration-200"
-							on:click={closeMenu}
-						>
-							{link.label}
-						</a>
+								on:click={closeMenu}
+							>
+								{link.label}
+							</a>
+						{/if}
 					{/each}
 					<a
 						href="/ai-counsellor"
