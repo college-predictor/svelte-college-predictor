@@ -252,11 +252,23 @@
 												<tr class={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
 													<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{question.question_number}</td>
 													<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{question.question_type}</td>
-													<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+													<td class="px-6 py-4 whitespace-nowrap text-sm">
 														{#if question.question_type === 'MCQ'}
-															{question.chosen_option ? getOptionLabel(question.chosen_option) : '--'}
+															{#if question.chosen_option}
+																<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
+																	{getOptionLabel(question.chosen_option)}
+																</span>
+															{:else}
+																<span class="text-gray-500">--</span>
+															{/if}
 														{:else}
-															{question.given_answer || '--'}
+															{#if question.given_answer}
+																<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
+																	{question.given_answer}
+																</span>
+															{:else}
+																<span class="text-gray-500">--</span>
+															{/if}
 														{/if}
 													</td>
 													<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -313,9 +325,21 @@
 														<span class="text-gray-600 font-medium">Your Answer:</span>
 														<div class="mt-1">
 															{#if question.question_type === 'MCQ'}
-																{question.chosen_option ? getOptionLabel(question.chosen_option) : '--'}
+																{#if question.chosen_option}
+																	<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium inline-block">
+																		{getOptionLabel(question.chosen_option)}
+																	</span>
+																{:else}
+																	<span class="text-gray-500">--</span>
+																{/if}
 															{:else}
-																{question.given_answer || '--'}
+																{#if question.given_answer}
+																	<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium inline-block">
+																		{question.given_answer}
+																	</span>
+																{:else}
+																	<span class="text-gray-500">--</span>
+																{/if}
 															{/if}
 														</div>
 													</div>
@@ -416,7 +440,7 @@
 										<div class="flex items-center mb-2">
 											<span class="font-medium mr-2">Option A:</span>
 											{#if selectedQuestion.chosen_option === '1'}
-												<span class="text-blue-600 text-sm font-medium">Your Choice</span>
+                                                <span class="text-blue-600 text-sm font-medium ml-auto">Your Choice</span>
 											{/if}
 											{#if selectedQuestion.correct_option === '1'}
 												<span class="text-green-600 text-sm font-medium ml-auto">Correct Answer</span>
@@ -433,7 +457,7 @@
 										<div class="flex items-center mb-2">
 											<span class="font-medium mr-2">Option B:</span>
 											{#if selectedQuestion.chosen_option === '2'}
-												<span class="text-blue-600 text-sm font-medium">Your Choice</span>
+                                                <span class="text-blue-600 text-sm font-medium ml-auto">Your Choice</span>
 											{/if}
 											{#if selectedQuestion.correct_option === '2'}
 												<span class="text-green-600 text-sm font-medium ml-auto">Correct Answer</span>
@@ -450,7 +474,7 @@
 										<div class="flex items-center mb-2">
 											<span class="font-medium mr-2">Option C:</span>
 											{#if selectedQuestion.chosen_option === '3'}
-												<span class="text-blue-600 text-sm font-medium">Your Choice</span>
+                                                <span class="text-blue-600 text-sm font-medium ml-auto">Your Choice</span>
 											{/if}
 											{#if selectedQuestion.correct_option === '3'}
 												<span class="text-green-600 text-sm font-medium ml-auto">Correct Answer</span>
@@ -467,7 +491,7 @@
 										<div class="flex items-center mb-2">
 											<span class="font-medium mr-2">Option D:</span>
 											{#if selectedQuestion.chosen_option === '4'}
-												<span class="text-blue-600 text-sm font-medium">Your Choice</span>
+                                                <span class="text-blue-600 text-sm font-medium ml-auto">Your Choice</span>
 											{/if}
 											{#if selectedQuestion.correct_option === '4'}
 												<span class="text-green-600 text-sm font-medium ml-auto">Correct Answer</span>
