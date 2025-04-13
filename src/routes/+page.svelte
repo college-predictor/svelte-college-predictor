@@ -2,6 +2,7 @@
 	import JosaaForm from '$lib/components/JosaaForm.svelte';
 	import RecommandationSection from '$lib/components/layout/RecommandationSection.svelte';
 	import AiServiceSection from '$lib/components/layout/AIServiceSection.svelte';
+	import AnswerSheetCalculator from '$lib/components/AnswerSheetCalculator.svelte';
 	import Footer from '$lib/components/layout/Footer.svelte';
 	import { goto } from '$app/navigation';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
@@ -46,7 +47,7 @@
 				aspirants.
 			</p>
 
-			<div class="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 lg:justify-start">
+			<!-- <div class="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 lg:justify-start">
 				<button
 					on:click={() => goto('/discussion-forum')}
 					class="group flex items-center justify-center space-x-2 rounded-lg border-2 border-white/80 bg-transparent px-6 py-3 font-medium text-white backdrop-blur-sm transition duration-300 hover:bg-white/10"
@@ -57,7 +58,7 @@
 						class="transition-transform duration-300 group-hover:translate-x-1"
 					/>
 				</button>
-			</div>
+			</div> -->
 
 			<div
 				class="flex flex-wrap items-center justify-center gap-8 pt-4 text-sm text-gray-300 lg:justify-start"
@@ -95,6 +96,28 @@
 				</div>
 				<JosaaForm />
 			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Answer Sheet Calculator Section -->
+<section class="py-16 bg-gray-50">
+	<div class="container mx-auto px-4">
+		<div class="text-center mb-10">
+			<span class="inline-block px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded-full mb-4">
+				NEW FEATURE
+			</span>
+			<h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+				Calculate Your JEE Marks Instantly
+			</h2>
+			<p class="text-lg text-gray-600 max-w-2xl mx-auto">
+				Upload your official JEE answer sheet link to see correct/incorrect questions and calculate your
+				expected score.
+			</p>
+		</div>
+
+		<div class="max-w-3xl mx-auto">
+			<AnswerSheetCalculator />
 		</div>
 	</div>
 </section>
