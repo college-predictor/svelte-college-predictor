@@ -12,7 +12,8 @@ export const GET: RequestHandler = async () => {
     { url: '/ai-counsellor', changefreq: 'monthly', priority: 0.7 },
     { url: '/college-list', changefreq: 'monthly', priority: 0.7 },
     { url: '/discussion-forum', changefreq: 'weekly', priority: 0.8 },
-    { url: '/study-material', changefreq: 'weekly', priority: 0.8 }
+    { url: '/study-material', changefreq: 'weekly', priority: 0.8 },
+    { url: '/rank-converter', changefreq: 'weekly', priority: 0.8 }
   ];
 
   const stream = new SitemapStream({ hostname });

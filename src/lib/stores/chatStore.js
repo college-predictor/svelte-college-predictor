@@ -201,6 +201,11 @@ function handleWebSocketMessage(event) {
   }
 }
 
+// Send a text message (alias for sendMessage for compatibility)
+export function sendTextMessage(text) {
+  return sendMessage(text);
+}
+
 // Send a message through the WebSocket
 export function sendMessage(text) {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
