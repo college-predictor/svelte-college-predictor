@@ -10,12 +10,54 @@
 		faArrowRight,
 		faComments,
 		faGraduationCap,
-		faUniversity
+		faUniversity,
+		faCalculator
 	} from '@fortawesome/free-solid-svg-icons';
 
 	// Scroll to form function
 	let formSection: HTMLElement;
+	
+	// Animation control for new feature highlight
+	let calculatorVisible = false;
+	onMount(() => {
+		setTimeout(() => {
+			calculatorVisible = true;
+		}, 500);
+	});
+	import { onMount } from 'svelte';
 </script>
+
+<!-- NEW FEATURE: Answer Sheet Calculator Section -->
+<section class="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 py-8 text-white">
+	<div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-yellow-400/20 blur-3xl"></div>
+	<div class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-blue-400/20 blur-3xl"></div>
+	
+	<div class="container relative z-10 mx-auto px-4">
+		<div class="flex flex-col items-center justify-between gap-6 lg:flex-row">
+			<div class="max-w-xl text-center lg:text-left">
+				<div class="mb-4 inline-flex animate-pulse items-center rounded-full bg-yellow-400 px-4 py-1 text-sm font-bold uppercase tracking-wider text-blue-900">
+					<FontAwesomeIcon icon={faCalculator} class="mr-2" />
+					NEW FEATURE
+				</div>
+				<h2 class="mb-4 text-3xl font-extrabold md:text-4xl">
+					Calculate Your JEE Marks <span class="text-yellow-300">Instantly</span>
+				</h2>
+				<p class="text-lg text-blue-100">
+					Upload your official JEE answer sheet link to see correct/incorrect questions and calculate your
+					expected score.
+				</p>
+			</div>
+			
+			<div class="w-full max-w-md transform transition-all duration-500 ease-in-out lg:w-2/5" 
+				class:scale-100={calculatorVisible} 
+				class:opacity-100={calculatorVisible}
+				class:scale-95={!calculatorVisible}
+				class:opacity-0={!calculatorVisible}>
+				<AnswerSheetCalculator />
+			</div>
+		</div>
+	</div>
+</section>
 
 <section
 	class="relative flex min-h-[calc(100vh-64px)] items-center justify-center bg-cover bg-center px-6 text-white lg:px-16"
@@ -28,7 +70,19 @@
 	<div
 		class="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 py-16 lg:grid-cols-2"
 	>
-		<!-- Left Side: Text Content -->
+
+		<!-- Left Side: Form Container -->
+		<div bind:this={formSection} class="rounded-xl bg-white p-1 shadow-2xl">
+			<div class="rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
+				<div class="mb-6 text-center">
+					<h2 class="text-2xl font-bold text-gray-800">Find Your Ideal College</h2>
+					<p class="text-gray-600">Enter your details to get personalized recommendations</p>
+				</div>
+				<JosaaForm />
+			</div>
+		</div>
+
+		<!-- Right Side: Text Content -->
 		<div class="space-y-8 text-center lg:text-left">
 			<div>
 				<span
@@ -86,41 +140,10 @@
 				</div>
 			</div>
 		</div>
-
-		<!-- Right Side: Form Container -->
-		<div bind:this={formSection} class="rounded-xl bg-white p-1 shadow-2xl">
-			<div class="rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
-				<div class="mb-6 text-center">
-					<h2 class="text-2xl font-bold text-gray-800">Find Your Ideal College</h2>
-					<p class="text-gray-600">Enter your details to get personalized recommendations</p>
-				</div>
-				<JosaaForm />
-			</div>
-		</div>
 	</div>
 </section>
 
-<!-- Answer Sheet Calculator Section -->
-<section class="py-16 bg-gray-50">
-	<div class="container mx-auto px-4">
-		<div class="text-center mb-10">
-			<span class="inline-block px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded-full mb-4">
-				NEW FEATURE
-			</span>
-			<h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-				Calculate Your JEE Marks Instantly
-			</h2>
-			<p class="text-lg text-gray-600 max-w-2xl mx-auto">
-				Upload your official JEE answer sheet link to see correct/incorrect questions and calculate your
-				expected score.
-			</p>
-		</div>
 
-		<div class="max-w-3xl mx-auto">
-			<AnswerSheetCalculator />
-		</div>
-	</div>
-</section>
 
 <AiServiceSection />
 <RecommandationSection />
