@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="#7e22ce" />
+  <!-- JEE Text -->
+  <text x="100" y="85" font-family="Arial, sans-serif" font-size="38" font-weight="bold" text-anchor="middle" fill="#ffffff">JEE</text>
+  <!-- ADVANCE Text -->
+  <text x="100" y="125" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#ffffff">ADVANCE</text>
+  <!-- Star Symbol -->
+  <polygon points="100,40 107,54 123,56 111,67 114,83 100,75 86,83 89,67 77,56 93,54" fill="#ffffff" />
+  <!-- Decorative Elements -->
+  <circle cx="100" cy="100" r="95" fill="none" stroke="#ffffff" stroke-width="2" />
+  <circle cx="100" cy="100" r="75" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="3,3" />
+</svg>

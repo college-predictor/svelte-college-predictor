@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <!-- Background -->
+  <rect x="0" y="0" width="1200" height="400" fill="#0f172a" />
+  
+  <!-- Grid Pattern -->
+  <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+    <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1e293b" stroke-width="1" />
+  </pattern>
+  <rect x="0" y="0" width="1200" height="400" fill="url(#grid)" />
+  
+  <!-- Abstract Engineering Elements -->
+  <!-- Gears -->
+  <circle cx="200" cy="200" r="80" fill="none" stroke="#3b82f6" stroke-width="3" />
+  <circle cx="200" cy="200" r="60" fill="none" stroke="#3b82f6" stroke-width="2" />
+  <circle cx="200" cy="200" r="40" fill="none" stroke="#3b82f6" stroke-width="3" />
+  
+  <!-- Circuit Board Lines -->
+  <path d="M 300 150 H 900 M 350 200 H 950 M 400 250 H 1000" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" />
+  <path d="M 400 150 V 250 M 500 150 V 250 M 600 150 V 250 M 700 150 V 250 M 800 150 V 250" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" />
+  
+  <!-- Connection Nodes -->
+  <circle cx="400" cy="150" r="5" fill="#f59e0b" />
+  <circle cx="500" cy="200" r="5" fill="#f59e0b" />
+  <circle cx="600" cy="250" r="5" fill="#f59e0b" />
+  <circle cx="700" cy="150" r="5" fill="#f59e0b" />
+  <circle cx="800" cy="200" r="5" fill="#f59e0b" />
+  
+  <!-- Engineering Formulas (Decorative) -->
+  <text x="850" y="100" font-family="monospace" font-size="14" fill="#94a3b8">E = mc²</text>
+  <text x="850" y="130" font-family="monospace" font-size="14" fill="#94a3b8">F = ma</text>
+  <text x="850" y="160" font-family="monospace" font-size="14" fill="#94a3b8">PV = nRT</text>
+  
+  <!-- Title -->
+  <text x="600" y="350" font-family="Arial, sans-serif" font-size="40" font-weight="bold" text-anchor="middle" fill="#ffffff">Engineering Exams</text>
+</svg>
