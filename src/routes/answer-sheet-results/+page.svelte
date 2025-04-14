@@ -408,7 +408,7 @@
 		<!-- Question Modal -->
 		{#if showQuestionModal && selectedQuestion}
 			<div class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50 p-4 overflow-y-auto">
-				<div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] overflow-y-auto">
+				<div class="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[80vh] sm:max-h-full overflow-y-auto">
 					<!-- Modal Header -->
 					<div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 flex justify-between items-center">
 						<h3 class="text-xl font-bold text-white">Question {selectedQuestion.question_number} ({selectedQuestion.question_type})</h3>
