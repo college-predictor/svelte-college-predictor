@@ -199,7 +199,7 @@
 				{:else if result}
 					<div class="space-y-8">
 						<!-- Summary Section -->
-						<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+						<div class="grid grid-cols-1 grid-cols-3 gap-6">
 							<div class="bg-green-50 p-4 rounded-lg text-center">
 								<p class="text-sm text-gray-600 mb-1">Correct Answers</p>
 								<p class="text-3xl font-bold text-green-600">{result.correct}</p>
@@ -218,7 +218,7 @@
 						{#if result.subjectWiseMarks}
 							<div>
 								<h3 class="text-xl font-semibold text-gray-800 mb-4">Subject-wise Breakdown</h3>
-								<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+								<div class="grid grid-cols-1 grid-cols-3 gap-4">
 									{#each Object.entries(result.subjectWiseMarks) as [subject, marks]}
 										<div class="bg-gray-50 p-4 rounded-lg">
 											<p class="text-sm font-medium text-gray-700 capitalize">{subject}</p>
@@ -408,7 +408,7 @@
 		<!-- Question Modal -->
 		{#if showQuestionModal && selectedQuestion}
 			<div class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50 p-4 overflow-y-auto">
-				<div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+				<div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] overflow-y-auto">
 					<!-- Modal Header -->
 					<div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 flex justify-between items-center">
 						<h3 class="text-xl font-bold text-white">Question {selectedQuestion.question_number} ({selectedQuestion.question_type})</h3>
