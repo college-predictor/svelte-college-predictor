@@ -44,7 +44,7 @@
         type="url"
         bind:value={answerSheetLink}
         placeholder="https://cdn3.digialm.com/..."
-        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-black"
       />
       {#if error}
         <p class="mt-1 text-sm text-red-600">
