@@ -30,8 +30,9 @@
 
 <div class="bg-white rounded-lg shadow-md p-6 mb-8">
   <div class="text-center mb-6">
-    <h3 class="text-2xl font-bold text-indigo-700 mb-2">Calculate Your JEE Marks</h3>
-    <p class="text-gray-600">Upload your JEE answer sheet link to instantly see correct/incorrect questions</p>
+    <h3 class="text-2xl font-bold text-indigo-700 mb-2">Calculate Your JEE Marks with Final Answer Key</h3>
+    <p class="text-gray-600">Upload your JEE answer sheet link to see your final score and detailed analysis</p>
+    <p class="text-sm text-green-600 mt-2 font-medium">Final answer key is now available!</p>
   </div>
   
   <div class="space-y-4">
