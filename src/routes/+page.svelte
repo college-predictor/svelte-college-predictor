@@ -37,14 +37,13 @@
 			<div class="max-w-xl text-center lg:text-left">
 				<div class="mb-4 inline-flex animate-pulse items-center rounded-full bg-yellow-400 px-4 py-1 text-sm font-bold uppercase tracking-wider text-blue-900">
 					<FontAwesomeIcon icon={faCalculator} class="mr-2" />
-					NEW FEATURE
+					FINAL ANSWER KEY IS NOW LIVE
 				</div>
 				<h2 class="mb-4 text-3xl font-extrabold md:text-4xl">
-					Calculate Your JEE Marks <span class="text-yellow-300">Instantly</span>
+					Calculate Your JEE Marks with <span class="text-yellow-300">Final Answer Key</span>
 				</h2>
 				<p class="text-lg text-blue-100">
-					Upload your official JEE answer sheet link to see correct/incorrect questions and calculate your
-					expected score.
+					Upload your official JEE answer sheet link to get your accurate final score based on the official answer key.
 				</p>
 			</div>
 			
