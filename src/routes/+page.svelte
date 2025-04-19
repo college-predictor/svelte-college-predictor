@@ -69,7 +69,7 @@
 	<!-- <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-fuchsia-400/30 blur-3xl animate-pulse"></div> -->
 	<!-- <div class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-purple-400/30 blur-3xl animate-pulse"></div> -->
 	<!-- <div class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-blue-400/30 blur-3xl"></div> -->
-	<div class="container relative z-10 mx-auto px-4 mt-">
+	<div class="container relative z-10 mx-auto px-4 mt-10">
 	  <div class="flex flex-col items-center justify-between gap-4 lg:flex-row">
 		<div class="max-w-xl text-center lg:text-left">
 		  <div class="mb-2 inline-flex items-center rounded-full bg-gradient-to-r from-yellow-400 to-amber-500 px-3 py-1 text-sm font-bold uppercase tracking-wider text-blue-900 shadow-lg">
