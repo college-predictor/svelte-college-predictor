@@ -16,7 +16,7 @@
 
 	// Scroll to form function
 	let formSection: HTMLElement;
-	
+
 	// Animation control for new feature highlight
 	let calculatorVisible = false;
 	onMount(() => {
@@ -28,75 +28,75 @@
 </script>
 
 <!-- AI Counsellor Coming Soon Banner -->
-<section class="relative overflow-hidden bg-gradient-to-r from-purple-900 via-fuchsia-800 to-purple-900 py-6 text-white shadow-2xl border border-white/10 duration-300">
-	<div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-purple-500/30 blur-3xl animate-pulse"></div>
-	<div class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-indigo-500/30 blur-3xl animate-pulse"></div>
-	
-	<div class="container relative z-10 mx-auto px-4">
+<section class="relative overflow-hidden bg-gradient-to-r from-purple-900 via-fuchsia-800 to-purple-900 py-2 text-white shadow-2xl border-y border-white/10 duration-300">
+	<div class="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-purple-500/20 blur-3xl animate-pulse hidden sm:block"></div>
+	<div class="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-indigo-500/20 blur-3xl animate-pulse hidden sm:block"></div>
+
+	<div class="container relative z-10 mx-auto px-3">
 	  <div class="flex items-center justify-center text-center">
-		<div class="max-w-3xl">
-		  <div class="mb-2 inline-flex items-center rounded-full bg-gradient-to-r from-yellow-400 to-amber-500 px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-indigo-900 shadow-lg animate-bounce">
-			<FontAwesomeIcon icon={faComments} class="mr-2" />
+		<div class="max-w-4xl">
+		  <div class="mb-1 inline-flex items-center rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-blue-900 shadow-lg animate-bounce">
+			<FontAwesomeIcon icon={faComments} class="mr-1" />
 			COMING SOON - FREE FOR ALL STUDENTS
 		  </div>
-		  <h2 class="text-2xl font-bold md:text-3xl lg:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-indigo-100 mb-4">
-			AI Counsellor - Your 24/7 Education Guide
+		  <h2 class="text-x1 font-bold md:text-2xl bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-indigo-100 mb-3">
+			AI Counsellor - Solution To All Your Confusions
 		  </h2>
-		  <p class="text-lg text-indigo-200 mb-6 max-w-2xl mx-auto">
-			Get instant, personalized guidance for your academic journey - completely free! Our AI counsellor helps you make informed decisions about your future.
+		  <p class="text-s text-indigo-100 mb-3 max-w-2xl mx-auto">
+			Get instant, personalized guidance from our highly trustworthy AI solution - guiding you from exam preparation to finding the college that suits you best, completely free!
 		  </p>
-		  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
-			<div class="bg-white/10 backdrop-blur-lg rounded-lg p-4 transform hover:scale-105 transition-all duration-300">
-			  <h3 class="font-semibold text-yellow-300 mb-2">Personalized Recommendations</h3>
-			  <p class="text-indigo-200 text-sm">Get tailored college and course suggestions based on your interests, rank, and career goals.</p>
+		  <div class="grid grid-cols-3 gap-1 text-left max-w-5xl mx-auto">
+			<div class="bg-white/10 backdrop-blur-lg rounded-lg p-1.5 transform hover:scale-105 transition-all duration-300">
+			  <h3 class="font-semibold text-yellow-300 mb-0.5 text-xs">Trusted AI Guidance</h3>
+			  <p class="text-indigo-200 text-[10px]">Get highly accurate college suggestions from our trusted AI system.</p>
 			</div>
-			<div class="bg-white/10 backdrop-blur-lg rounded-lg p-4 transform hover:scale-105 transition-all duration-300">
-			  <h3 class="font-semibold text-yellow-300 mb-2">Career Path Analysis</h3>
-			  <p class="text-indigo-200 text-sm">Explore potential career paths and understand the opportunities each college choice offers.</p>
+			<div class="bg-white/10 backdrop-blur-lg rounded-lg p-1.5 transform hover:scale-105 transition-all duration-300">
+			  <h3 class="font-semibold text-yellow-300 mb-0.5 text-xs">Exam to College</h3>
+			  <p class="text-indigo-200 text-[10px]">Complete guidance from exam preparation to final admission.</p>
 			</div>
-			<div class="bg-white/10 backdrop-blur-lg rounded-lg p-4 transform hover:scale-105 transition-all duration-300">
-			  <h3 class="font-semibold text-yellow-300 mb-2">24/7 Guidance</h3>
-			  <p class="text-indigo-200 text-sm">Get instant answers to your questions about colleges, courses, and admission processes anytime.</p>
+			<div class="bg-white/10 backdrop-blur-lg rounded-lg p-1.5 transform hover:scale-105 transition-all duration-300">
+			  <h3 class="font-semibold text-yellow-300 mb-0.5 text-xs">Perfect Match</h3>
+			  <p class="text-indigo-200 text-[10px]">Find the college that perfectly suits your goals and preferences.</p>
 			</div>
 		  </div>
 		</div>
 	  </div>
 	</div>
-  <!-- </section> -->
-  
+  </section>
+
   <!-- Answer Sheet Calculator Section -->
-  <!-- <section class="relative overflow-hidden bg-gradient-to-r from-purple-900 via-fuchsia-800 to-purple-900 py-6 text-white shadow-xl"> -->
-	<!-- <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-fuchsia-400/30 blur-3xl animate-pulse"></div> -->
-	<!-- <div class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-purple-400/30 blur-3xl animate-pulse"></div> -->
-	<!-- <div class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-blue-400/30 blur-3xl"></div> -->
-	<div class="container relative z-10 mx-auto px-4 mt-10">
-	  <div class="flex flex-col items-center justify-between gap-4 lg:flex-row">
-		<div class="max-w-xl text-center lg:text-left">
-		  <div class="mb-2 inline-flex items-center rounded-full bg-gradient-to-r from-yellow-400 to-amber-500 px-3 py-1 text-sm font-bold uppercase tracking-wider text-blue-900 shadow-lg">
-			<FontAwesomeIcon icon={faCalculator} class="mr-2" />
-			FINAL ANSWER KEY IS NOW LIVE
+  <section class="relative overflow-hidden bg-gradient-to-r from-purple-900 via-fuchsia-800 to-purple-900 py-3 text-white shadow-xl border-b border-white/10">
+	<div class="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-fuchsia-400/30 blur-3xl animate-pulse hidden sm:block"></div>
+	<div class="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-purple-400/30 blur-3xl animate-pulse hidden sm:block"></div>
+	<div class="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-blue-400/30 blur-3xl hidden sm:block"></div>
+	<div class="container relative z-10 mx-auto px-3 mt-3">
+	  <div class="flex flex-col lg:flex-row items-center justify-center gap-2 max-w-5xl mx-auto">
+		<div class="max-w-lg text-center lg:text-left lg:pr-3">
+		  <div class="mb-1 inline-flex items-center rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 px-2 py-0.5 text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-900 shadow-lg">
+			<FontAwesomeIcon icon={faCalculator} class="mr-1" />
+			FINAL ANSWER KEY LIVE
 		  </div>
-		  <h2 class="mb-2 text-3xl font-extrabold md:text-4xl">
-			Calculate Your JEE Marks with <span class="bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-amber-300">Final Answer Key</span>
+		  <h2 class="mb-1 text-xl font-extrabold md:text-2xl">
+			Calculate Your JEE Marks with <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-yellow-300">Final Answer Key</span>
 		  </h2>
-		  <p class="text-lg text-blue-100">
-			Upload your official JEE answer sheet link to get your accurate final score based on the official answer key.
+		  <p class="text-xs sm:text-sm text-blue-100">
+			Upload your official JEE answer sheet link to get your accurate final score with our trusted AI-powered analysis system.
 		  </p>
 		</div>
-		
-		<div class="w-full max-w-md transform transition-all duration-500 ease-in-out lg:w-2/5 hover:scale-105" 
-		  class:scale-100={calculatorVisible} 
+
+		<div class="transform transition-all duration-500 ease-in-out hover:scale-105 lg:flex-shrink-0"
+		  class:scale-100={calculatorVisible}
 		  class:opacity-100={calculatorVisible}
 		  class:scale-95={!calculatorVisible}
 		  class:opacity-0={!calculatorVisible}>
-		  <div class="bg-white/10 backdrop-blur-lg rounded-xl p-1 shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300">
+		  <div class="bg-white/10 backdrop-blur-lg rounded-xl p-1 shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 border border-white/20 ring-1 ring-blue-500/10">
 			<AnswerSheetCalculator />
 		  </div>
 		</div>
 	  </div>
 	</div>
   </section>
-  
+
 <!-- Hero Section with Form -->
 <section
 	class="relative flex min-h-[calc(100vh-100px)] items-center justify-center bg-cover bg-center px-4 text-white lg:px-8"
@@ -195,13 +195,5 @@
 
   section {
     animation: fadeIn 0.8s ease-out;
-  }
-
-  /* Add glass morphism effect */
-  .glass-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
   }
 </style>
