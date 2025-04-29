@@ -74,6 +74,14 @@
     sendMessage(userInput.trim());
     userInput = '';
   }
+
+  // Handle clear chat and reload
+  function handleClearChat() {
+    clearChat();
+    if (browser) {
+      window.location.reload();
+    }
+  }
 </script>
 
 <style>
@@ -145,7 +153,7 @@
           <!-- Clear chat button -->
           <button
             class="text-sm px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded flex items-center"
-            on:click={() => clearChat()}
+            on:click={handleClearChat}
             title="Clear chat history"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

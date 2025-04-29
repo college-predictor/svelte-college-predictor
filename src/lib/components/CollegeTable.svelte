@@ -321,17 +321,24 @@
       <div class="relative mb-2 px-4">
         <!-- Main Row - Desktop View -->
         <div
-          class="hidden sm:grid grid-cols-[4fr_6fr_2fr_1fr_1fr_1fr] items-center bg-white rounded-lg px-4 py-3 shadow-sm cursor-pointer gap-2 hover:bg-blue-50 transition-all duration-200 border border-transparent hover:border-blue-100 relative"
+          class="hidden sm:grid grid-cols-[4fr_6fr_2fr_1fr_1fr_1fr] items-center rounded-lg px-4 py-3 shadow-sm cursor-pointer gap-2 hover:bg-blue-50 transition-all duration-200 border border-transparent hover:border-blue-100 relative"
+          class:bg-white={college.gender !== 'Female-only (including Supernumerary)'}
+          class:bg-pink-50={college.gender === 'Female-only (including Supernumerary)'}
           on:click={() => toggleExpand(college.id)}
           aria-expanded={expandedRow === college.id}
           tabindex="0"
           role="button"
-          class:bg-blue-50={expandedRow === college.id}
-          class:border-blue-100={expandedRow === college.id}
+          class:bg-blue-50={expandedRow === college.id && college.gender !== 'Female-only (including Supernumerary)'}
+          class:bg-pink-100={expandedRow === college.id && college.gender === 'Female-only (including Supernumerary)'}
+          class:border-blue-100={expandedRow === college.id && college.gender !== 'Female-only (including Supernumerary)'}
+          class:border-pink-200={expandedRow === college.id && college.gender === 'Female-only (including Supernumerary)'}
         >
           <div class="text-gray-800">
             <span class="font-medium">{college.courseName}</span>
             <span class="text-xs text-gray-500 ml-1">({college.courseType})</span>
+            {#if college.gender === 'Female-only (including Supernumerary)'}
+              <span class="ml-2 px-2 py-0.5 bg-pink-200 text-pink-800 rounded-full text-xs font-medium">Female Only</span>
+            {/if}
           </div>
           <div class="font-medium text-gray-900">{college.collegeName}</div>
           <div><span class="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-700">{college.category}</span></div>
@@ -350,16 +357,25 @@
         
         <!-- Mobile Row View -->
         <div
-          class="sm:hidden flex flex-col bg-white rounded-lg px-4 py-3 shadow-sm cursor-pointer gap-2 transition-all duration-200 relative border border-transparent"
+          class="sm:hidden flex flex-col rounded-lg px-4 py-3 shadow-sm cursor-pointer gap-2 transition-all duration-200 relative border border-transparent"
+          class:bg-white={college.gender !== 'Female-only (including Supernumerary)'}
+          class:bg-pink-50={college.gender === 'Female-only (including Supernumerary)'}
           on:click={() => toggleExpand(college.id)}
           aria-expanded={expandedRow === college.id}
           tabindex="0"
           role="button"
-          class:bg-blue-50={expandedRow === college.id}
-          class:border-blue-100={expandedRow === college.id}
+          class:bg-blue-50={expandedRow === college.id && college.gender !== 'Female-only (including Supernumerary)'}
+          class:bg-pink-100={expandedRow === college.id && college.gender === 'Female-only (including Supernumerary)'}
+          class:border-blue-100={expandedRow === college.id && college.gender !== 'Female-only (including Supernumerary)'}
+          class:border-pink-200={expandedRow === college.id && college.gender === 'Female-only (including Supernumerary)'}
         >
           <!-- College Name (Primary info) -->
-          <div class="font-medium text-base text-gray-900">{college.collegeName}</div>
+          <div class="font-medium text-base text-gray-900">
+            {college.collegeName}
+            {#if college.gender === 'Female-only (including Supernumerary)'}
+              <span class="ml-2 px-2 py-0.5 bg-pink-200 text-pink-800 rounded-full text-xs font-medium">Female Only</span>
+            {/if}
+          </div>
           
           <!-- Course Info Row -->
           <div class="text-sm text-gray-700 font-medium">{college.courseName} <span class="text-xs text-gray-500">({college.courseType})</span></div>
@@ -426,6 +442,15 @@
                   <div class="flex items-center">
                     <span class="w-24 text-gray-600">State:</span>
                     <span class="font-medium">{college.state}</span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="w-24 text-gray-600">Gender:</span>
+                    <span class="font-medium">
+                      {college.gender}
+                      {#if college.gender === 'Female-only (including Supernumerary)'}
+                        <span class="ml-2 px-2 py-0.5 bg-pink-200 text-pink-800 rounded-full text-xs font-medium">Female Only</span>
+                      {/if}
+                    </span>
                   </div>
                 </div>
               </div>
