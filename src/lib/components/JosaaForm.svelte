@@ -82,10 +82,10 @@
 <section class="m-2 text-black sm:m-4">
 	<div class="mx-auto max-w-3xl">
 		<div
-			class="rounded-lg bg-white bg-gradient-to-br from-blue-50 to-indigo-100 p-4 shadow-lg sm:p-6"
+			class="rounded-lg bg-gradient-to-br from-slate-800 to-slate-700 p-4 shadow-lg sm:p-6"
 		>
 			<!-- Header -->
-			<h2 class="mb-4 text-center text-xl font-bold text-indigo-800 sm:text-2xl">
+			<h2 class="mb-4 text-center text-xl font-bold text-white sm:text-2xl">
 				Enter Your JEE Details
 			</h2>
 
@@ -94,10 +94,10 @@
 				<!-- Basic Info -->
 				<div class="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
 					<div>
-						<label for="gender" class="mb-1 block text-sm font-medium text-gray-700">Gender</label>
+						<label for="gender" class="mb-1 block text-sm font-medium text-teal-300">Gender</label>
 						<select
 							id="gender"
-							class="w-full rounded-md border border-gray-300 p-2.5 text-sm text-gray-700 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+							class="w-full rounded-md border border-gray-300 p-2.5 text-sm text-gray-700 focus:border-transparent focus:ring-2 focus:ring-teal-500"
 							bind:value={gender}
 						>
 							<option value="Male">Male</option>
@@ -105,12 +105,12 @@
 						</select>
 					</div>
 					<div>
-						<label for="category" class="mb-1 block text-sm font-medium text-gray-700"
+						<label for="category" class="mb-1 block text-sm font-medium text-teal-300"
 							>Category</label
 						>
 						<select
 							id="category"
-							class="w-full rounded-md border border-gray-300 p-2.5 text-sm text-gray-700 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+							class="w-full rounded-md border border-gray-300 p-2.5 text-sm text-gray-700 focus:border-transparent focus:ring-2 focus:ring-teal-500"
 							bind:value={category}
 						>
 							<option value="OPEN">OPEN</option>
@@ -126,10 +126,10 @@
 						</select>
 					</div>
 					<div>
-						<label for="state" class="mb-1 block text-sm font-medium text-gray-700">Home State</label>
+						<label for="state" class="mb-1 block text-sm font-medium text-teal-300">Home State</label>
 						<select
 							id="state"
-							class="w-full rounded-md border border-gray-300 p-2.5 text-sm text-gray-700 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+							class="w-full rounded-md border border-gray-300 p-2.5 text-sm text-gray-700 focus:border-transparent focus:ring-2 focus:ring-teal-500"
 							bind:value={state}
 						>
 							{#each allStates as s}
@@ -141,10 +141,10 @@
 
 				<!-- Mains Ranks -->
 				<div
-					class="grid grid-cols-1 gap-3 rounded-md bg-gray-50 p-3 sm:grid-cols-2 sm:gap-4 sm:p-4"
+					class="grid grid-cols-1 gap-3 rounded-md bg-slate-700 p-3 sm:grid-cols-2 sm:gap-4 sm:p-4"
 				>
 					<div>
-						<label for="mainsGenRank" class="mb-1 block text-sm font-medium text-gray-700"
+						<label for="mainsGenRank" class="mb-1 block text-sm font-medium text-teal-300"
 							>JEE Mains General Rank</label
 						>
 						<input
@@ -152,12 +152,12 @@
 							type="number"
 							min="1"
 							placeholder="e.g., 12345"
-							class="w-full rounded-md border border-gray-300 p-2.5 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+							class="w-full rounded-md border border-gray-300 p-2.5 text-sm focus:border-transparent focus:ring-2 focus:ring-teal-500"
 							bind:value={mainsGenRank}
 						/>
 					</div>
 					<div class="fade-in">
-						<label for="mainsCatRank" class="mb-1 block text-sm font-medium text-gray-700"
+						<label for="mainsCatRank" class="mb-1 block text-sm font-medium text-teal-300"
 							>JEE Mains Category Rank</label
 						>
 						<input
@@ -165,11 +165,10 @@
 							type="number"
 							min="1"
 							placeholder="e.g., 6789"
-							class="w-full rounded-md border border-gray-300 p-2.5 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500 {isCategoryOpen ? 'bg-gray-100 cursor-not-allowed' : ''}"
+							class="w-full rounded-md border border-gray-300 p-2.5 text-sm focus:border-transparent focus:ring-2 focus:ring-teal-500 {isCategoryOpen ? 'bg-gray-100 cursor-not-allowed' : ''}"
 							bind:value={mainsCatRank}
 							disabled={isCategoryOpen}
 							title={isCategoryOpen ? 'Not applicable for OPEN category' : ''}
-							hover="Not applicable for OPEN category"
 						/>
 					</div>
 				</div>
@@ -179,20 +178,20 @@
 					<input
 						type="checkbox"
 						id="toggleAdvanced"
-						class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+						class="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
 						bind:checked={showAdvancedRanks}
 					/>
-					<label for="toggleAdvanced" class="text-sm font-medium text-gray-700"
+					<label for="toggleAdvanced" class="text-sm font-medium text-teal-300"
 						>Add JEE Advanced Ranks</label
 					>
 				</div>
 
 				{#if showAdvancedRanks}
 					<div
-						class="fade-in grid grid-cols-1 gap-3 rounded-md bg-gray-50 p-3 sm:grid-cols-2 sm:gap-4 sm:p-4"
+						class="fade-in grid grid-cols-1 gap-3 rounded-md bg-slate-700 p-3 sm:grid-cols-2 sm:gap-4 sm:p-4"
 					>
 						<div>
-							<label for="advGenRank" class="mb-1 block text-sm font-medium text-gray-700"
+							<label for="advGenRank" class="mb-1 block text-sm font-medium text-teal-300"
 								>JEE Advanced General Rank</label
 							>
 							<input
@@ -200,12 +199,12 @@
 								type="number"
 								min="1"
 								placeholder="e.g., 2345"
-								class="w-full rounded-md border border-gray-300 p-2.5 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+								class="w-full rounded-md border border-gray-300 p-2.5 text-sm focus:border-transparent focus:ring-2 focus:ring-teal-500"
 								bind:value={advGenRank}
 							/>
 						</div>
 						<div class="fade-in">
-							<label for="advCatRank" class="mb-1 block text-sm font-medium text-gray-700"
+							<label for="advCatRank" class="mb-1 block text-sm font-medium text-teal-300"
 								>JEE Advanced Category Rank</label
 							>
 							<input
@@ -213,7 +212,7 @@
 								type="number"
 								min="1"
 								placeholder="e.g., 890"
-								class="w-full rounded-md border border-gray-300 p-2.5 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500 {isCategoryOpen ? 'bg-gray-100 cursor-not-allowed' : ''}"
+								class="w-full rounded-md border border-gray-300 p-2.5 text-sm focus:border-transparent focus:ring-2 focus:ring-teal-500 {isCategoryOpen ? 'bg-gray-100 cursor-not-allowed' : ''}"
 								bind:value={advCatRank}
 								disabled={isCategoryOpen}
 								title={isCategoryOpen ? 'Not applicable for OPEN category' : ''}
@@ -226,7 +225,7 @@
 				<div class="text-center">
 					<button
 						type="submit"
-						class="w-full rounded-md bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white transition duration-200 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
+						class="w-full rounded-md bg-teal-600 px-6 py-2.5 text-sm font-medium text-white transition duration-200 hover:bg-teal-700 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 sm:w-auto"
 					>
 						Find Colleges
 					</button>
