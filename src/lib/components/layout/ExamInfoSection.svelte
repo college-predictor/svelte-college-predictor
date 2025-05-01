@@ -1,7 +1,7 @@
 <script lang="ts">
     import { faClipboardList, faUniversity, faUserGraduate, faCalendarAlt, faChartLine, faTimes } from '@fortawesome/free-solid-svg-icons';
     import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-    import HomeCard from '../HomeCard.svelte';
+    import ExamCategoryCard from '../ExamCategoryCard.svelte';
     import { fade } from 'svelte/transition';
     import { onMount } from 'svelte';
 
@@ -106,7 +106,7 @@
       },
       {
         title: 'Cut Off',
-        description: 'Only those students who meet the JEE Main qualifying cutoff can appear in JEE Advanced.JEE Main Qualifying Cutoff is released by NTA on the exam’s official website.',
+        description: 'Only those students who meet the JEE Main qualifying cutoff can appear in JEE Advanced.JEE Main Qualifying Cutoff is released by NTA on the exam\'s official website.',
         icon: faUniversity,
         link: "/cutoff",
         data: {
@@ -174,16 +174,16 @@
     ];
   </script>
 
-  <section class="bg-gradient-to-br from-blue-50 to-indigo-100 py-16 md:py-10 relative overflow-hidden">
+  <section class="bg-gradient-to-br from-slate-800 to-slate-700 py-16 md:py-10 relative overflow-hidden">
     <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
     <div class="w-full max-w-[1440px] mx-auto px-3 sm:px-4 md:px-6 text-center relative z-10">
       <div class="max-w-3xl mx-auto mb-3">
-        <h4 class="text-2xl md:text-3xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Exam Information</h4>
-        <p class="text-gray-600 text-lg">Empowering your educational journey with cutting-edge AI solutions</p>
+        <h4 class="text-2xl md:text-3xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-sky-500">Exam Information</h4>
+        <p class="text-slate-300 text-lg">Empowering your educational journey with cutting-edge AI solutions</p>
       </div>
       <div class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 max-w-10xl mx-auto">
         {#each services as { title, description, icon, link, data }, index}
-          <HomeCard
+          <ExamCategoryCard
             {title}
             {description}
             {icon}
@@ -197,19 +197,19 @@
       </div>
 
       <!-- Data Section with Tabs -->
-      <div class="mt-5 md:mt-5 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg w-full max-w-[1800px] mx-auto border border-indigo-100 overflow-hidden">
+      <div class="mt-5 md:mt-5 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg w-full max-w-[1800px] mx-auto border border-teal-100 overflow-hidden">
         <!-- Service Tabs Navigation -->
-        <div class="flex overflow-x-auto scrollbar-hide border-b border-indigo-100 bg-indigo-50/50">
+        <div class="flex overflow-x-auto scrollbar-hide border-b border-teal-100 bg-gradient-to-r from-teal-50 to-sky-50">
           <div class="flex w-full md:justify-center">
             {#each services as service, index}
               <button
-                class="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:ring-offset-1"
-                class:text-indigo-600={activeTab === index}
-                class:text-gray-500={activeTab !== index}
+                class="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:ring-offset-1"
+                class:text-teal-600={activeTab === index}
+                class:text-slate-300={activeTab !== index}
                 class:border-b-2={activeTab === index}
-                class:border-indigo-500={activeTab === index}
+                class:border-teal-500={activeTab === index}
                 class:bg-white={activeTab === index}
-                class:hover:bg-indigo-50={activeTab !== index}
+                class:hover:bg-teal-50={activeTab !== index}
                 on:click={() => activeTab = index}
               >
                 {service.title}
@@ -220,18 +220,18 @@
 
         <!-- Year Tabs Navigation (only for services with yearData) -->
         {#if services[activeTab]?.data?.yearData}
-          <div class="flex overflow-x-auto scrollbar-hide border-b border-indigo-100 bg-white">
+          <div class="flex overflow-x-auto scrollbar-hide border-b border-teal-100 bg-gradient-to-r from-white to-sky-50">
             <div class="flex w-full justify-center">
-              {#each years as year, yearIndex}
-                {#if services[activeTab].data.yearData[year]}
+              {#each Object.keys(services[activeTab].data.yearData || {}) as year, yearIndex}
+                {#if services[activeTab].data.yearData && services[activeTab].data.yearData[year]}
                   <button
                     class="px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors duration-200 focus:outline-none"
-                    class:text-indigo-600={activeYear === yearIndex}
-                    class:text-gray-500={activeYear !== yearIndex}
+                    class:text-teal-600={activeYear === yearIndex}
+                    class:text-slate-300={activeYear !== yearIndex}
                     class:border-b-2={activeYear === yearIndex}
-                    class:border-indigo-500={activeYear === yearIndex}
+                    class:border-teal-500={activeYear === yearIndex}
                     class:font-bold={activeYear === yearIndex}
-                    class:hover:bg-indigo-50={activeYear !== yearIndex}
+                    class:hover:bg-teal-50={activeYear !== yearIndex}
                     on:click={() => activeYear = yearIndex}
                   >
                     {year}
@@ -243,49 +243,49 @@
         {/if}
 
         <!-- Tab Content -->
-        <div class="p-4 sm:p-6 md:p-8">
+        <div class="p-4 sm:p-6 md:p-8 bg-gradient-to-br from-slate-800 to-slate-700 rounded-lg shadow-md">
           {#each services as service, index}
             {#if activeTab === index}
               <div transition:fade={{ duration: 150 }}>
-                <h3 class="text-xl sm:text-2xl font-bold text-indigo-800 mb-3 sm:mb-4">{service.title}</h3>
+                <h3 class="text-xl sm:text-2xl font-bold text-teal-300 mb-3 sm:mb-4 bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-sky-500">{service.title}</h3>
 
                 <!-- Description -->
                 <div class="mb-4 sm:mb-6">
-                  <p class="text-sm sm:text-base text-gray-700">{service.data.description}</p>
+                  <p class="text-sm sm:text-base text-slate-300">{service.data.description}</p>
                 </div>
 
                 <!-- Year-specific data if available -->
                 {#if service.data.yearData}
-                  {#each years as year, yearIndex}
-                    {#if activeYear === yearIndex && service.data.yearData[year]}
-                      <div transition:fade={{ duration: 150 }}>
+                  {#each Object.keys(service.data.yearData || {}) as year, yearIndex}
+                    {#if activeYear === yearIndex && service.data.yearData && service.data.yearData[year]}
+                      <div transition:fade={{ duration: 150 }} class="bg-gradient-to-br from-slate-800 to-slate-700 rounded-lg shadow-md p-4">
                         <!-- Year-specific note if available -->
-                        {#if service.data.yearData[year].note}
-                          <div class="mb-4 p-3 bg-indigo-50/50 border border-indigo-100 rounded-lg">
-                            <p class="text-sm text-indigo-700">
+                        {#if service.data.yearData[year]?.note}
+                          <div class="mb-4 p-3 bg-teal-50/50 border border-teal-100 rounded-lg">
+                            <p class="text-sm text-teal-300">
                               <span class="font-semibold">{year} Note:</span> {service.data.yearData[year].note}
                             </p>
                           </div>
                         {/if}
 
                         <!-- Year-specific table data -->
-                        {#if service.data.yearData[year].tableData && service.data.yearData[year].tableData.length > 0}
+                        {#if service.data.yearData[year]?.tableData && service.data.yearData[year].tableData.length > 0}
                           <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200 border">
-                              <thead class="bg-indigo-50">
+                              <thead class="bg-slate-700">
                                 <tr>
                                   {#each Object.keys(service.data.yearData[year].tableData[0]) as header}
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                                       {header}
                                     </th>
                                   {/each}
                                 </tr>
                               </thead>
-                              <tbody class="bg-white divide-y divide-gray-200">
+                              <tbody class="bg-slate-800 divide-y divide-gray-200">
                                 {#each service.data.yearData[year].tableData as row}
-                                  <tr class="hover:bg-indigo-50/50 transition-colors duration-150">
+                                  <tr class="hover:bg-slate-700 transition-colors duration-150">
                                     {#each Object.values(row) as cell}
-                                      <td class="px-4 py-3 text-sm text-gray-700">{cell}</td>
+                                      <td class="px-4 py-3 text-sm text-white">{cell}</td>
                                     {/each}
                                   </tr>
                                 {/each}
@@ -298,22 +298,22 @@
                   {/each}
                 <!-- Regular table data if no year data is available -->
                 {:else if service.data.tableData && service.data.tableData.length > 0}
-                  <div class="overflow-x-auto">
+                  <div class="overflow-x-auto bg-gradient-to-br from-slate-800 to-slate-700 rounded-lg shadow-md p-4">
                     <table class="min-w-full divide-y divide-gray-200 border">
-                      <thead class="bg-indigo-50">
+                      <thead class="bg-slate-700">
                         <tr>
                           {#each Object.keys(service.data.tableData[0]) as header}
-                            <th class="px-4 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                               {header}
                             </th>
                           {/each}
                         </tr>
                       </thead>
-                      <tbody class="bg-white divide-y divide-gray-200">
+                      <tbody class="bg-slate-800 divide-y divide-gray-200">
                         {#each service.data.tableData as row}
-                          <tr class="hover:bg-indigo-50/50 transition-colors duration-150">
+                          <tr class="hover:bg-slate-700 transition-colors duration-150">
                             {#each Object.values(row) as cell}
-                              <td class="px-4 py-3 text-sm text-gray-700">{cell}</td>
+                              <td class="px-4 py-3 text-sm text-white">{cell}</td>
                             {/each}
                           </tr>
                         {/each}
