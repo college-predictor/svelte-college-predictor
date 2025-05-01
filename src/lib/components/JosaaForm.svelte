@@ -126,7 +126,7 @@
 						</select>
 					</div>
 					<div>
-						<label for="state" class="mb-1 block text-sm font-medium text-gray-700">State</label>
+						<label for="state" class="mb-1 block text-sm font-medium text-gray-700">Home State</label>
 						<select
 							id="state"
 							class="w-full rounded-md border border-gray-300 p-2.5 text-sm text-gray-700 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
@@ -156,21 +156,22 @@
 							bind:value={mainsGenRank}
 						/>
 					</div>
-					{#if !isCategoryOpen}
-						<div class="fade-in">
-							<label for="mainsCatRank" class="mb-1 block text-sm font-medium text-gray-700"
-								>JEE Mains Category Rank</label
-							>
-							<input
-								id="mainsCatRank"
-								type="number"
-								min="1"
-								placeholder="e.g., 6789"
-								class="w-full rounded-md border border-gray-300 p-2.5 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-								bind:value={mainsCatRank}
-							/>
-						</div>
-					{/if}
+					<div class="fade-in">
+						<label for="mainsCatRank" class="mb-1 block text-sm font-medium text-gray-700"
+							>JEE Mains Category Rank</label
+						>
+						<input
+							id="mainsCatRank"
+							type="number"
+							min="1"
+							placeholder="e.g., 6789"
+							class="w-full rounded-md border border-gray-300 p-2.5 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500 {isCategoryOpen ? 'bg-gray-100 cursor-not-allowed' : ''}"
+							bind:value={mainsCatRank}
+							disabled={isCategoryOpen}
+							title={isCategoryOpen ? 'Not applicable for OPEN category' : ''}
+							hover="Not applicable for OPEN category"
+						/>
+					</div>
 				</div>
 
 				<!-- Advanced Ranks Toggle -->
@@ -203,21 +204,21 @@
 								bind:value={advGenRank}
 							/>
 						</div>
-						{#if !isCategoryOpen}
-							<div class="fade-in">
-								<label for="advCatRank" class="mb-1 block text-sm font-medium text-gray-700"
-									>JEE Advanced Category Rank</label
-								>
-								<input
-									id="advCatRank"
-									type="number"
-									min="1"
-									placeholder="e.g., 890"
-									class="w-full rounded-md border border-gray-300 p-2.5 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-									bind:value={advCatRank}
-								/>
-							</div>
-						{/if}
+						<div class="fade-in">
+							<label for="advCatRank" class="mb-1 block text-sm font-medium text-gray-700"
+								>JEE Advanced Category Rank</label
+							>
+							<input
+								id="advCatRank"
+								type="number"
+								min="1"
+								placeholder="e.g., 890"
+								class="w-full rounded-md border border-gray-300 p-2.5 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500 {isCategoryOpen ? 'bg-gray-100 cursor-not-allowed' : ''}"
+								bind:value={advCatRank}
+								disabled={isCategoryOpen}
+								title={isCategoryOpen ? 'Not applicable for OPEN category' : ''}
+							/>
+						</div>
 					</div>
 				{/if}
 

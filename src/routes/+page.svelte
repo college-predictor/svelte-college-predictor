@@ -1,9 +1,10 @@
 <script lang="ts">
 	import JosaaForm from '$lib/components/JosaaForm.svelte';
 	import RecommandationSection from '$lib/components/layout/RecommandationSection.svelte';
-	import AiServiceSection from '$lib/components/layout/AIServiceSection.svelte';
+	import AiHomeSection from '$lib/components/layout/AIHomeSection.svelte';
+	import ResultInfoSection from '$lib/components/layout/ResultInfoSection.svelte';
 	import AnswerSheetCalculator from '$lib/components/AnswerSheetCalculator.svelte';
-	import Footer from '$lib/components/layout/Footer.svelte';
+	// Footer is imported in the layout
 	import { goto } from '$app/navigation';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import {
@@ -164,7 +165,9 @@
 	</div>
 </section>
 
-<AiServiceSection />
+<AiHomeSection />
+
+<ResultInfoSection />
 
 <!-- Recommendation Section -->
 <section class="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
@@ -178,7 +181,7 @@
   </div>
 </section>
 
-<Footer />
+<!-- Footer is already included in the layout -->
 
 <style>
   /* Add subtle animation for the hero section */
